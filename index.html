@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Geniventure data analysis</title>
+
+</head>
+
+<body>
+    <h2>Parse Geniventure JSON log files</h2>
+    <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
+
+    <button type="button" id="analyzeButton" style="float:left;display:none" onclick="filter(data)">Analyze</button><br>
+
+    <div id="filter" style="margin-top: 30px">
+        <p id="classes" width=20% style="float:left;display:inline;margin:20px"></p>
+        <p id="students" width=30% style="float:left;display:inline;margin:20px"></p>
+        <p id="activities" width=30% style="float:left;display:inline;margin:20px"></p>
+        <p id="events" width=30% style="float:left;display:inline;margin:20px"></p>
+        <p id="fields" width=30% style="float:left;display:inline;margin:20px"></p>
+    </div>
+
+    <div id="actionDiv" style="margin-top: 30px">
+        <p id="actions" width=100% style="float:left;display:block;margin:20px"></p>
+    </div>
+
+    <style>
+        td {
+            vertical-align: text-top;
+        }
+
+        p {
+            font-size: 20;
+            font-display: bold;
+        }
+
+        input[type="button"] {
+            background: white;
+            color: blue;
+            height: 25px;
+            width: 120px;
+            font-size: 20;
+        }
+    </style>
+
+    <script>
+        var data = new Array;
+        var fileCount = 0;
+
+        function openFiles(evt) {
+            var files = evt.target.files; // FileList object
+            for (var i = 0, f; f = files[i]; i++) {
+                var reader = new FileReader();
+                //closure to capture the file information
+                reader.onerror = function (err) {
+                    console.log(err);
+                }
+                reader.onloadend = function (theFile) {
+                    return function (e) {
+                        fileCount++;
+                        if (fileCount >= files.length - 1) {
+                            document.getElementById("analyzeButton").style.display = "block";
+                        }
+                        data.push(e.target.result); //Push the student data onto the array–
+                    }
+                }(f);
+                reader.readAsText(f);
+            }
+        }
+    </script>
+    <script src="parse-file.js"></script>
+    <script src="utils.js"></script>
+    <script src="papaparse.js"></script>
+    <!-- 
+    <script src="plotly.v1.42.5.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js">
+    </script>
+    <script src="utils.js"></script>
+    <script src="analyze-files.js"></script>
+    <script src="statistical-analysis.js"></script>
+    <script src="report.js"></script>
+    <script src="input.js"></script> -->
+
+</body>
+
+
+</html>
