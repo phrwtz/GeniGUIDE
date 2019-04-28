@@ -244,44 +244,26 @@ function findHints() {
     }
     return [actionsWithHints, studentsWithHints];
 }
-//For all students, searches the simple dom activitsies for "hint" events. Sets the "hasHints" property of student and activity to be the count of number of hint events.
+//For all students, searches the simple dom activities for "hint" events. Sets the "hasHints" property of student and activity to be the count of number of hint events.
 function setHints() {
-    var activitiesToSearch = ["allele-targetMatch-visible-simpleDom",
-            "allele-targetMatch-hidden-simpleDom",
-            "allele-targetMatch-visible-simpleDom2",
-            "allele-targetMatch-hidden-simpleDom2"
-        ],
-        myRow,
-        myStudent,
-        myActivity,
-        myEvent,
-        myAction;
-    for (var i = 0; i < activitiesToSearch.length; i++) {
-        activityToMatch = activitiesToSearch[i];
-        for (var j = 0; j < students.length; j++) {
-            myStudent = students[j];
-            for (var jj = 0; jj < myStudent.activities.length; jj++) {
-                myActivity = myStudent.activities[jj];
-                if (activityToMatch == myActivity.name) {
-                    for (var k = 0; myActivity.events.length; k++) {
-                        myEvent = myActivity.events[k];
-                        if ((myEvent) && (myEvent.name == "Guide-hint-received")) {
-                            myStudent.hints++;
-                            myActivity.hints++;
-                        }
+    myRow,
+    myStudent,
+    myActivity,
+    myEvent,
+    myAction;
+    for (var j = 0; j < students.length; j++) {
+        myStudent = students[j];
+        for (var jj = 0; jj < myStudent.activities.length; jj++) {
+            myActivity = myStudent.activities[jj];
+            if (myActivity.name.match("targetMatch")) {
+                for (var k = 0; myActivity.events.length; k++) {
+                    myEvent = myActivity.events[k];
+                    if ((myEvent) && (myEvent.name == "Guide-hint-received")) {
+                        myStudent.hints++;
+                        myActivity.hints++;
                     }
                 }
             }
-        }
-    }
-}
-
-function getStudentsWithHints() {
-    actionsPara.innerHTML = "Students with hints";
-    for (var i = 0; i < students.length; i++) {
-        if (students[i].hints > 0) {
-            actionsPara.innerHTML += students[i].id + ", " +
-                students[i].hints + "<br>";
         }
     }
 }
@@ -316,12 +298,7 @@ function getSex(str) {
 }
 
 function addDescription(myRow, myActivity, myEvent) {
-    var simpleDomActivities = ["allele-targetMatch-visible-simpleDom",
-        "allele-targetMatch-hidden-simpleDom",
-        "allele-targetMatch-visible-simpleDom2",
-        "allele-targetMatch-hidden-simpleDom2"
-    ];
-    if (simpleDomActivities.includes(myActivity.name)) {
+    if (myActivity.name.match("simpleDom")) {
         if (myEvent.name == "Navigated") {
             //    console.log("Found Navigated event in activity " + myActivity.name + ", time = " + myRow.time);
             var target = myRow.parameters.targetDrake;
@@ -438,29 +415,62 @@ function updateCurrentAlleles(myActivity, oldAllele, newAllele, side) { //Alters
 function getTrait(allele) { //returns the trait (e.g., wings) from an allele 
     switch (allele.toLowerCase()) {
         case "w":
-            return "Wings";
+            return "wings";
             break;
         case "hl":
-            return "Hindlimbs";
+            return "hindlimbs";
             break;
         case "fl":
-            return "Forelimbs";
-        default:
-            return null;
+            return "forelimbs";
+        case "t":
+            return "tail";
+        case "m":
+            return "metallic";
+        case "h":
+            return "horns";
+        case "c":
+            return "color";
+        case "b":
+            return "black";
+        case "d":
+            return "dilute";
+        case "a1":
+            return "armor";
     }
 }
 
 function getAlleleLetters(trait) { //returns the lower and upper case letters for the trait
     var alleleLetters = [];
     switch (trait) {
-        case "Wings":
+        case "wings":
             alleleLetters = ["w", "W"];
             break;
-        case "Forelimbs":
+        case "forelimbs":
             alleleLetters = ["fl", "Fl"];
             break;
-        case "Hindlimbs":
+        case "hindlimbs":
             alleleLetters = ["hl", "Hl"];
+            break;
+        case "tail":
+            alleleLetters = ["t", "T"];
+            break;
+        case "metallic":
+            alleleLetters = ["m", "M"];
+            break;
+        case "horns":
+            alleleLetters = ["h", "H"];
+            break;
+        case "color":
+            alleleLetters = ["c", "C"];
+            break;
+        case "black":
+            alleleLetters = ["b", "B"];
+            break;
+        case "dilute":
+            alleleLetters = ["d", "D"];
+            break;
+        case "armor":
+            return ["a", "A1"];
             break;
     }
     return alleleLetters;
@@ -482,21 +492,21 @@ function getPheno(genoStr, trait) { //returns the pheno ("D", "H", or "R") from 
     };
 }
 
-function getPhenoDiffs(targetGeno, submittedGeno) { //Returns a description of the differences, if any, between the phenotypes for wings, forelimbs, and hindlimbs between two genotypes.
+function getPhenoDiffs(targetGeno, submittedGeno) { //Returns a description of the differences, if any, between the phenotypes between two genotypes.
     var diffDescription = "";
-    if ((getPheno(targetGeno, "Wings") == "R") && (getPheno(submittedGeno, "Wings") != "R")) {
+    if ((getPheno(targetGeno, "wings") == "R") && (getPheno(submittedGeno, "wings") != "R")) {
         diffDescription += "The submitted drake has wings, the target drake does not.<br>";
-    } else if ((getPheno(targetGeno, "Wings") != "R") && (getPheno(submittedGeno, "Wings") == "R")) {
+    } else if ((getPheno(targetGeno, "wings") != "R") && (getPheno(submittedGeno, "wings") == "R")) {
         diffDescription += "The target drake has wings, the submitted drake does not.<br>"
     }
-    if ((getPheno(targetGeno, "Forelimbs") == "R") && (getPheno(submittedGeno, "Forelimbs") != "R")) {
+    if ((getPheno(targetGeno, "forelimbs") == "R") && (getPheno(submittedGeno, "forelimbs") != "R")) {
         diffDescription += "The submitted drake has forelimbs, the target drake does not.<br>";
-    } else if ((getPheno(targetGeno, "Forelimbs") != "R") && (getPheno(submittedGeno, "Forelimbs") == "R")) {
+    } else if ((getPheno(targetGeno, "forelimbs") != "R") && (getPheno(submittedGeno, "forelimbs") == "R")) {
         diffDescription += "The target drake has forelimbs, the submitted drake does not.<br>"
     }
-    if ((getPheno(targetGeno, "Hindlimbs") == "R") && (getPheno(submittedGeno, "Hindlimbs") != "R")) {
+    if ((getPheno(targetGeno, "hindlimbs") == "R") && (getPheno(submittedGeno, "hindlimbs") != "R")) {
         diffDescription += "The submitted drake has hindlimbs, the target drake does not.<br>";
-    } else if ((getPheno(targetGeno, "Hindlimbs") != "R") && (getPheno(submittedGeno, "Hindlimbs") == "R")) {
+    } else if ((getPheno(targetGeno, "hindlimbs") != "R") && (getPheno(submittedGeno, "hindlimbs") == "R")) {
         diffDescription += "The target drake has hindlimbs, the submitted drake does not.<br>"
     }
     return diffDescription;

@@ -12,6 +12,8 @@
 
     <button type="button" id="analyzeButton" style="float:left;display:none" onclick="filter(data)">Analyze</button><br>
 
+    <button type="button" id="hintsButton" style="display:none" onclick="countStudentsWithHints()">Count hints</button>
+
     <div id="filter" style="margin-top: 30px">
         <p id="classes" width=20% style="float:left;display:inline;margin:20px"></p>
         <p id="students" width=30% style="float:left;display:inline;margin:20px"></p>
@@ -21,7 +23,14 @@
     </div>
 
     <div id="actionDiv" style="margin-top: 30px">
-        <p id="actions" width=100% style="float:left;display:block;margin:20px"></p>
+        <table id="hintsTable" width=100% style="float:left;display:none;margin:20px">
+            <tr style=background-color:palegreen>
+                <th>Activity hints</th>
+                <th>Level 1</th>
+                <th>Level 2</th>
+                <th>Level 3</th>
+                <th>All</th>
+            </tr>
     </div>
 
     <style>
@@ -71,6 +80,7 @@
     <script src="parse-file.js"></script>
     <script src="utils.js"></script>
     <script src="papaparse.js"></script>
+    <script src="sequences.js"></script>
     <!-- 
     <script src="plotly.v1.42.5.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js">

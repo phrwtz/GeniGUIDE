@@ -2,12 +2,13 @@
 var rowObjs = [];
 var classes = [];
 var students = [];
+var activities = [];
 var classesPara = document.getElementById("classes");
 var studentsPara = document.getElementById("students");
 var activitiesPara = document.getElementById("activities");
 var eventsPara = document.getElementById("events");
 var fieldsPara = document.getElementById("fields");
-var actionsPara = document.getElementById("actions");
+var actionsPara = document.getElementById("activities");
 var selectedClasses = [];
 var selectedStudents = [];
 var selectedActivities = [];
@@ -16,12 +17,13 @@ var selectedActions = [];
 var clas = function () {};
 var student = function () {};
 var activity = function () {};
-var event = function () {};
+var event = function () { };
+var hint = function () { };
 
 function filter(data) {
     parseJSON(data);
     console.log("data parsed");
-    //   setHints();
+    hintsButton.style.display = "inline";
     showClasses();
 }
 
@@ -47,7 +49,7 @@ function parseJSON(data) {
                 myClass.id = myRow.class_id;
                 myClass.students = [];
                 myClass.uniqueUsernames = [];
-                myClass.hintReceived = false;
+                myClass.hints = [];
                 myClass.remediationRequested = false;
                 classes.push(myClass);
                 classIds.push(myClass.id);
@@ -63,10 +65,9 @@ function parseJSON(data) {
                     myStudent.activityNames = [];
                     myStudent.id = myRow.username;
                     myStudent.class = myClass;
-                    myStudent.hintReceived = false;
+                    myStudent.hints = [];
                     myStudent.remediationRequested = false;
                     myClass.students.push(myStudent);
-                    myStudent.hints = 0;
                     students.push(myStudent);
                 } else {
                     myStudent = getComponentById(myClass.students, "id", myRow.username);
@@ -78,11 +79,12 @@ function parseJSON(data) {
                         myActivity.student = myStudent;
                         myActivity.actions = [];
                         myActivity.events = [];
+                        myActivity.hints = [];
                         myActivity.eventNames = [];
-                        myActivity.hintReceived = false;
                         myActivity.remediationRequested = false;
                         myStudent.activityNames.push(myRow.activity);
                         myStudent.activities.push(myActivity);
+                        activities.push(myActivity);
                     } else {
                         myActivity = getComponentById(myStudent.activities, "name", myRow.activity);
                     }
@@ -105,9 +107,13 @@ function parseJSON(data) {
                         addDescription(myRow, myActivity, myEvent);
                         myEvent.actions.push(myRow);
                         if (myEvent.name == "Guide-hint-received") {
-                            myActivity.hintReceived = true;
-                            myStudent.hintReceived = true;
-                            myClass.hintReceived = true;
+                            myHint = new hint;
+                            myHint.activity = myActivity;
+                            myHint.level = myRow.parameters.data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
+                            myHint.time = myRow.time;
+                            myActivity.hints.push(myHint);
+                            myStudent.hints.push(myHint);
+                            myClass.hints.push(myHint);
                         } else if (myEvent.name == "Guide-remediation-requested") {
                             myActivity.remediationRequested = true;
                             myStudent.remediationRequested = true;
