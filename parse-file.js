@@ -3,12 +3,14 @@ var rowObjs = [];
 var classes = [];
 var students = [];
 var activities = [];
+var uniqueActivityNames = [];
+var uniqueHintActivityNames = [];
 var classesPara = document.getElementById("classes");
 var studentsPara = document.getElementById("students");
 var activitiesPara = document.getElementById("activities");
 var eventsPara = document.getElementById("events");
 var fieldsPara = document.getElementById("fields");
-var actionsPara = document.getElementById("activities");
+var actionsPara = document.getElementById("actions");
 var selectedClasses = [];
 var selectedStudents = [];
 var selectedActivities = [];
@@ -110,10 +112,14 @@ function parseJSON(data) {
                             myHint = new hint;
                             myHint.activity = myActivity;
                             myHint.level = myRow.parameters.data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
+                            myHint.trait = myRow.parameters.data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
                             myHint.time = myRow.time;
                             myActivity.hints.push(myHint);
                             myStudent.hints.push(myHint);
                             myClass.hints.push(myHint);
+                            if (!uniqueHintActivityNames.includes(myActivity.name)) {
+                                uniqueHintActivityNames.push(myActivity.name);
+                            }
                         } else if (myEvent.name == "Guide-remediation-requested") {
                             myActivity.remediationRequested = true;
                             myStudent.remediationRequested = true;
