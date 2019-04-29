@@ -1,9 +1,13 @@
 function countStudentsWithHints() {
-    var activityArray = ["allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2", "allele-targetMatch-visible-armorHorns", "allele-targetMatch-visible-armorHorns2", "allele-targetMatch-visible-armorHorns3", "allele-targetMatch-hidden-armorHorns", "allele-targetMatch-hidden-armorHorns2",
-        "allele-targetMatch-hidden-armorHorns3", "allele-targetMatch-visible-simpleColors", "allele-targetMatch-visible-simpleColors2", "allele-targetMatch-visible-simpleColors3", "allele-targetMatch-visible-simpleColors4", "allele-targetMatch-visible-simpleColors5", "allele-targetMatch-hidden-simpleColors", "allele-targetMatch-hidden-simpleColors2", "allele-targetMatch-hidden-simpleColors3"
-    ];
     var hintsArray = [];
     var hintsTable = document.getElementById("hintsTable");
+    if (document.getElementById("hintsBody")) {
+        hintsTable.removeChild(document.getElementById("hintsBody"))
+    } else {
+        var hintsBody = document.createElement("tbody");
+        hintsBody.id = "hintsBody";
+        hintsTable.appendChild(hintsBody);
+    }
     for (j = 0; j < uniqueHintActivityNames.length; j++) {
         myHintActivityName = uniqueHintActivityNames[j];
         hintsArray = countHints(myHintActivityName);
@@ -15,15 +19,15 @@ function countStudentsWithHints() {
         allCell = document.createElement("td");
         activityCell.innerHTML = myHintActivityName;
         allCell.innerHTML = hintsArray[0];
-        level1Cell.innerHTML = hintsArray[1];
-        level2Cell.innerHTML = hintsArray[2];
-        level3Cell.innerHTML = hintsArray[3];
+        level1Cell.innerHTML = hintsArray[1] + " (" + Math.round(100 * (hintsArray[1] / hintsArray[0])) + "%)";
+        level2Cell.innerHTML = hintsArray[2] + " (" + Math.round(100 * (hintsArray[2] / hintsArray[0])) + "%)";
+        level3Cell.innerHTML = hintsArray[3] + " (" + Math.round(100 * (hintsArray[3] / hintsArray[0])) + "%)";
         hintsRow.appendChild(activityCell);
         hintsRow.appendChild(level1Cell);
         hintsRow.appendChild(level2Cell);
         hintsRow.appendChild(level3Cell);
         hintsRow.appendChild(allCell);
-        hintsTable.appendChild(hintsRow);
+        hintsBody.appendChild(hintsRow);
         hintsTable.style.display = "block";
     }
 }
@@ -42,12 +46,15 @@ function countHints(activity) { //Returns an array of all the students who did t
                 myHint = myActivity.hints[j];
                 switch (myHint.level) {
                     case "1":
+                        all++;
                         level1++;
                         break;
                     case "2":
+                        all++;
                         level2++;
                         break;
                     case "3":
+                        all++;
                         level3++;
                         break;
                 }

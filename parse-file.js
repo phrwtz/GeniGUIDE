@@ -103,9 +103,6 @@ function parseJSON(data) {
                             myEvent.activity = myActivity;
                             myEvent.actions = [];
                             myActivity.events.push(myEvent);
-                            if (myEvent.name == "Navigated") {
-                                //                    console.log ("first navigated event found.")
-                            }
                         } else {
                             myEvent = getComponentById(myActivity.events, "name", myRow.event);
                         }
@@ -114,6 +111,7 @@ function parseJSON(data) {
                         if (myEvent.name == "Guide-hint-received") {
                             myHint = new hint;
                             myHint.activity = myActivity;
+                            myHint.student = myStudent;
                             myHint.level = myRow.parameters.data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
                             myHint.trait = myRow.parameters.data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
                             myHint.time = myRow.time;
