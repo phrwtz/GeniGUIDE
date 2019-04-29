@@ -4,15 +4,16 @@ function countStudentsWithHints() {
     ];
     var hintsArray = [];
     var hintsTable = document.getElementById("hintsTable");
-    for (j = 0; j < activityArray.length; j++) {
-        hintsArray = countHints(activityArray[j]);
+    for (j = 0; j < uniqueHintActivityNames.length; j++) {
+        myHintActivityName = uniqueHintActivityNames[j];
+        hintsArray = countHints(myHintActivityName);
         hintsRow = document.createElement("tr");
         activityCell = document.createElement("td");
         level1Cell = document.createElement("td");
         level2Cell = document.createElement("td");
         level3Cell = document.createElement("td");
         allCell = document.createElement("td");
-        activityCell.innerHTML = activityArray[j];
+        activityCell.innerHTML = myHintActivityName;
         allCell.innerHTML = hintsArray[0];
         level1Cell.innerHTML = hintsArray[1];
         level2Cell.innerHTML = hintsArray[2];

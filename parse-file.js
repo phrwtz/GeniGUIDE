@@ -25,7 +25,7 @@ var hint = function () { };
 function filter(data) {
     parseJSON(data);
     console.log("data parsed");
-    hintsButton.style.display = "inline";
+    hintsButton.style.display = "block";
     showClasses();
 }
 
@@ -52,6 +52,7 @@ function parseJSON(data) {
                 myClass.students = [];
                 myClass.uniqueUsernames = [];
                 myClass.hints = [];
+                myClass.hintsReceived = false;
                 myClass.remediationRequested = false;
                 classes.push(myClass);
                 classIds.push(myClass.id);
@@ -68,6 +69,7 @@ function parseJSON(data) {
                     myStudent.id = myRow.username;
                     myStudent.class = myClass;
                     myStudent.hints = [];
+                    myStudent.hintsReceived = false;
                     myStudent.remediationRequested = false;
                     myClass.students.push(myStudent);
                     students.push(myStudent);
@@ -82,6 +84,7 @@ function parseJSON(data) {
                         myActivity.actions = [];
                         myActivity.events = [];
                         myActivity.hints = [];
+                        myActivity.hintsReceived = false;
                         myActivity.eventNames = [];
                         myActivity.remediationRequested = false;
                         myStudent.activityNames.push(myRow.activity);
@@ -115,8 +118,11 @@ function parseJSON(data) {
                             myHint.trait = myRow.parameters.data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
                             myHint.time = myRow.time;
                             myActivity.hints.push(myHint);
+                            myActivity.hintsReceived = true;
                             myStudent.hints.push(myHint);
+                            myStudent.hintsReceived = true;
                             myClass.hints.push(myHint);
+                            myClass.hintsReceived = true;
                             if (!uniqueHintActivityNames.includes(myActivity.name)) {
                                 uniqueHintActivityNames.push(myActivity.name);
                             }
