@@ -327,255 +327,270 @@ function addDescription(myRow, myActivity, myEvent) {
             myActivity.requiredMoves = myRow.parameters.goalMoves;
 
         } else if (myEvent.name == "Sex-changed") {
-            myActivity.moveCount++;
-            if (myRow.parameters.newSex == "0") {
-                myActivity.currentSex = "female";
-                myRow.description = "Changed from male to female. Target sex is " + myActivity.targetSex + ".";
-                if (myActivity.targetSex == "female") {
-                    myRow.description += "<br>Change is good.<br>";
-                } else {
-                    myRow.description += "<br>Change is bad.<br>";
-                }
-            } else if (myRow.parameters.newSex == "1") {
-                myActivity.currentSex = "male";
-                myRow.description = "Changed from female to male. Target sex is " + myActivity.targetSex + ".";
-                if (myActivity.targetSex == "male") {
-                    myRow.description += "<br>Change is good.<br>";
-                } else {
-                    myRow.description += "<br>Change is bad.<br>";
+            if (myActivity.currentGenotype) { //Can't run sex changed description if not properly initialized.
+                myActivity.moveCount++;
+                if (myRow.parameters.newSex == "0") {
+                    myActivity.currentSex = "female";
+                    myRow.description = "Changed from male to female. Target sex is " + myActivity.targetSex + ".";
+                    if (myActivity.targetSex == "female") {
+                        myRow.description += "<br>Change is good.<br>";
+                    } else {
+                        myRow.description += "<br>Change is bad.<br>";
+                    }
+                } else if (myRow.parameters.newSex == "1") {
+                    myActivity.currentSex = "male";
+                    myRow.description = "Changed from female to male. Target sex is " + myActivity.targetSex + ".";
+                    if (myActivity.targetSex == "male") {
+                        myRow.description += "<br>Change is good.<br>";
+                    } else {
+                        myRow.description += "<br>Change is bad.<br>";
+                    }
                 }
             }
         } else if (myEvent.name == "Allele-changed") {
-            myActivity.moveCount++;
-            var myChromosome = myRow.parameters.chromosome,
-                mySide = myRow.parameters.side,
-                newAllele = myRow.parameters.newAllele,
-                oldAllele = myRow.parameters.previousAllele,
-                targetAlleles = myActivity.targetDiffs,
-                currentAlleles = myActivity.currentDiffs;
-            myEvent.score = scoreAlleleChange(newAllele, myActivity.currentGenotype, myActivity.targetGenotype);
-            updateCurrentAlleles(myActivity, oldAllele, newAllele, mySide);
-            myRow.description = "Changed allele " + oldAllele + " to " + newAllele + " on chromosome " + myChromosome + " side " + mySide + "<br>Alleles to be targeted are: " + targetAlleles + ". Score = " + myEvent.score + ".<br>";
-        } else if (myEvent.name == "Drake-submitted") {
-            var moveStr = " moves. ";
-            if (myActivity.moveCount == 1) {
-                moveStr = " move. ";
-            }
-            if (myRow.parameters.correct == "true") {
-                myRow.description = "Submitted the correct drake after " + myActivity.moveCount + moveStr + "The minimum was " + myActivity.requiredMoves + "<br>";
-            } else {
-                var diffDescription = getPhenoDiffs(myActivity.targetGenotype, myActivity.currentGenotype);
-                diffDescription += getSexDiffs(myActivity.targetSex, myActivity.currentSex);
-                myRow.description = "Submitted a drake after " + myActivity.moveCount + moveStr + "<br>" + diffDescription;
-            }
-        } else if (myEvent.name == "Guide-hint-received") {
-            var data = myRow.parameters.data;
-            var level = data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
-            var attribute = data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
-            myRow.description = "Level " + level + " hint for " + attribute + " trait.<br>";
-        } else if (myEvent.name == "ITS-Data-Updated") {
-            myRow.description = "";
-            var data = myRow.parameters.studentModel;
-            var conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g);
-            var probabilityLearned = data.match(/(?<="probabilityLearned"=>)[^,]+/g);
-            var probArr = [];
-            for (var i = 0; i < probabilityLearned.length; i++) {
-                probArr[i] = Math.round(1000 * parseFloat(probabilityLearned[i])) / 1000;
-            }
-            if (conceptId.length == 0) {
-                myRow.description = "No concept ID."
-            } else if (probArr.length == 0) {
-                myRow.description = "No probability learned."
-            } else {
-                for (var j = 0; j < conceptId.length; j++) {
-                    myRow.description += "Concept " + conceptId[j] + ", probability learned = " + probArr[j] + "<br>";
+            if (myActivity.currentGenotype) { //Can't run allele changed description if not properly initialized.
+                myActivity.moveCount++;
+                var myChromosome = myRow.parameters.chromosome,
+                    mySide = myRow.parameters.side,
+                    newAllele = myRow.parameters.newAllele,
+                    oldAllele = myRow.parameters.previousAllele,
+                    targetAlleles = myActivity.targetDiffs,
+                    currentAlleles = myActivity.currentDiffs;
+                myEvent.score = scoreAlleleChange(newAllele, myActivity.currentGenotype, myActivity.targetGenotype);
+                updateCurrentAlleles(myActivity, oldAllele, newAllele, mySide);
+                myRow.description = "Changed allele " + oldAllele + " to " + newAllele + " on chromosome " + myChromosome + " side " + mySide + "<br>Alleles to be targeted are: " + targetAlleles + ". Score = " + myEvent.score + ".<br>";
+            } else if (myEvent.name == "Drake-submitted") {
+                var moveStr = " moves. ";
+                if (myActivity.moveCount == 1) {
+                    moveStr = " move. ";
+                }
+                if (myRow.parameters.correct == "true") {
+                    myRow.description = "Submitted the correct drake after " + myActivity.moveCount + moveStr + "The minimum was " + myActivity.requiredMoves + "<br>";
+                } else {
+                    var diffDescription = getPhenoDiffs(myActivity.targetGenotype, myActivity.currentGenotype);
+                    diffDescription += getSexDiffs(myActivity.targetSex, myActivity.currentSex);
+                    myRow.description = "Submitted a drake after " + myActivity.moveCount + moveStr + "<br>" + diffDescription;
+                }
+            } else if (myEvent.name == "Guide-hint-received") {
+                var data = myRow.parameters.data;
+                var level = data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
+                var attribute = data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
+                myRow.description = "Level " + level + " hint for " + attribute + " trait.<br>";
+            } else if (myEvent.name == "ITS-Data-Updated") {
+                myRow.description = "";
+                var data = myRow.parameters.studentModel;
+                var conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g);
+                var probabilityLearned = data.match(/(?<="probabilityLearned"=>)[^,]+/g);
+                var probArr = [];
+                for (var i = 0; i < probabilityLearned.length; i++) {
+                    probArr[i] = Math.round(1000 * parseFloat(probabilityLearned[i])) / 1000;
+                }
+                if (conceptId.length == 0) {
+                    myRow.description = "No concept ID."
+                } else if (probArr.length == 0) {
+                    myRow.description = "No probability learned."
+                } else {
+                    for (var j = 0; j < conceptId.length; j++) {
+                        myRow.description += "Concept " + conceptId[j] + ", probability learned = " + probArr[j] + "<br>";
+                    }
+                }
+            } else if (myEvent.name == "Guide-alert-received") {
+                var data = myRow.parameters.data;
+                try {
+                    var msg = data.match(/(?<="message"[^"]+")([^ "]+)/)[1];
+                    myRow.description = msg + "<br>";
+                } catch (err) {
+                    console.log("err.message");
                 }
             }
-        } else if (myEvent.name == "Guide-alert-received") {
-            var data = myRow.parameters.data;
-            try {
-                var msg = data.match(/(?<="message"[^"]+")([^ "]+)/)[1];
-                myRow.description = msg + "<br>";
+        }
+    }
+}
+
+    function updateCurrentAlleles(myActivity, oldAllele, newAllele, side) { //Alters the currentGenotype field in the activity to reflect the new allele
+        var oldGenotype = myActivity.currentGenotype,
+            oldDiffs = myActivity.currentDiffs,
+            newDiffs = [],
+            newGenotype = [];
+        if (!oldGenotype) {
+            console.log("Something wrong in updateCurrentAlleles!")
+        }
+        newGenotype = oldGenotype.replace((side + ":" + oldAllele), (side + ":" + newAllele));
+        for (var i = 0; i < oldDiffs.length; i++) {
+            newDiffs[i] = oldDiffs[i].replace((side + ":" + oldAllele), (side + ":" + newAllele));
+        }
+        myActivity.currentGenotype = newGenotype;
+        myActivity.currentDiffs = newDiffs;
+    }
+
+    function getTrait(allele) { //returns the trait (e.g., wings) from an allele 
+        switch (allele.toLowerCase()) {
+            case "w":
+                return "wings";
+                break;
+            case "hl":
+                return "hindlimbs";
+                break;
+            case "fl":
+                return "forelimbs";
+            case "t":
+                return "tail";
+            case "m":
+                return "metallic";
+            case "h":
+                return "horns";
+            case "c":
+                return "color";
+            case "b":
+                return "black";
+            case "d":
+                return "dilute";
+            case "a1":
+                return "armor";
+        }
+    }
+
+    function getAlleleLetters(trait) { //returns the lower and upper case letters for the trait
+        var alleleLetters = [];
+        switch (trait) {
+            case "wings":
+                alleleLetters = ["w", "W"];
+                break;
+            case "forelimbs":
+                alleleLetters = ["fl", "Fl"];
+                break;
+            case "hindlimbs":
+                alleleLetters = ["hl", "Hl"];
+                break;
+            case "tail":
+                alleleLetters = ["t", "T"];
+                break;
+            case "metallic":
+                alleleLetters = ["m", "M"];
+                break;
+            case "horns":
+                alleleLetters = ["h", "H"];
+                break;
+            case "color":
+                alleleLetters = ["c", "C"];
+                break;
+            case "black":
+                alleleLetters = ["b", "B"];
+                break;
+            case "dilute":
+                alleleLetters = ["d", "D"];
+                break;
+            case "armor":
+                return ["a", "A1"];
+                break;
+        }
+        return alleleLetters;
+    }
+
+    function getPheno(genoStr, trait) { //returns the pheno ("D", "H", or "R") from the genotype for the trait.
+        try {
+
+            var alleleLetters = getAlleleLetters(trait);
+            if ((genoStr.search("a:" + alleleLetters[0] + ",b:" + alleleLetters[0])) != -1) {
+                return "R";
+            };
+            if ((genoStr.search("a:" + alleleLetters[0] + ",b:" + alleleLetters[1])) != -1) {
+                return "H";
+            };
+            if ((genoStr.search("a:" + alleleLetters[1] + ",b:" + alleleLetters[0])) != -1) {
+                return "H";
+            };
+            if ((genoStr.search("a:" + alleleLetters[1] + ",b:" + alleleLetters[1])) != -1) {
+                return "D";
+            };
+        } catch {
+            console.log(err);
+        }
+    }
+
+    function getPhenoDiffs(targetGeno, submittedGeno) { //Returns a description of the differences, if any, between the phenotypes between two genotypes.
+        var diffDescription = "";
+        if ((getPheno(targetGeno, "wings") == "R") && (getPheno(submittedGeno, "wings") != "R")) {
+            diffDescription += "The submitted drake has wings, the target drake does not.<br>";
+        } else if ((getPheno(targetGeno, "wings") != "R") && (getPheno(submittedGeno, "wings") == "R")) {
+            diffDescription += "The target drake has wings, the submitted drake does not.<br>"
+        }
+        if ((getPheno(targetGeno, "forelimbs") == "R") && (getPheno(submittedGeno, "forelimbs") != "R")) {
+            diffDescription += "The submitted drake has forelimbs, the target drake does not.<br>";
+        } else if ((getPheno(targetGeno, "forelimbs") != "R") && (getPheno(submittedGeno, "forelimbs") == "R")) {
+            diffDescription += "The target drake has forelimbs, the submitted drake does not.<br>"
+        }
+        if ((getPheno(targetGeno, "hindlimbs") == "R") && (getPheno(submittedGeno, "hindlimbs") != "R")) {
+            diffDescription += "The submitted drake has hindlimbs, the target drake does not.<br>";
+        } else if ((getPheno(targetGeno, "hindlimbs") != "R") && (getPheno(submittedGeno, "hindlimbs") == "R")) {
+            diffDescription += "The target drake has hindlimbs, the submitted drake does not.<br>"
+        }
+        return diffDescription;
+    }
+
+    function getSexDiffs(targetSex, currentSex) {
+        if (targetSex == currentSex) {
+            return "";
+        } else {
+            return "The target drake is " + targetSex + ", the submitted drake is " + currentSex + ".<br>"
+        }
+    }
+
+    function scoreAlleleChange(newAllele, currentGenotype, targetGenotype) { //returns "good", "bad", or "redundant" from the new allele, the current genotype and the target genotype. To be run BEFORE currentGenotype has been updated.
+        try {
+            var trait = getTrait(newAllele),
+                alleleLetters = getAlleleLetters(trait),
+                currentPheno = getPheno(currentGenotype, trait),
+                targetPheno = getPheno(targetGenotype, trait);
+            if (newAllele == alleleLetters[0]) { //Change is to a recessive allele
+                if (targetPheno == "R") { //If the target drake is recessive; any change to a recessive allele is good.
+                    return "good";
+                } else { //If the target drake is dominant a change to a recessive allele is redundant if the current drake is dominant and bad if it is heterozygous.
+                    if (currentPheno == "D") {
+                        return "redundant";
+                    } else if (currentPheno == "H") {
+                        return "bad";
+                    }
+                }
+            } else { // Change is to a dominant allele
+                if (targetPheno == "R") { //If the target drake is recessive any change to a dominant allele is bad.
+                    return "bad";
+                } else if (currentPheno == "R") { //If the target drake is dominant and the current drake is recessive a change to a dominant allele is good
+                    return "good";
+                } else if (currentPheno == "H") { //If the target drake is dominant and the current drake is heterozygous a change to a dominant allele is redundant.
+                    return "redundant";
+                }
             }
-            catch (err) {
-                console.log("err.message");
+        } catch {
+            console.log("Couldn't score allele change");
+        }
+    }
+
+    function mergeArrays(arr1, arr2) { //Takes two arrays and returns an array consisting of their union (one entry for each element that is contained in at least one of the input arrays). It is assumed that the arrays are sorted in ascending order.
+        var i1 = 0,
+            i2 = 0,
+            arr3 = [];
+        while ((i1 < arr1.length) && (i2 < arr2.length)) {
+            if (arr1[i1] == arr2[i2]) {
+                arr3.push(arr1[i1]);
+                i1++;
+                i2++;
+            } else if (arr1[i1] > arr2[i2]) {
+                arr3.push(arr2[i2]);
+                i2++;
+            } else if (arr2[i2] > arr1[i1]) {
+                arr3.push(arr1[i1]);
+                i1++;
             }
         }
-    }
-}
-
-function updateCurrentAlleles(myActivity, oldAllele, newAllele, side) { //Alters the currentGenotype field in the activity to reflect the new allele
-    var oldGenotype = myActivity.currentGenotype,
-        oldDiffs = myActivity.currentDiffs,
-        newDiffs = [],
-        newGenotype = [];
-    newGenotype = oldGenotype.replace((side + ":" + oldAllele), (side + ":" + newAllele));
-    for (var i = 0; i < oldDiffs.length; i++) {
-        newDiffs[i] = oldDiffs[i].replace((side + ":" + oldAllele), (side + ":" + newAllele));
-    }
-    myActivity.currentGenotype = newGenotype;
-    myActivity.currentDiffs = newDiffs;
-}
-
-function getTrait(allele) { //returns the trait (e.g., wings) from an allele 
-    switch (allele.toLowerCase()) {
-        case "w":
-            return "wings";
-            break;
-        case "hl":
-            return "hindlimbs";
-            break;
-        case "fl":
-            return "forelimbs";
-        case "t":
-            return "tail";
-        case "m":
-            return "metallic";
-        case "h":
-            return "horns";
-        case "c":
-            return "color";
-        case "b":
-            return "black";
-        case "d":
-            return "dilute";
-        case "a1":
-            return "armor";
-    }
-}
-
-function getAlleleLetters(trait) { //returns the lower and upper case letters for the trait
-    var alleleLetters = [];
-    switch (trait) {
-        case "wings":
-            alleleLetters = ["w", "W"];
-            break;
-        case "forelimbs":
-            alleleLetters = ["fl", "Fl"];
-            break;
-        case "hindlimbs":
-            alleleLetters = ["hl", "Hl"];
-            break;
-        case "tail":
-            alleleLetters = ["t", "T"];
-            break;
-        case "metallic":
-            alleleLetters = ["m", "M"];
-            break;
-        case "horns":
-            alleleLetters = ["h", "H"];
-            break;
-        case "color":
-            alleleLetters = ["c", "C"];
-            break;
-        case "black":
-            alleleLetters = ["b", "B"];
-            break;
-        case "dilute":
-            alleleLetters = ["d", "D"];
-            break;
-        case "armor":
-            return ["a", "A1"];
-            break;
-    }
-    return alleleLetters;
-}
-
-function getPheno(genoStr, trait) { //returns the pheno ("D", "H", or "R") from the genotype for the trait.
-    var alleleLetters = getAlleleLetters(trait);
-    if ((genoStr.search("a:" + alleleLetters[0] + ",b:" + alleleLetters[0])) != -1) {
-        return "R";
-    };
-    if ((genoStr.search("a:" + alleleLetters[0] + ",b:" + alleleLetters[1])) != -1) {
-        return "H";
-    };
-    if ((genoStr.search("a:" + alleleLetters[1] + ",b:" + alleleLetters[0])) != -1) {
-        return "H";
-    };
-    if ((genoStr.search("a:" + alleleLetters[1] + ",b:" + alleleLetters[1])) != -1) {
-        return "D";
-    };
-}
-
-function getPhenoDiffs(targetGeno, submittedGeno) { //Returns a description of the differences, if any, between the phenotypes between two genotypes.
-    var diffDescription = "";
-    if ((getPheno(targetGeno, "wings") == "R") && (getPheno(submittedGeno, "wings") != "R")) {
-        diffDescription += "The submitted drake has wings, the target drake does not.<br>";
-    } else if ((getPheno(targetGeno, "wings") != "R") && (getPheno(submittedGeno, "wings") == "R")) {
-        diffDescription += "The target drake has wings, the submitted drake does not.<br>"
-    }
-    if ((getPheno(targetGeno, "forelimbs") == "R") && (getPheno(submittedGeno, "forelimbs") != "R")) {
-        diffDescription += "The submitted drake has forelimbs, the target drake does not.<br>";
-    } else if ((getPheno(targetGeno, "forelimbs") != "R") && (getPheno(submittedGeno, "forelimbs") == "R")) {
-        diffDescription += "The target drake has forelimbs, the submitted drake does not.<br>"
-    }
-    if ((getPheno(targetGeno, "hindlimbs") == "R") && (getPheno(submittedGeno, "hindlimbs") != "R")) {
-        diffDescription += "The submitted drake has hindlimbs, the target drake does not.<br>";
-    } else if ((getPheno(targetGeno, "hindlimbs") != "R") && (getPheno(submittedGeno, "hindlimbs") == "R")) {
-        diffDescription += "The target drake has hindlimbs, the submitted drake does not.<br>"
-    }
-    return diffDescription;
-}
-
-function getSexDiffs(targetSex, currentSex) {
-    if (targetSex == currentSex) {
-        return "";
-    } else {
-        return "The target drake is " + targetSex + ", the submitted drake is " + currentSex + ".<br>"
-    }
-}
-
-function scoreAlleleChange(newAllele, currentGenotype, targetGenotype) { //returns "good", "bad", or "redundant" from the new allele, the current genotype and the target genotype. To be run BEFORE currentGenotype has been updated.
-    var trait = getTrait(newAllele),
-        alleleLetters = getAlleleLetters(trait),
-        currentPheno = getPheno(currentGenotype, trait),
-        targetPheno = getPheno(targetGenotype, trait);
-    if (newAllele == alleleLetters[0]) { //Change is to a recessive allele
-        if (targetPheno == "R") { //If the target drake is recessive; any change to a recessive allele is good.
-            return "good";
-        } else { //If the target drake is dominant a change to a recessive allele is redundant if the current drake is dominant and bad if it is heterozygous.
-            if (currentPheno == "D") {
-                return "redundant";
-            } else if (currentPheno == "H") {
-                return "bad";
+        if (i1 < arr1.length) {
+            for (var i = i1; i < arr1.length; i++) {
+                arr3.push(arr1[i]);
+            }
+        } else {
+            for (var i = i2; i < arr2.length; i++) {
+                arr3.push(arr2[i]);
             }
         }
-    } else { // Change is to a dominant allele
-        if (targetPheno == "R") { //If the target drake is recessive any change to a dominant allele is bad.
-            return "bad";
-        } else if (currentPheno == "R") { //If the target drake is dominant and the current drake is recessive a change to a dominant allele is good
-            return "good";
-        } else if (currentPheno == "H") { //If the target drake is dominant and the current drake is heterozygous a change to a dominant allele is redundant.
-            return "redundant";
-        }
+        return arr3;
     }
-}
-
-function mergeArrays(arr1, arr2) { //Takes two arrays and returns an array consisting of their union (one entry for each element that is contained in at least one of the input arrays). It is assumed that the arrays are sorted in ascending order.
-    var i1 = 0,
-        i2 = 0,
-        arr3 = [];
-    while ((i1 < arr1.length) && (i2 < arr2.length)) {
-        if (arr1[i1] == arr2[i2]) {
-            arr3.push(arr1[i1]);
-            i1++;
-            i2++;
-        } else if (arr1[i1] > arr2[i2]) {
-            arr3.push(arr2[i2]);
-            i2++;
-        } else if (arr2[i2] > arr1[i1]) {
-            arr3.push(arr1[i1]);
-            i1++;
-        }
-    }
-    if (i1 < arr1.length) {
-        for (var i = i1; i < arr1.length; i++) {
-            arr3.push(arr1[i]);
-        }
-    } else {
-        for (var i = i2; i < arr2.length; i++) {
-            arr3.push(arr2[i]);
-        }
-    }
-    return arr3;
-}
