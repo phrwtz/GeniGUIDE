@@ -21,8 +21,9 @@ var event = function () {};
 function filter(data) {
     parseJSON(data);
     console.log("data parsed");
-    //   setHints();
+ //   setHints();/
     showClasses();
+    followStudent();
 }
 
 //This function takes one or more JSON files turns them into an array of objects then identifies classes by class_id, students by id, events by .
@@ -66,7 +67,7 @@ function parseJSON(data) {
                     myStudent.hintReceived = false;
                     myStudent.remediationRequested = false;
                     myClass.students.push(myStudent);
-                    myStudent.hints = 0;
+                    myStudent.hints = [];
                     students.push(myStudent);
                 } else {
                     myStudent = getComponentById(myClass.students, "id", myRow.username);
@@ -108,6 +109,7 @@ function parseJSON(data) {
                             myActivity.hintReceived = true;
                             myStudent.hintReceived = true;
                             myClass.hintReceived = true;
+                            myStudent.hints.push(myRow);
                         } else if (myEvent.name == "Guide-remediation-requested") {
                             myActivity.remediationRequested = true;
                             myStudent.remediationRequested = true;

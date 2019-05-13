@@ -244,7 +244,7 @@ function findHints() {
     }
     return [actionsWithHints, studentsWithHints];
 }
-//For all students, searches the simple dom activitsies for "hint" events. Sets the "hasHints" property of student and activity to be the count of number of hint events.
+//For all students, searches the simple dom activities for "hint" events. Sets the "hasHints" property of student and activity to be the count of number of hint events.
 function setHints() {
     var activitiesToSearch = ["allele-targetMatch-visible-simpleDom",
             "allele-targetMatch-hidden-simpleDom",
@@ -279,7 +279,7 @@ function setHints() {
 function getStudentsWithHints() {
     actionsPara.innerHTML = "Students with hints";
     for (var i = 0; i < students.length; i++) {
-        if (students[i].hints > 0) {
+        if (students[i].hintReceived) {
             actionsPara.innerHTML += students[i].id + ", " +
                 students[i].hints + "<br>";
         }
@@ -321,8 +321,8 @@ function addDescription(myRow, myActivity, myEvent) {
         "allele-targetMatch-visible-simpleDom2",
         "allele-targetMatch-hidden-simpleDom2"
     ];
-    if (simpleDomActivities.includes(myActivity.name)) {
-        if (myEvent.name == "Navigated") {
+    if (myEvent.name == "Navigated") {
+        if (simpleDomActivities.includes(myActivity.name)) {
             //    console.log("Found Navigated event in activity " + myActivity.name + ", time = " + myRow.time);
             var target = myRow.parameters.targetDrake;
             var initial = myRow.parameters.initialDrake;
@@ -348,8 +348,9 @@ function addDescription(myRow, myActivity, myEvent) {
             myActivity.currentSex = initialSex;
             myActivity.moveCount = 0;
             myActivity.requiredMoves = myRow.parameters.goalMoves;
-
-        } else if (myEvent.name == "Sex-changed") {
+        }
+    } else if (myEvent.name == "Sex-changed") {
+        if (simpleDomActivities.includes(myActivity.name)) {
             myActivity.moveCount++;
             if (myRow.parameters.newSex == "0") {
                 myActivity.currentSex = "female";
@@ -368,7 +369,9 @@ function addDescription(myRow, myActivity, myEvent) {
                     myRow.description += "<br>Change is bad.<br>";
                 }
             }
-        } else if (myEvent.name == "Allele-changed") {
+        }
+    } else if (myEvent.name == "Allele-changed") {
+        if (simpleDomActivities.includes(myActivity.name)) {
             myActivity.moveCount++;
             var myChromosome = myRow.parameters.chromosome,
                 mySide = myRow.parameters.side,
@@ -391,34 +394,42 @@ function addDescription(myRow, myActivity, myEvent) {
                 diffDescription += getSexDiffs(myActivity.targetSex, myActivity.currentSex);
                 myRow.description = "Submitted a drake after " + myActivity.moveCount + moveStr + "<br>" + diffDescription;
             }
-        } else if (myEvent.name == "Guide-hint-received") {
-            var data = myRow.parameters.data;
-            var level = data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
-            var attribute = data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
-            myRow.description = "Level " + level + " hint for " + attribute + " trait.<br>";
-        } else if (myEvent.name == "ITS-Data-Updated") {
-            myRow.description = "";
-            var data = myRow.parameters.studentModel;
-            var conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g);
-            var probabilityLearned = data.match(/(?<="probabilityLearned"=>)[^,]+/g);
-            var probArr = [];
-            for (var i = 0; i < probabilityLearned.length; i++) {
-                probArr[i] = Math.round(1000 * parseFloat(probabilityLearned[i])) / 1000;
-            }
-            if (conceptId.length == 0) {
-                myRow.description = "No concept ID."
-            } else if (probArr.length == 0) {
-                myRow.description = "No probability learned."
-            } else {
-                for (var j = 0; j < conceptId.length; j++) {
-                    myRow.description += "Concept " + conceptId[j] + ", probability learned = " + probArr[j] + "<br>";
-                }
-            }
-        } else if (myEvent.name == "Guide-alert-received") {
-            var data = myRow.parameters.data;
-            var msg = data.match(/(?<="message"=>")([^"]+)/)[1];
-            myRow.description = msg + "<br>";
         }
+    } else if (myEvent.name == "Guide-hint-received") {
+        var data = myRow.parameters.data;
+        myRow.hintLevel = data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
+        myRow.attribute = data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
+        myRow.conceptId = data.match(/("conceptId")([^a-zA-z]+)([^"]+)/)[3]
+        var rawScore = data.match(/("conceptScore")([^\d]+)([\d.]+)/)[3];
+        myRow.score = Math.round((parseFloat(rawScore) * 1000)) / 1000;
+        myRow.description = "Level " + myRow.hintLevel + " hint for " + myRow.attribute + " trait, concept ID = " + myRow.conceptId + ", probability learned = " + myRow.score + "<br>";
+
+    } else if (myEvent.name == "ITS-Data-Updated") {
+        myRow.description = "";
+        var data = myRow.parameters.studentModel;
+        var conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g);
+        var probabilityLearned = data.match(/(?<="probabilityLearned"=>)[^,]+/g);
+        var probArr = [];
+        for (var i = 0; i < probabilityLearned.length; i++) {
+            probArr[i] = Math.round(1000 * parseFloat(probabilityLearned[i])) / 1000;
+        }
+        if (conceptId.length == 0) {
+            myRow.description = "No concept ID."
+        } else if (probArr.length == 0) {
+            myRow.description = "No probability learned."
+        } else {
+            for (var j = 0; j < conceptId.length; j++) {
+                myRow.description += "Concept " + conceptId[j] + ", probability learned = " + probArr[j] + "<br>";
+            }
+        }
+    } else if (myEvent.name == "Guide-alert-received") {
+        var data = myRow.parameters.data;
+        if (data.match(/(message)([^A-Za-z]+)([^"]+)/)) {
+            var msg = data.match(/(message)([^A-Za-z]+)([^"]+)/)[3];
+        } else {
+            console.log("no match");
+        }
+        myRow.description = msg + "<br>";
     }
 }
 
