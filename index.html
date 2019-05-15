@@ -3,8 +3,20 @@
 
 <head>
     <title>Geniventure data analysis</title>
-
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        th {
+            background-color: lightcoral
+        }
+    </style>
 </head>
+
 
 <body>
     <h2>Parse Geniventure JSON log files</h2>
@@ -25,34 +37,34 @@
     </div>
 
     <div id="hintsDiv" style="margin-top: 30px">
-    <table id="hintsTable" style="margin-top: 30px; display:none">
-    <tr>
-        <th>
-            Class ID
-        </th>
-        <th>
-            Student ID
-        </th>
-        <th>
-            Time
-        </th>
-        <th>
-            Challenge
-        </th>
-        <th>
-            Hint level
-        </th>
-        <th>
-            Trait
-        </th>
-        <th>
-            Concept ID
-        </th>
-        <th>
-            Score 
-        </th>
-    </tr>
-    </table>
+        <table id="hintsTable" style="margin-top: 30px; display:none;">
+            <tr>
+                <th>
+                    Class ID
+                </th>
+                <th>
+                    Student ID
+                </th>
+                <th>
+                    Time
+                </th>
+                <th>
+                    Challenge
+                </th>
+                <th>
+                    Hint level
+                </th>
+                <th>
+                    Trait
+                </th>
+                <th>
+                    Concept ID
+                </th>
+                <th>
+                    Score
+                </th>
+            </tr>
+        </table>
     </div>
 
     <style>
