@@ -8,7 +8,6 @@ function followStudent() {
 }
 
 function addHintRow(myStudent, myHint) {
-    var hintsTable = document.getElementById("hintsTable");
     hintsTable.style.display = "inline";
     var hintRow = document.createElement("tr");
     var classCell = document.createElement("td");
@@ -44,5 +43,39 @@ function addHintRow(myStudent, myHint) {
     hintRow.appendChild(conceptIDCell);
     hintRow.appendChild(scoreCell);
     hintsTable.appendChild(hintRow);
-
 }
+
+function tableToCSV(table) {//Converts an HTML table to a csv file
+    var returnCSV = ""
+    var tableHead = table.children[0];
+    var headerRow = tableHead.children[0];
+    var myRow;
+    var myCell;
+    var headerCell;
+    var text;
+    var contents;
+    for (var i = 0; i < headerRow.children.length; i++) {
+        headerCell = headerRow.children[i];
+        text = headerCell.innerText;
+        contents = text.match(/([\s]*)([A-Za-z]+[\s]?[A-Za-z]+)/)[2];
+        returnCSV += contents;
+        if (i != headerRow.children.length - 1) {
+            returnCSV += ",";
+        } else {
+            returnCSV += "\n";
+        }
+    }
+    for (var j = 1; j < table.children.length; j++) {
+        myRow = table.children[j];
+        for (var k = 0; k < myRow.children.length; k++) {
+            contents = myRow.children[k].innerText;
+            returnCSV += contents;
+            if (k != myRow.children.length - 1) {
+                returnCSV += ",";
+            } else {
+                returnCSV += "\n";
+            }
+        }
+    }
+    console.log(returnCSV);
+} 

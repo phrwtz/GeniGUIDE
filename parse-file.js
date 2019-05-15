@@ -8,6 +8,7 @@ var activitiesPara = document.getElementById("activities");
 var eventsPara = document.getElementById("events");
 var fieldsPara = document.getElementById("fields");
 var actionsPara = document.getElementById("actions");
+var hintsTable = document.getElementById("hintsTable");
 var selectedClasses = [];
 var selectedStudents = [];
 var selectedActivities = [];
