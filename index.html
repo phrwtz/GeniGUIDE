@@ -13,7 +13,12 @@
         }
 
         th {
-            background-color: lightcoral
+            background-color: lightcoral;
+        }
+
+        button {
+            background-color: lightcyan;
+            margin: 10px;
         }
     </style>
 </head>
@@ -37,8 +42,18 @@
         <p id="actions" width=100% style="float:left;display:block;margin:20px"></p>
     </div>
 
-    <div id="hintsDiv" style="margin-top: 30px">
-        <table id="hintsTable" style="margin-top: 30px; display:none;">
+    <div id="hintsDiv" style="margin-top: 30px; display:none;">
+        <button type="button" id="toggleHintsButton" style="float:left;display:inline;margin-right:20px"
+            onclick="toggleHintsTable()">
+            <span id="hintsSpan">
+                Show Hints Table
+            </span>
+        </button><br>
+        <button type="button" id="downloadHintsButton" style="float:left;display:inline;margin-right:20px"
+            onclick="downloadHints()">
+            Download Hints CSV
+        </button>
+        <table id="hintsTable" style="margin-top: 30px;display:none">
             <thead>
                 <tr id="headerRow">
                     <th>

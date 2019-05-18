@@ -1,14 +1,16 @@
 function followStudent() {
+    var toggleHints = document.getElementById("toggleHintsButton");
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
         for (var j = 0, myHint; myHint = myStudent.hints[j]; j++) {
-            console.log("At time " + myHint.time + " in challenge " + myHint.activity + ", student " + myStudent.id + " in class " + myStudent.class.id + " received a level " + myHint.hintLevel + " hint for trait " + myHint.attribute + ". The hint was related to concept " + myHint.conceptId + ". The probability that this concept was learned was " + myHint.score);
+            //         console.log("At time " + myHint.time + " in challenge " + myHint.activity + ", student " + myStudent.id + " in class " + myStudent.class.id + " received a level " + myHint.hintLevel + " hint for trait " + myHint.attribute + ". The hint was related to concept " + myHint.conceptId + ". The probability that this concept was learned was " + myHint.score);
             addHintRow(myStudent, myHint);
         }
-    }
+    } toggleHints.style.display = "inline";
 }
 
 function addHintRow(myStudent, myHint) {
-    hintsTable.style.display = "inline";
+    var hintsDiv = document.getElementById("hintsDiv");
+    hintsDiv.style.display = "inline";
     var hintRow = document.createElement("tr");
     var classCell = document.createElement("td");
     var studentCell = document.createElement("td");
@@ -45,7 +47,20 @@ function addHintRow(myStudent, myHint) {
     hintsTable.appendChild(hintRow);
 }
 
-function tableToCSV(table) {//Converts an HTML table to a csv file
+function toggleHintsTable() {
+    var hintsTable = document.getElementById("hintsTable");
+    var hintsSpan = document.getElementById("hintsSpan");
+    var toggleHintsButton = document.getElementById("toggleHintsButton");
+    if (hintsTable.style.display == "none") {
+        hintsTable.style.display = "inline";
+        hintsSpan.innerHTML = "Hide Hints Table";
+    } else {
+        hintsTable.style.display = "none";
+        hintsSpan.innerHTML = "Show Hints Table";
+    }
+}
+
+function tableToCSV(table) { //Converts an HTML table to a csv file
     var returnCSV = ""
     var tableHead = table.children[0];
     var headerRow = tableHead.children[0];
@@ -77,5 +92,28 @@ function tableToCSV(table) {//Converts an HTML table to a csv file
             }
         }
     }
-    console.log(returnCSV);
-} 
+    return (returnCSV);
+}
+
+function downloadHints() {
+    var hintsTable = document.getElementById("hintsTable");
+    var hintsCSV = tableToCSV(hintsTable);
+    filename = "MC3PA_hints_data.csv"
+    saveData()(hintsCSV, filename);
+}
+
+function saveData(data) {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    return function (data, fileName) {
+        var blob = new Blob([data], {
+            type: "text/csv;encoding:utf-8"
+        });
+        var url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+}
