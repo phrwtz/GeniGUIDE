@@ -11,6 +11,7 @@ var activitiesPara = document.getElementById("activities");
 var eventsPara = document.getElementById("events");
 var fieldsPara = document.getElementById("fields");
 var actionsPara = document.getElementById("actions");
+var hintsTable = document.getElementById("hintsTable");
 var selectedClasses = [];
 var selectedStudents = [];
 var selectedActivities = [];
@@ -25,8 +26,9 @@ var hint = function () { };
 function filter(data) {
     parseJSON(data);
     console.log("data parsed");
-    hintsButton.style.display = "block";
+ //   setHints();/
     showClasses();
+    followStudent();
 }
 
 //This function takes one or more JSON files turns them into an array of objects then identifies classes by class_id, students by id, events by .
@@ -72,6 +74,7 @@ function parseJSON(data) {
                     myStudent.hintsReceived = false;
                     myStudent.remediationRequested = false;
                     myClass.students.push(myStudent);
+                    myStudent.hints = [];
                     students.push(myStudent);
                 } else {
                     myStudent = getComponentById(myClass.students, "id", myRow.username);
@@ -109,21 +112,10 @@ function parseJSON(data) {
                         addDescription(myRow, myActivity, myEvent);
                         myEvent.actions.push(myRow);
                         if (myEvent.name == "Guide-hint-received") {
-                            myHint = new hint;
-                            myHint.activity = myActivity;
-                            myHint.student = myStudent;
-                            myHint.level = myRow.parameters.data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
-                            myHint.trait = myRow.parameters.data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
-                            myHint.time = myRow.time;
-                            myActivity.hints.push(myHint);
-                            myActivity.hintsReceived = true;
-                            myStudent.hints.push(myHint);
-                            myStudent.hintsReceived = true;
-                            myClass.hints.push(myHint);
-                            myClass.hintsReceived = true;
-                            if (!uniqueHintActivityNames.includes(myActivity.name)) {
-                                uniqueHintActivityNames.push(myActivity.name);
-                            }
+                            myActivity.hintReceived = true;
+                            myStudent.hintReceived = true;
+                            myClass.hintReceived = true;
+                            myStudent.hints.push(myRow);
                         } else if (myEvent.name == "Guide-remediation-requested") {
                             myActivity.remediationRequested = true;
                             myStudent.remediationRequested = true;

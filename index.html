@@ -4,19 +4,100 @@
 <head>
     <title>Geniventure data analysis</title>
     <style>
-        table, th, td {
+        table,
+        th,
+        td {
             border: 1px solid black;
             border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 5px;
-            text-align: right;
-            vertical-align: text-top;
+            text-align: center;
         }
 
         th {
-            text-align: center;
+            background-color: lightcoral;
+        }
+
+        button {
+            background-color: lightcyan;
+            margin: 10px;
+        }
+    </style>
+</head>
+
+
+<body>
+    <h2>Parse Geniventure JSON log files</h2>
+    <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
+
+    <button type="button" id="analyzeButton" style="display:none" onclick="filter(data)">Analyze</button><br>
+
+    <button type="button" id="hintsButton" style="display:none" onclick="countStudentsWithHints()">Count hints</button>
+
+    <div id="filter" style="margin-top: 30px">
+        <p id="classes" width=20% style="display:inline;margin:20px"></p>
+        <p id="students" width=30% style="display:inline;margin:20px"></p>
+        <p id="activities" width=30% style="
+        <p id="events" width=30% style="display:inline;margin:20px"></p>
+        <p id="actions" width=30% style="display:inline;margin:20px"></p>
+        <p id="fields" width=30% style="display:inline;margin:20px"></p>
+    </div>
+
+    <div id="actionDiv" style="margin-top: 30px">
+        <table id="hintsTable" width=100% style="float:left;display:none;margin:20px">
+            <tr style=background-color:palegreen>
+                <th>Activity hints</th>
+                <th>Level 1</th>
+                <th>Level 2</th>
+                <th>Level 3</th>
+                <th>All attempts</th>
+            </tr>
+    </div>
+
+    <div id="hintsDiv" style="margin-top: 30px; display:none;">
+        <button type="button" id="toggleHintsButton" style="display:inline;margin-right:20px"
+            onclick="toggleHintsTable()">
+            <span id="hintsSpan">
+                Show Hints Table
+            </span>
+        </button>
+        <button type="button" id="downloadHintsButton" style="display:inline;margin-right:20px"
+            onclick="downloadHints()">
+            Download Hints CSV
+        </button>
+        <table id="hintsTable" style="margin-top: 30px;display:none">
+            <thead>
+                <tr id="headerRow">
+                    <th>
+                        Class ID
+                    </th>
+                    <th>
+                        Student ID
+                    </th>
+                    <th>
+                        Time
+                    </th>
+                    <th>
+                        Challenge
+                    </th>
+                    <th>
+                        Hint level
+                    </th>
+                    <th>
+                        Trait
+                    </th>
+                    <th>
+                        Concept ID
+                    </th>
+                    <th>
+                        Score
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <style>
+        td {
+            vertical-align: text-top;
         }
 
         p {
@@ -31,40 +112,7 @@
             width: 120px;
             font-size: 20;
         }
-        button {
-            margin:5Px;
-        }
     </style>
-
-</head>
-
-<body>
-    <h2>Parse Geniventure JSON log files</h2>
-    <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
-
-    <button type="button" id="analyzeButton" style="display:none" onclick="filter(data)">Analyze</button><br>
-
-    <button type="button" id="hintsButton" style="display:none" onclick="countStudentsWithHints()">Count hints</button>
-
-    <div id="filter" style="margin-top: 30px">
-        <p id="classes" width=20% style="float:left;display:inline;margin:20px"></p>
-        <p id="students" width=30% style="float:left;display:inline;margin:20px"></p>
-        <p id="activities" width=30% style="float:left;display:inline;margin:20px"></p>
-        <p id="events" width=30% style="float:left;display:inline;margin:20px"></p>
-        <p id="actions" width=30% style="float:left;display:inline;margin:20px"></p>
-        <p id="fields" width=30% style="float:left;display:inline;margin:20px"></p>
-    </div>
-
-    <div id="actionDiv" style="margin-top: 30px">
-        <table id="hintsTable" width=100% style="float:left;display:none;margin:20px">
-            <tr style=background-color:palegreen>
-                <th>Activity hints</th>
-                <th>Level 1</th>
-                <th>Level 2</th>
-                <th>Level 3</th>
-                <th>All attempts</th>
-            </tr>
-    </div>
 
     <script>
         var data = new Array;
@@ -93,6 +141,7 @@
     </script>
     <script src="parse-file.js"></script>
     <script src="utils.js"></script>
+    <script src="sequences.js"></script>
     <script src="papaparse.js"></script>
     <script src="sequences.js"></script>
     <!-- 
