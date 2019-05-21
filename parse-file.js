@@ -74,7 +74,7 @@ function parseJSON(data) {
                     myStudent.hintsReceived = false;
                     myStudent.remediationRequested = false;
                     myClass.students.push(myStudent);
-                    myStudent.hints = [];
+                    myStudent.ITS = []; //Holds all ITS actions: hints and remediations
                     students.push(myStudent);
                 } else {
                     myStudent = getComponentById(myClass.students, "id", myRow.username);
@@ -115,11 +115,12 @@ function parseJSON(data) {
                             myActivity.hintReceived = true;
                             myStudent.hintReceived = true;
                             myClass.hintReceived = true;
-                            myStudent.hints.push(myRow);
+                            myStudent.ITS.push(myRow);
                         } else if (myEvent.name == "Guide-remediation-requested") {
                             myActivity.remediationRequested = true;
                             myStudent.remediationRequested = true;
                             myClass.remediationRequested = true;
+                            myStudent.ITS.push(myRow);
                         }
                     }
                     myStudent.actions.push(myRow);

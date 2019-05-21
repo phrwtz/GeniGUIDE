@@ -1,14 +1,14 @@
 function followStudent() {
     var toggleHints = document.getElementById("toggleHintsButton");
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
-        for (var j = 0, myHint; myHint = myStudent.hints[j]; j++) {
+        for (var j = 0, myHint; myHint = myStudent.ITS[j]; j++) {
             //         console.log("At time " + myHint.time + " in challenge " + myHint.activity + ", student " + myStudent.id + " in class " + myStudent.class.id + " received a level " + myHint.hintLevel + " hint for trait " + myHint.attribute + ". The hint was related to concept " + myHint.conceptId + ". The probability that this concept was learned was " + myHint.score);
-            addHintRow(myStudent, myHint);
+            addHintOrRemRow(myStudent, myHint);
         }
     } toggleHints.style.display = "inline";
 }
 
-function addHintRow(myStudent, myHint) {
+function addHintOrRemRow(myStudent, myHint) {
     var hintsDiv = document.getElementById("hintsDiv");
     hintsDiv.style.display = "inline";
     var hintRow = document.createElement("tr");
@@ -18,34 +18,40 @@ function addHintRow(myStudent, myHint) {
     var challengeCell = document.createElement("td");
     var hintLevelCell = document.createElement("td");
     var traitCell = document.createElement("td");
+    var criterionCell = document.createElement("td");
     var conceptIDCell = document.createElement("td");
     var scoreCell = document.createElement("td");
     classCell.id = "class";
     studentCell.id = "student";
     timeCell.id = "time";
     challengeCell.id = "challenge";
-    hintLevelCell.id = "hintLevel";
+    hintLevelCell.id = "hint Level";
     traitCell.id = "trait";
+    criterionCell.id = "criterion";
     conceptIDCell.id = "conceptID";
     scoreCell.id = "score";
     classCell.innerHTML = myStudent.class.id;
     studentCell.innerHTML = myStudent.id;
     timeCell.innerHTML = myHint.time;
     challengeCell.innerHTML = myHint.activity;
-    hintLevelCell.innerHTML = myHint.hintLevel;
-    traitCell.innerHTML = myHint.attribute;
-    conceptIDCell.innerHTML = myHint.conceptId;
-    scoreCell.innerHTML = myHint.score;
+    (myHint.hintLevel ? hintLevelCell.innerHTML = myHint.hintLevel : hintLevelCell.innerHTML = "remediation");
+    ;
+    (myHint.attribute ? traitCell.innerHTML = myHint.attribute :
+        traitCell.innerHTML = myHint.parameters.attribute);
+    (myHint.parameters.practiceCriteria ? criterionCell.innerHTML = myHint.parameters.practiceCriteria : criterionCell.innerHTML = "none");
+    (myHint.conceptId ? conceptIDCell.innerHTML = myHint.conceptId : conceptIDCell.innerHTML = "none");
+    (myHint.score? scoreCell.innerHTML = myHint.score : scoreCell.innerHTML = "none");
     hintRow.appendChild(classCell);
     hintRow.appendChild(studentCell);
     hintRow.appendChild(timeCell);
     hintRow.appendChild(challengeCell);
     hintRow.appendChild(hintLevelCell);
     hintRow.appendChild(traitCell);
+    hintRow.appendChild(criterionCell);
     hintRow.appendChild(conceptIDCell);
     hintRow.appendChild(scoreCell);
     hintsTable.appendChild(hintRow);
-    if (myHint.conceptId == "LG1.C3") {
+    if (!myHint.hintLevel) {
         console.log("stop");
     }
 }
