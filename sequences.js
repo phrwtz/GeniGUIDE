@@ -45,6 +45,9 @@ function addHintRow(myStudent, myHint) {
     hintRow.appendChild(conceptIDCell);
     hintRow.appendChild(scoreCell);
     hintsTable.appendChild(hintRow);
+    if (myHint.conceptId == "LG1.C3") {
+        console.log("stop");
+    }
 }
 
 function toggleHintsTable() {

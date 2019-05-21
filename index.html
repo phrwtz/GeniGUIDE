@@ -32,29 +32,6 @@
 
     <button type="button" id="hintsButton" style="display:none" onclick="countStudentsWithHints()">Count hints</button>
 
-    <div id="filter" style="margin-top: 30px">
-        <p id="classes" width=20% style="display:inline;margin:20px"></p>
-        <p id="students" width=30% style="display:inline;margin:20px"></p>
-        <p id="activities" width=30% style="display:inline;margin:20px"></p>
-        <p id="events" width=30% style="display:inline;margin:20px"></p>
-        <p id="actions" width=30% style="display:inline;margin:20px"></p>
-        <p id="fields" width=30% style="display:inline;margin:20px"></p>
-    </div>
-
-    <div id="actionDiv" style="margin-top: 30px">
-        <table id="hintsTable" width=100% style="float:left;display:none;margin:20px">
-            <tr style=background-color:palegreen>
-                <th>Class ID</th>
-                <th>Student ID</th>
-                <th>Time</th>
-                <th>Challenge</th>
-                <th>Hint level</th>
-                <th>Trait</th>
-                <th>Concept ID</th>
-                <th>Score</th>
-            </tr>
-    </div>
-
     <div id="hintsDiv" style="margin-top: 30px; display:none;">
         <button type="button" id="toggleHintsButton" style="display:inline;margin-right:20px"
             onclick="toggleHintsTable()">
@@ -97,6 +74,31 @@
             </thead>
         </table>
     </div>
+
+    <div id="filter" style="margin-top: 30px">
+        <p id="classes" width=20% style="display:inline;float:left;margin:20px"></p>
+        <p id="students" width=30% style="display:inline;float:left;margin:20px"></p>
+        <p id="activities" width=30% style="display:inline;float:left;margin:20px"></p>
+        <p id="events" width=30% style="display:inline;float:left;margin:20px"></p>
+        <p id="actions" width=30% style="display:inline;float:left;margin:20px"></p>
+        <p id="fields" width=30% style="display:inline;float:left;margin:20px"></p>
+    </div>
+
+    <div id="actionDiv" style="margin-top: 30px">
+        <table id="hintsTable" width=100% style="float:left;display:none;margin:20px">
+            <tr style=background-color:palegreen>
+                <th>Class ID</th>
+                <th>Student ID</th>
+                <th>Time</th>
+                <th>Challenge</th>
+                <th>Hint level</th>
+                <th>Trait</th>
+                <th>Concept ID</th>
+                <th>Score</th>
+            </tr>
+    </div>
+
+   
 
     <style>
         td {
