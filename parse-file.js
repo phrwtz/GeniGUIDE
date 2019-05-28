@@ -20,13 +20,13 @@ var selectedActions = [];
 var clas = function () {};
 var student = function () {};
 var activity = function () {};
-var event = function () { };
-var hint = function () { };
+var event = function () {};
+var hint = function () {};
 
 function filter(data) {
     parseJSON(data);
     console.log("data parsed");
- //   setHints();/
+    //   setHints();/
     showClasses();
     followStudent();
 }
@@ -54,7 +54,7 @@ function parseJSON(data) {
                 myClass.students = [];
                 myClass.uniqueUsernames = [];
                 myClass.hints = [];
-                myClass.hintsReceived = false;
+                myClass.hintReceived = false;
                 myClass.remediationRequested = false;
                 classes.push(myClass);
                 classIds.push(myClass.id);
@@ -71,7 +71,7 @@ function parseJSON(data) {
                     myStudent.id = myRow.username;
                     myStudent.class = myClass;
                     myStudent.hints = [];
-                    myStudent.hintsReceived = false;
+                    myStudent.hintReceived = false;
                     myStudent.remediationRequested = false;
                     myClass.students.push(myStudent);
                     myStudent.ITS = []; //Holds all ITS actions: hints and remediations
@@ -87,7 +87,7 @@ function parseJSON(data) {
                         myActivity.actions = [];
                         myActivity.events = [];
                         myActivity.hints = [];
-                        myActivity.hintsReceived = false;
+                        myActivity.hintReceived = false;
                         myActivity.eventNames = [];
                         myActivity.remediationRequested = false;
                         myStudent.activityNames.push(myRow.activity);
@@ -333,13 +333,12 @@ function showActions() {
             myParameters = myAction.parameters;
             myFields = Object.getOwnPropertyNames(myParameters);
             actionsPara.innerHTML += ("<br><b>" + myAction.event + " at " + myAction.time + "</b><br>");
-            if (myAction.description) {
-                actionsPara.innerHTML += myAction.description;
-            } else {
-                for (var l = 0; l < myFields.length; l++) {
-                    myField = myFields[l];
-                    actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
-                }
+            //          if (myAction.description) {
+            //              actionsPara.innerHTML += myAction.description;
+            //          } else {
+            for (var l = 0; l < myFields.length; l++) {
+                myField = myFields[l];
+                actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
             }
         }
     }

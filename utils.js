@@ -148,11 +148,11 @@ function makeButtons(objects, nameField, countField, type, name, onchange, title
         destination.innerHTML = "<b>" + title + "</b><br>";
     }
     for (var i = 0; i < objects.length; i++) {
-        if (((objects[i]["hintsReceived"]) && (!objects[i]["remediationRequested"])) || (objects[i].name == "Guide-hint-received")) {
+        if (((objects[i]["hintReceived"]) && (!objects[i]["remediationRequested"])) || (objects[i].name == "Guide-hint-received")) {
             string = "<span style=\"color:red\">" + objects[i][nameField] + "</span>";
-        } else if (((!objects[i]["hintsReceived"]) && (objects[i]["remediationRequested"])) || (objects[i].name == "Guide-remediation-requested")) {
+        } else if (((!objects[i]["hintReceived"]) && (objects[i]["remediationRequested"])) || (objects[i].name == "Guide-remediation-requested")) {
             string = "<span style=\"color:blue\">" + objects[i][nameField] + "</span>";
-        } else if ((objects[i]["hintsReceived"]) && (objects[i]["remediationRequested"])) {
+        } else if ((objects[i]["hintReceived"]) && (objects[i]["remediationRequested"])) {
             string = "<span style=\"color:#990099\">" + objects[i][nameField] + "</span>";
         } else {
             string = objects[i][nameField];
