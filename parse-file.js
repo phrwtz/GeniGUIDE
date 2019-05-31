@@ -21,7 +21,8 @@ var clas = function () {}; //No second "s" or it becomes a key word
 var student = function () {};
 var activity = function () {};
 var event = function () {};
-var hint = function () {};
+var hint = function () { };
+var prob= function () { ;} //Will contain a conceptID paired with a probabilityLearned 
 
 function filter(data) {
     parseJSON(data);
@@ -46,6 +47,8 @@ function parseJSON(data) {
     })
     for (var j = 0; j < rowObjs.length; j++) {
         myRow = rowObjs[j];
+        myRow.probs = []; //Updated on ITS-Data-Updated events
+        myRow.previousProbs = []; //For comparison to see what has changed
         if (myRow.class_id) {
             if (!classIds.includes(myRow.class_id)) {
                 myClass = new clas;

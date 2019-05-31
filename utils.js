@@ -309,41 +309,41 @@ function getSex(str) {
 
 function addDescription(myRow, myActivity, myEvent) {
     var simpleDomActivities = ["allele-targetMatch-visible-simpleDom",
-        "allele-targetMatch-hidden-simpleDom",
-        "allele-targetMatch-visible-simpleDom2",
-        "allele-targetMatch-hidden-simpleDom2"
-    ],
+            "allele-targetMatch-hidden-simpleDom",
+            "allele-targetMatch-visible-simpleDom2",
+            "allele-targetMatch-hidden-simpleDom2"
+        ],
         data,
         target,
         initial,
         conceptId,
         moveStr,
         probabilityLearned;
-        if (simpleDomActivities.includes(myActivity.name)) {
-            switch (myEvent.name) {
-                case "Navigated":
-                    describeNavigated();
-                    break;
-                case "Sex-changed":
-                    describeSexChanged();
-                    break;
-                case "Guide-hint-received":
-                    describeGuideHintReceived();
-                    break;
-                case "ITS-Data-Updated":
-                    describeITSDataUpdated();
-                    break;
-                case "Allele-changed":
-                    describeAlleleChanged();
-                    break;
-                case "Guide-alert-received":
-                    describeGuideAlertReceived();
-                    break;
-                case "Drake-submitted":
-                    describeDrakeSubmitted();
-                    break;
-            }
+    if (simpleDomActivities.includes(myActivity.name)) {
+        switch (myEvent.name) {
+            case "Navigated":
+                describeNavigated();
+                break;
+            case "Sex-changed":
+                describeSexChanged();
+                break;
+            case "Guide-hint-received":
+                describeGuideHintReceived();
+                break;
+            case "ITS-Data-Updated":
+                describeITSDataUpdated();
+                break;
+            case "Allele-changed":
+                describeAlleleChanged();
+                break;
+            case "Guide-alert-received":
+                describeGuideAlertReceived();
+                break;
+            case "Drake-submitted":
+                describeDrakeSubmitted();
+                break;
         }
+    }
 
     function describeNavigated() {
         target = myRow.parameters.targetDrake;
@@ -402,22 +402,27 @@ function addDescription(myRow, myActivity, myEvent) {
     }
 
     function describeITSDataUpdated() {
-        var probArr = [];
-        myRow.description = "";
-        data = myRow.parameters.studentModel;
-        conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g);
-        probabilityLearned = data.match(/(?<="probabilityLearned"=>)[^,]+/g);
-        for (var i = 0; i < probabilityLearned.length; i++) {
-            probArr[i] = Math.round(1000 * parseFloat(probabilityLearned[i])) / 1000;
+        for (var k = 0; k < myRow.probs.length; k++) {
+            myRow.prevProbs[k] = myRow.prob[k];
         }
-        if (conceptId.length == 0) {
-            myRow.description = "No concept ID."
-        } else if (probArr.length == 0) {
-            myRow.description = "No probability learned."
-        } else {
-            for (var j = 0; j < conceptId.length; j++) {
-                myRow.description += "Concept " + conceptId[j] + ", probability learned = " + probArr[j] + "<br>";
-            }
+        //Clear the current probs array
+        myRow.probs = [];
+        //and set a default description
+        myRow.description = "No concept ID involved."
+        data = myRow.parameters.studentModel;
+        //Get array of concept IDs from data
+        conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g);
+        //Get array of probabilities learned from data
+        pls = data.match(/(?<="probabilityLearned"=>)([^,]+)/g)
+        for (var i = 0; i < pls.length; i++) {
+            myProb = new prob;
+            myProb.id = conceptIds[i];
+            myProb.prob = Math.round(1000 * parseFloat(pls[i])) / 1000;
+            myRow.probs.push(myProb);
+        }
+        //Set description
+        for (var j = 0; j < pls.length; j++) {
+            myRow.description += "Concept " + conceptIds[j] + ", probability learned = " + Math.round(1000 * parseFloat(pls[j])) / 1000 + "<br>";
         }
     }
 
