@@ -17,7 +17,7 @@ var selectedStudents = [];
 var selectedActivities = [];
 var selectedEvents = [];
 var selectedActions = [];
-var clas = function () {};
+var clas = function () {}; //No second "s" or it becomes a key word
 var student = function () {};
 var activity = function () {};
 var event = function () {};
@@ -25,8 +25,6 @@ var hint = function () {};
 
 function filter(data) {
     parseJSON(data);
-    console.log("data parsed");
-    //   setHints();/
     showClasses();
     followStudent();
 }
@@ -38,7 +36,8 @@ function parseJSON(data) {
         myClass,
         myStudent,
         myActivity,
-        myEvent;
+        myEvent,
+        myAction;
     for (var i = 0; i < data.length; i++) {
         rowObjs = JSON.parse(data[i]);
     }
@@ -74,7 +73,6 @@ function parseJSON(data) {
                     myStudent.hintReceived = false;
                     myStudent.remediationRequested = false;
                     myClass.students.push(myStudent);
-                    myStudent.ITS = []; //Holds all ITS actions: hints and remediations
                     students.push(myStudent);
                 } else {
                     myStudent = getComponentById(myClass.students, "id", myRow.username);
@@ -109,21 +107,23 @@ function parseJSON(data) {
                         } else {
                             myEvent = getComponentById(myActivity.events, "name", myRow.event);
                         }
+                        if (myStudent.actions[myStudent.actions.length - 1]) {
+                            myAction = myStudent.actions[myStudent.actions.length - 1];
+                            myAction.index = myStudent.actions.length;
+                        }
                         addDescription(myRow, myActivity, myEvent);
                         myEvent.actions.push(myRow);
                         if (myEvent.name == "Guide-hint-received") {
                             myActivity.hintReceived = true;
                             myStudent.hintReceived = true;
                             myClass.hintReceived = true;
-                            myStudent.ITS.push(myRow);
                         } else if (myEvent.name == "Guide-remediation-requested") {
                             myActivity.remediationRequested = true;
                             myStudent.remediationRequested = true;
                             myClass.remediationRequested = true;
-                            myStudent.ITS.push(myRow);
                         }
+                        myStudent.actions.push(myRow);
                     }
-                    myStudent.actions.push(myRow);
                 }
             }
         } //New rowobj
@@ -333,12 +333,13 @@ function showActions() {
             myParameters = myAction.parameters;
             myFields = Object.getOwnPropertyNames(myParameters);
             actionsPara.innerHTML += ("<br><b>" + myAction.event + " at " + myAction.time + "</b><br>");
-            //          if (myAction.description) {
-            //              actionsPara.innerHTML += myAction.description;
-            //          } else {
-            for (var l = 0; l < myFields.length; l++) {
-                myField = myFields[l];
-                actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
+            if (myAction.description) {
+                actionsPara.innerHTML += myAction.description;
+            } else {
+                for (var l = 0; l < myFields.length; l++) {
+                    myField = myFields[l];
+                    actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
+                }
             }
         }
     }

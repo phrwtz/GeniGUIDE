@@ -1,14 +1,20 @@
 function followStudent() {
-    var toggleHints = document.getElementById("toggleHintsButton");
+    var button = document.getElementById("toggleHintsButton");
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
-        for (var j = 0, myHint; myHint = myStudent.ITS[j]; j++) {
-            //         console.log("At time " + myHint.time + " in challenge " + myHint.activity + ", student " + myStudent.id + " in class " + myStudent.class.id + " received a level " + myHint.hintLevel + " hint for trait " + myHint.attribute + ". The hint was related to concept " + myHint.conceptId + ". The probability that this concept was learned was " + myHint.score);
-            addHintOrRemRow(myStudent, myHint);
+        for (var j = 0, myAction; myAction = myStudent.actions[j]; j++) {
+            if ((myAction.event == "Guide-hint-received") || (myAction.event == "Guide-remediation-requested") || (myAction.event == "Drake-submitted")) {
+                addCSVRow(myStudent, myAction);
+            }
         }
-    } toggleHints.style.display = "inline";
+    }
+    button.style.display = "inline";
 }
 
-function addHintOrRemRow(myStudent, myHint) {
+function addCSVRow(myStudent, myAction) {
+    var correctSubmission = "";
+    if (myAction.event == "Drake-submitted") {
+        correctSubmission = myAction.parameters.correct;
+    }
     var hintsDiv = document.getElementById("hintsDiv");
     hintsDiv.style.display = "inline";
     var hintRow = document.createElement("tr");
@@ -16,44 +22,50 @@ function addHintOrRemRow(myStudent, myHint) {
     var studentCell = document.createElement("td");
     var timeCell = document.createElement("td");
     var challengeCell = document.createElement("td");
+    var eventCell = document.createElement("td");
     var hintLevelCell = document.createElement("td");
     var traitCell = document.createElement("td");
     var criterionCell = document.createElement("td");
     var conceptIDCell = document.createElement("td");
     var scoreCell = document.createElement("td");
-    classCell.id = "class";
-    studentCell.id = "student";
-    timeCell.id = "time";
-    challengeCell.id = "challenge";
-    hintLevelCell.id = "hint Level";
-    traitCell.id = "trait";
-    criterionCell.id = "criterion";
-    conceptIDCell.id = "conceptID";
-    scoreCell.id = "score";
+    var probCell = document.createElement("td");
+    var submissionCell = document.createElement("td");
+    // classCell.id = "class";
+    // studentCell.id = "student";
+    // timeCell.id = "time";
+    // challengeCell.id = "challenge";
+    // eventCell.id = "event";
+    // hintLevelCell.id = "hint Level";
+    // traitCell.id = "trait";
+    // criterionCell.id = "criterion";
+    // conceptIDCell.id = "conceptID";
+    // scoreCell.id = "score";
+    // probCell.id = "probabilityLearned";
     classCell.innerHTML = myStudent.class.id;
     studentCell.innerHTML = myStudent.id;
-    timeCell.innerHTML = myHint.time;
-    challengeCell.innerHTML = myHint.activity;
-    (myHint.hintLevel ? hintLevelCell.innerHTML = myHint.hintLevel : hintLevelCell.innerHTML = "remediation");
-    ;
-    (myHint.attribute ? traitCell.innerHTML = myHint.attribute :
-        traitCell.innerHTML = myHint.parameters.attribute);
-    (myHint.parameters.practiceCriteria ? criterionCell.innerHTML = myHint.parameters.practiceCriteria : criterionCell.innerHTML = "none");
-    (myHint.conceptId ? conceptIDCell.innerHTML = myHint.conceptId : conceptIDCell.innerHTML = "none");
-    (myHint.score? scoreCell.innerHTML = myHint.score : scoreCell.innerHTML = "none");
+    timeCell.innerHTML = myAction.time;
+    challengeCell.innerHTML = myAction.activity;
+    eventCell.innerHTML = myAction.event;
+    (myAction.hintLevel ? hintLevelCell.innerHTML = myAction.hintLevel : hintLevelCell.innerHTML = "");
+    (myAction.attribute ? traitCell.innerHTML = myAction.attribute :
+        traitCell.innerHTML = myAction.parameters.attribute);
+    (myAction.parameters.practiceCriteria ? criterionCell.innerHTML = myAction.parameters.practiceCriteria : criterionCell.innerHTML = "");
+    (myAction.conceptId ? conceptIDCell.innerHTML = myAction.conceptId : conceptIDCell.innerHTML = "");
+    (myAction.score ? scoreCell.innerHTML = myAction.score : scoreCell.innerHTML = "");
+    submissionCell.innerHTML = correctSubmission;
     hintRow.appendChild(classCell);
     hintRow.appendChild(studentCell);
     hintRow.appendChild(timeCell);
     hintRow.appendChild(challengeCell);
+    hintRow.appendChild(eventCell);
     hintRow.appendChild(hintLevelCell);
     hintRow.appendChild(traitCell);
     hintRow.appendChild(criterionCell);
     hintRow.appendChild(conceptIDCell);
     hintRow.appendChild(scoreCell);
+    hintRow.appendChild(probCell);
+    hintRow.appendChild(submissionCell);
     hintsTable.appendChild(hintRow);
-    if (!myHint.hintLevel) {
-        console.log("stop");
-    }
 }
 
 function toggleHintsTable() {
