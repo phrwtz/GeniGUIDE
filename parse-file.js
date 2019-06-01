@@ -47,8 +47,6 @@ function parseJSON(data) {
     })
     for (var j = 0; j < rowObjs.length; j++) {
         myRow = rowObjs[j];
-        myRow.probs = []; //Updated on ITS-Data-Updated events
-        myRow.previousProbs = []; //For comparison to see what has changed
         if (myRow.class_id) {
             if (!classIds.includes(myRow.class_id)) {
                 myClass = new clas;
@@ -97,6 +95,8 @@ function parseJSON(data) {
                     } else {
                         myActivity = getComponentById(myStudent.activities, "name", myRow.activity);
                     }
+                    myActivity.probs = []; //To be updated each time we encounter an "ITS-Data-Updated" event
+                    myActivity.prevProbs = [];
                     myActivity.actions.push(myRow);
                     if (myRow.event) {
                         myRow.event = myRow.event.replace(/ /g, "-");

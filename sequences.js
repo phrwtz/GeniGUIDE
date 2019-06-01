@@ -2,7 +2,7 @@ function followStudent() {
     var button = document.getElementById("toggleHintsButton");
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
         for (var j = 0, myAction; myAction = myStudent.actions[j]; j++) {
-            if ((myAction.event == "Guide-hint-received") || (myAction.event == "Guide-remediation-requested") || (myAction.event == "Drake-submitted")) {
+            if ((myAction.event == "Guide-hint-received") || (myAction.event == "Drake-submitted")) {
                 addCSVRow(myStudent, myAction);
             }
         }
@@ -25,33 +25,25 @@ function addCSVRow(myStudent, myAction) {
     var eventCell = document.createElement("td");
     var hintLevelCell = document.createElement("td");
     var traitCell = document.createElement("td");
-    var criterionCell = document.createElement("td");
-    var conceptIDCell = document.createElement("td");
-    var scoreCell = document.createElement("td");
-    var probCell = document.createElement("td");
     var submissionCell = document.createElement("td");
-    // classCell.id = "class";
-    // studentCell.id = "student";
-    // timeCell.id = "time";
-    // challengeCell.id = "challenge";
-    // eventCell.id = "event";
-    // hintLevelCell.id = "hint Level";
-    // traitCell.id = "trait";
-    // criterionCell.id = "criterion";
-    // conceptIDCell.id = "conceptID";
-    // scoreCell.id = "score";
-    // probCell.id = "probabilityLearned";
+    var LG99ACell = document.createElement("td");
+    var LG1A3Cell = document.createElement("td");
+    var LG1C2aCell = document.createElement("td");
+    var LG1C2bCell = document.createElement("td");
+    var LG1P2Cell = document.createElement("td");
     classCell.innerHTML = myStudent.class.id;
     studentCell.innerHTML = myStudent.id;
     timeCell.innerHTML = myAction.time;
     challengeCell.innerHTML = myAction.activity;
     eventCell.innerHTML = myAction.event;
     (myAction.hintLevel ? hintLevelCell.innerHTML = myAction.hintLevel : hintLevelCell.innerHTML = "");
-    (myAction.attribute ? traitCell.innerHTML = myAction.attribute :
-        traitCell.innerHTML = myAction.parameters.attribute);
-    (myAction.parameters.practiceCriteria ? criterionCell.innerHTML = myAction.parameters.practiceCriteria : criterionCell.innerHTML = "");
-    (myAction.conceptId ? conceptIDCell.innerHTML = myAction.conceptId : conceptIDCell.innerHTML = "");
-    (myAction.score ? scoreCell.innerHTML = myAction.score : scoreCell.innerHTML = "");
+    if (myAction.attribute) {
+        traitCell.innerHTML = myAction.attribute;
+    } else if (myAction.parameters.attribute) {
+        myAction.parameters.attribute;
+    } else {
+        traitCell.innerHTML = "";
+    }
     submissionCell.innerHTML = correctSubmission;
     hintRow.appendChild(classCell);
     hintRow.appendChild(studentCell);
@@ -60,11 +52,12 @@ function addCSVRow(myStudent, myAction) {
     hintRow.appendChild(eventCell);
     hintRow.appendChild(hintLevelCell);
     hintRow.appendChild(traitCell);
-    hintRow.appendChild(criterionCell);
-    hintRow.appendChild(conceptIDCell);
-    hintRow.appendChild(scoreCell);
-    hintRow.appendChild(probCell);
     hintRow.appendChild(submissionCell);
+    hintRow.appendChild(LG99ACell);
+    hintRow.appendChild(LG1A3Cell);
+    hintRow.appendChild(LG1C2aCell);
+    hintRow.appendChild(LG1C2bCell);
+    hintRow.appendChild(LG1P2Cell);
     hintsTable.appendChild(hintRow);
 }
 

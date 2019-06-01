@@ -402,27 +402,27 @@ function addDescription(myRow, myActivity, myEvent) {
     }
 
     function describeITSDataUpdated() {
-        for (var k = 0; k < myRow.probs.length; k++) {
-            myRow.prevProbs[k] = myRow.prob[k];
-        }
-        //Clear the current probs array
-        myRow.probs = [];
-        //and set a default description
-        myRow.description = "No concept ID involved."
+        var conceptIds = [],
+            currentProbs = [],
+            prevProbs = [],
+            initProbs = [];
+        myRow.description = "";
         data = myRow.parameters.studentModel;
         //Get array of concept IDs from data
         conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g);
-        //Get array of probabilities learned from data
-        pls = data.match(/(?<="probabilityLearned"=>)([^,]+)/g)
-        for (var i = 0; i < pls.length; i++) {
+        //Get array of current probabilities learned from data
+        currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g);
+        //Get array of initial probabilities learned from data
+        initProbs = data.match(/(?<="L0"=>)([^,]+)/g);
+        for (var i = 0; i < currentProbs.length; i++) {
             myProb = new prob;
             myProb.id = conceptIds[i];
-            myProb.prob = Math.round(1000 * parseFloat(pls[i])) / 1000;
-            myRow.probs.push(myProb);
+            myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
+            myActivity.probs.push(myProb);
         }
         //Set description
-        for (var j = 0; j < pls.length; j++) {
-            myRow.description += "Concept " + conceptIds[j] + ", probability learned = " + Math.round(1000 * parseFloat(pls[j])) / 1000 + "<br>";
+        for (var j = 0; j < myActivity.probs.length; j++) {
+            myRow.description += "Concept " + myActivity.probs[j].id + " probability learned = " + myActivity.probs[j].prob + "<br>";
         }
     }
 
