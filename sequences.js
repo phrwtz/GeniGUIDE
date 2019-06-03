@@ -1,4 +1,4 @@
-function followStudent() {
+function MakeCSVFile() {
     var button = document.getElementById("toggleHintsButton");
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
         for (var j = 0, myAction; myAction = myStudent.actions[j]; j++) {
@@ -11,10 +11,11 @@ function followStudent() {
 }
 
 function addCSVRow(myStudent, myAction) {
-    var correctSubmission = "";
-    if (myAction.event == "Drake-submitted") {
+    var myActivity = myAction.activityObj,
+        oldProbs = myActivity.probs,
+        newProbs = [],
+        index = myAction.index,
         correctSubmission = myAction.parameters.correct;
-    }
     var hintsDiv = document.getElementById("hintsDiv");
     hintsDiv.style.display = "inline";
     var hintRow = document.createElement("tr");
@@ -26,11 +27,69 @@ function addCSVRow(myStudent, myAction) {
     var hintLevelCell = document.createElement("td");
     var traitCell = document.createElement("td");
     var submissionCell = document.createElement("td");
-    var LG99ACell = document.createElement("td");
-    var LG1A3Cell = document.createElement("td");
-    var LG1C2aCell = document.createElement("td");
-    var LG1C2bCell = document.createElement("td");
-    var LG1P2Cell = document.createElement("td");
+    var LG99Aold = document.createElement("td");
+    var LG99Anew = document.createElement("td");
+    var LG1A3old = document.createElement("td");
+    var LG1A3new = document.createElement("td");
+    var LG1C2aold = document.createElement("td");
+    var LG1C2anew = document.createElement("td");
+    var LG1C2bold = document.createElement("td");
+    var LG1C2bnew = document.createElement("td");
+    var LG1P2old = document.createElement("td");
+    var LG1P2new = document.createElement("td");
+
+    LG99Aold.id = "LG99.Aold" + index;
+    LG99Anew.id = "LG99.Anew" + index;
+    LG1A3old.id = "LG1.A3old" + index;
+    LG1A3new.id = "LG1.A3new" + index;
+    LG1C2aold.id = "LG1.C2aold" + index;
+    LG1C2anew.id = "LG1.C2anew" + index;
+    LG1C2bold.id = "LG1.C2bold" + index;
+    LG1C2bnew.id = "LG1.C2bnew" + index;
+    LG1P2old.id = "LG1.P2old" + index;
+    LG1P2new.id = "LG1.P2new" + index;
+
+    LG99Aold.innerHTML = "N/A";
+    LG99Aold.style.backgroundColor = "palegreen";
+    LG99Anew.innerHTML = "N/A";
+    LG99Anew.style.backgroundColor = "yellow";
+    LG1A3old.innerHTML = "N/A";
+    LG1A3old.style.backgroundColor = "palegreen";
+    LG1A3new.innerHTML = "N/A";
+    LG1A3new.style.backgroundColor = "yellow";
+    LG1C2aold.innerHTML = "N/A";
+    LG1C2aold.style.backgroundColor = "palegreen";
+    LG1C2anew.innerHTML = "N/A";
+    LG1C2anew.style.backgroundColor = "yellow";
+    LG1C2bold.innerHTML = "N/A";
+    LG1C2bold.style.backgroundColor = "palegreen";
+    LG1C2bnew.innerHTML = "N/A";
+    LG1C2bnew.style.backgroundColor = "yellow";
+    LG1P2old.innerHTML = "N/A";
+    LG1P2old.style.backgroundColor = "palegreen";
+    LG1P2new.innerHTML = "N/A";
+    LG1P2new.style.backgroundColor = "yellow";
+
+    hintRow.appendChild(classCell);
+    hintRow.appendChild(studentCell);
+    hintRow.appendChild(timeCell);
+    hintRow.appendChild(challengeCell);
+    hintRow.appendChild(eventCell);
+    hintRow.appendChild(hintLevelCell);
+    hintRow.appendChild(traitCell);
+    hintRow.appendChild(submissionCell);
+    hintRow.appendChild(LG99Aold);
+    hintRow.appendChild(LG99Anew);
+    hintRow.appendChild(LG1A3old);
+    hintRow.appendChild(LG1A3new);
+    hintRow.appendChild(LG1C2aold);
+    hintRow.appendChild(LG1C2anew);
+    hintRow.appendChild(LG1C2bold);
+    hintRow.appendChild(LG1C2bnew);
+    hintRow.appendChild(LG1P2old);
+    hintRow.appendChild(LG1P2new);
+    hintsTable.appendChild(hintRow);
+
     classCell.innerHTML = myStudent.class.id;
     studentCell.innerHTML = myStudent.id;
     timeCell.innerHTML = myAction.time;
@@ -44,21 +103,16 @@ function addCSVRow(myStudent, myAction) {
     } else {
         traitCell.innerHTML = "";
     }
-    submissionCell.innerHTML = correctSubmission;
-    hintRow.appendChild(classCell);
-    hintRow.appendChild(studentCell);
-    hintRow.appendChild(timeCell);
-    hintRow.appendChild(challengeCell);
-    hintRow.appendChild(eventCell);
-    hintRow.appendChild(hintLevelCell);
-    hintRow.appendChild(traitCell);
-    hintRow.appendChild(submissionCell);
-    hintRow.appendChild(LG99ACell);
-    hintRow.appendChild(LG1A3Cell);
-    hintRow.appendChild(LG1C2aCell);
-    hintRow.appendChild(LG1C2bCell);
-    hintRow.appendChild(LG1P2Cell);
-    hintsTable.appendChild(hintRow);
+    (correctSubmission ? submissionCell.innerHTML = correctSubmission : submissionCell.innerHTML = "");
+    newProbs = findProbs(myAction);
+    for (var i = 0; i < oldProbs.length; i++) {
+        document.getElementById(oldProbs[i].id + "old" + index).innerHTML = oldProbs[i].prob;
+    }
+    if (newProbs) {
+        for (var j = 0; j < newProbs.length; j++) {
+            document.getElementById(newProbs[j].id + "new" + index).innerHTML = newProbs[j].prob;
+        }
+    }
 }
 
 function toggleHintsTable() {

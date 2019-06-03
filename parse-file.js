@@ -21,13 +21,15 @@ var clas = function () {}; //No second "s" or it becomes a key word
 var student = function () {};
 var activity = function () {};
 var event = function () {};
-var hint = function () { };
-var prob= function () { ;} //Will contain a conceptID paired with a probabilityLearned 
+var hint = function () {};
+var prob = function () {
+    ;
+} //Will contain a conceptID paired with a probabilityLearned 
 
 function filter(data) {
     parseJSON(data);
     showClasses();
-    followStudent();
+    MakeCSVFile();
 }
 
 //This function takes one or more JSON files turns them into an array of objects then identifies classes by class_id, students by id, events by .
@@ -47,6 +49,7 @@ function parseJSON(data) {
     })
     for (var j = 0; j < rowObjs.length; j++) {
         myRow = rowObjs[j];
+        myRow.index = j;
         if (myRow.class_id) {
             if (!classIds.includes(myRow.class_id)) {
                 myClass = new clas;
@@ -91,12 +94,12 @@ function parseJSON(data) {
                         myActivity.remediationRequested = false;
                         myStudent.activityNames.push(myRow.activity);
                         myStudent.activities.push(myActivity);
+                        myActivity.probs = []; //To be updated each time we encounter an "ITS-Data-Updated" event
                         activities.push(myActivity);
                     } else {
                         myActivity = getComponentById(myStudent.activities, "name", myRow.activity);
+                        myRow.activityObj = myActivity;
                     }
-                    myActivity.probs = []; //To be updated each time we encounter an "ITS-Data-Updated" event
-                    myActivity.prevProbs = [];
                     myActivity.actions.push(myRow);
                     if (myRow.event) {
                         myRow.event = myRow.event.replace(/ /g, "-");
@@ -112,7 +115,6 @@ function parseJSON(data) {
                         }
                         if (myStudent.actions[myStudent.actions.length - 1]) {
                             myAction = myStudent.actions[myStudent.actions.length - 1];
-                            myAction.index = myStudent.actions.length;
                         }
                         addDescription(myRow, myActivity, myEvent);
                         myEvent.actions.push(myRow);
@@ -126,11 +128,14 @@ function parseJSON(data) {
                             myClass.remediationRequested = true;
                         }
                         myStudent.actions.push(myRow);
+                        if (myRow.index == 1010) {
+                            console.log(myRow.index);
+                        }
                     }
                 }
             }
-        } //New rowobj
-    }
+        }
+    } //New rowobj
 }
 
 function getSelectedClasses() { //Starting from global "classes," sets the global array "selectedClasses" to contain all the classes whose checkboxes are checked. Erases all columns to the right if no boxes are checked.
@@ -335,7 +340,7 @@ function showActions() {
             myAction = selectedActions[k];
             myParameters = myAction.parameters;
             myFields = Object.getOwnPropertyNames(myParameters);
-            actionsPara.innerHTML += ("<br><b>" + myAction.event + " at " + myAction.time + "</b><br>");
+            actionsPara.innerHTML += ("<br><b>" + myAction.index + ": " + myAction.event + " at " + myAction.time + "</b><br>");
             if (myAction.description) {
                 actionsPara.innerHTML += myAction.description;
             } else {
