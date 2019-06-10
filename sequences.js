@@ -1,4 +1,4 @@
-function MakeCSVFile() {
+function MakeCSVFilec() {
     var button = document.getElementById("toggleHintsButton");
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
         for (var j = 0, myAction; myAction = myStudent.actions[j]; j++) {
