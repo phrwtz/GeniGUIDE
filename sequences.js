@@ -2,7 +2,7 @@ function MakeCSVFile() {
     var button = document.getElementById("toggleHintsButton");
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
         for (var j = 0, myAction; myAction = myStudent.actions[j]; j++) {
-            if (myAction.event == "Drake-submitted") {
+            if (myAction.event == "ITS-Data-Updated") {
                 addCSVRow(myStudent, myAction);
             }
         }
@@ -11,10 +11,7 @@ function MakeCSVFile() {
 }
 
 function addCSVRow(myStudent, myAction) {
-    var oldProbs = myAction.oldProbs,
-        newProbs = myAction.newProbs,
-        index = myAction.index,
-        correctSubmission = myAction.parameters.correct;
+    var index = myAction.index;
     var hintsDiv = document.getElementById("hintsDiv");
     hintsDiv.style.display = "inline";
     var hintRow = document.createElement("tr");
@@ -23,9 +20,7 @@ function addCSVRow(myStudent, myAction) {
     var timeCell = document.createElement("td");
     var challengeCell = document.createElement("td");
     var eventCell = document.createElement("td");
-    //  var hintLevelCell = document.createElement("td");
-    //   var traitCell = document.createElement("td");
-    var submissionCell = document.createElement("td");
+    var indexCell = document.createElement("td");
     var LG99Aold = document.createElement("td");
     var LG99Anew = document.createElement("td");
     var LG1A3old = document.createElement("td");
@@ -51,14 +46,14 @@ function addCSVRow(myStudent, myAction) {
     LG1C2anew.id = "LG1.C2anew" + index;
     LG1C2bold.id = "LG1.C2bold" + index;
     LG1C2bnew.id = "LG1.C2bnew" + index;
-    LG1C3old.id = "LG1.C2bold" + index;
-    LG1C3new.id = "LG1.C2bnew" + index;
-    LG1P1old.id = "LG1.P2old" + index;
-    LG1P1new.id = "LG1.P2new" + index;
+    LG1C3old.id = "LG1.C3old" + index;
+    LG1C3new.id = "LG1.C3new" + index;
+    LG1P1old.id = "LG1.P1old" + index;
+    LG1P1new.id = "LG1.P1new" + index;
     LG1P2old.id = "LG1.P2old" + index;
     LG1P2new.id = "LG1.P2new" + index;
-    LG1P3old.id = "LG1.P2old" + index;
-    LG1P3new.id = "LG1.P2new" + index;
+    LG1P3old.id = "LG1.P3old" + index;
+    LG1P3new.id = "LG1.P3new" + index;
 
     LG99Aold.innerHTML = "N/A";
     LG99Aold.style.backgroundColor = "palegreen";
@@ -98,9 +93,7 @@ function addCSVRow(myStudent, myAction) {
     hintRow.appendChild(timeCell);
     hintRow.appendChild(challengeCell);
     hintRow.appendChild(eventCell);
-    //   hintRow.appendChild(hintLevelCell);
-    //   hintRow.appendChild(traitCell);
-    hintRow.appendChild(submissionCell);
+    hintRow.appendChild(indexCell);
     hintRow.appendChild(LG99Aold);
     hintRow.appendChild(LG99Anew);
     hintRow.appendChild(LG1A3old);
@@ -121,21 +114,19 @@ function addCSVRow(myStudent, myAction) {
 
     classCell.innerHTML = myStudent.class.id;
     studentCell.innerHTML = myStudent.id;
-    timeCell.innerHTML = myAction.time;
+    timeCell.innerHTML = myAction.time.match(/(?<=T)([^Z]+)/)[0];
     challengeCell.innerHTML = myAction.activity;
     eventCell.innerHTML = myAction.event;
-    /*
-    (myAction.hintLevel ? hintLevelCell.innerHTML = myAction.hintLevel : hintLevelCell.innerHTML = "");
-    if (myAction.attribute) {
-        traitCell.innerHTML = myAction.attribute;
-    } else if (myAction.parameters.attribute) {
-        myAction.parameters.attribute;
-    } else {
-        traitCell.innerHTML = "";
+    indexCell.innerHTML = index;
+
+    if (myStudent.probs.length > 1) {
+        for (var j = 1; j < myStudent.probs.length; j++) {
+            oldProbs = myStudent.probs[j - 1];
+            newProbs = myStudent.probs[j];
+            compareProbs(oldProbs, newProbs);
+        }
     }
-    */
-    (correctSubmission ? submissionCell.innerHTML = correctSubmission : submissionCell.innerHTML = "");
-    newProbs = findProbs(myAction);
+
     try {
         if (oldProbs) {
             if (oldProbs.length > 0) {

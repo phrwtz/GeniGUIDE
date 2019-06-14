@@ -130,7 +130,6 @@ function parseJSON(data) {
                     myStudent.actions.push(myRow);
                     var myProbs = getProbs(myRow, myStudent); //Returns new probabilities if there are any, otherwise returns null
                     if (myProbs) {
-                        console.log("probs array returned");
                         myStudent.probs.push(myProbs);
                     }
                 }

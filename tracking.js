@@ -7,9 +7,8 @@ function trackStudents() {
             for (var j = 1; j < myStudent.probs.length; j++) {
                 oldProbs = myStudent.probs[j - 1];
                 newProbs = myStudent.probs[j];
-                compareProbs(oldProbs, newProbs)
+                compareProbs(oldProbs, newProbs);
             }
-            //          console.log("Student " + myStudent.id + " has " + myStudent.probs.length + " probs.");
         }
     }
     trackProb();
@@ -57,4 +56,19 @@ function trackProb() {
             console.log(probLearnedArray[kk]);
         }
     }
+}
+
+function findAction(classID, studentID, actionIndex) {
+    for (var k = 0; k < classes.length; k++) {
+        if (parseInt(classes[k].id) == classID) {
+            var myClass = classes[k];
+            for (var i = 0; i < myClass.students.length; i++) {
+                if (parseInt(students[i].id) == studentID) {
+                    var myStudent = students[i];
+                    var myAction = myStudent.actions[actionIndex];
+                }
+            }
+        }
+    }
+    return (myAction);
 }

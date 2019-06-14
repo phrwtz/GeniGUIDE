@@ -691,7 +691,7 @@ function findProbs(row) {
             for (var ii = 0; ii < currentProbs.length; ii++) {
                 myProb = new prob;
                 myProb.id = conceptIds[ii];
-                myProb.prob = Math.round(1000 * parseFloat(currentProbs[ii])) / 1000;
+                myProb.prob = Math.round(100000 * parseFloat(currentProbs[ii])) / 100000;
                 newProbs.push(myProb);
             }
 
