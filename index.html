@@ -25,6 +25,26 @@
 
 
 <body>
+
+    <style>
+        td {
+            vertical-align: text-top;
+        }
+
+        p {
+            font-size: 20;
+            font-display: bold;
+        }
+
+        input[type="button"] {
+            background: white;
+            color: blue;
+            height: 25px;
+            width: 120px;
+            font-size: 20;
+        }
+    </style>
+
     <h2>Parse Geniventure JSON log files</h2>
     <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
 
@@ -43,6 +63,10 @@
             onclick="downloadHints()">
             Download CSV Table
         </button>
+        <button type="button" id="trackButton" style="display:inline;margin-right:20px"
+            onclick="trackStudents()">
+            Track students
+        </button>
         <table id="hintsTable" style="margin-top: 30px;display:none">
             <thead>
                 <tr id="headerRow">
@@ -60,12 +84,6 @@
                     </th>
                     <th>
                         Event type
-                    </th>
-                    <th>
-                        Hint level
-                    </th>
-                    <th>
-                        Trait
                     </th>
                     <th>
                         Submission correct?
@@ -95,10 +113,28 @@
                         LG1.C2b new
                     </th>
                     <th>
+                        LG1.C3 old
+                    </th>
+                    <th>
+                        LG1.C3 new
+                    </th>
+                    <th>
+                        LG1.P1 old
+                    </th>
+                    <th>
+                        LG1.P1 new
+                    </th>
+                    <th>
                         LG1.P2 old
                     </th>
                     <th>
                         LG1.P2 new
+                    </th>
+                    <th>
+                        LG1.P3 old
+                    </th>
+                    <th>
+                        LG1.P3 new
                     </th>
                 </tr>
             </thead>
@@ -130,24 +166,6 @@
 
 
 
-    <style>
-        td {
-            vertical-align: text-top;
-        }
-
-        p {
-            font-size: 20;
-            font-display: bold;
-        }
-
-        input[type="button"] {
-            background: white;
-            color: blue;
-            height: 25px;
-            width: 120px;
-            font-size: 20;
-        }
-    </style>
 
     <script>
         var data = new Array;
@@ -179,6 +197,7 @@
     <script src="sequences.js"></script>
     <script src="papaparse.js"></script>
     <script src="sequences.js"></script>
+    <script src="tracking.js"></script>
     <!-- 
     <script src="plotly.v1.42.5.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js">

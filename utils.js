@@ -343,125 +343,134 @@ function addDescription(myRow, myActivity, myEvent) {
                 describeDrakeSubmitted();
                 break;
         }
-    }
 
-    function describeNavigated() {
-        target = myRow.parameters.targetDrake;
-        initial = myRow.parameters.initialDrake;
-        var targetGenotype = target.slice(target.indexOf("alleleString") + 16, target.length - 12);
-        var initialGenotype = initial.slice(initial.indexOf("alleleString") + 16, initial.length - 12);
-        var alleleDiffs = findAlleleDifferences(targetGenotype, initialGenotype);
-        var targetDiffs = alleleDiffs[0];
-        var initialDiffs = alleleDiffs[1];
-        var targetSex = getSex(target);
-        var initialSex = getSex(initial);
-        if (myRow.parameters.goalMoves == 1) {
-            moveStr = " move ";
-        } else {
-            moveStr = " moves ";
+        function describeNavigated() {
+            if (simpleDomActivities.includes(myActivity.name)) {
+                target = myRow.parameters.targetDrake;
+                initial = myRow.parameters.initialDrake;
+                var targetGenotype = target.slice(target.indexOf("alleleString") + 16, target.length - 12);
+                var initialGenotype = initial.slice(initial.indexOf("alleleString") + 16, initial.length - 12);
+                var alleleDiffs = findAlleleDifferences(targetGenotype, initialGenotype);
+                var targetDiffs = alleleDiffs[0];
+                var initialDiffs = alleleDiffs[1];
+                var targetSex = getSex(target);
+                var initialSex = getSex(initial);
+                if (myRow.parameters.goalMoves == 1) {
+                    moveStr = " move ";
+                } else {
+                    moveStr = " moves ";
+                }
+                myRow.description = "Target alleles: " + targetDiffs + ", target drake is " + targetSex + ".<br>Initial alleles: " + initialDiffs + ", initial drake is " + initialSex + ".<br>" + myRow.parameters.goalMoves + moveStr + "required.<br>";
+                myActivity.targetDiffs = targetDiffs;
+                myActivity.targetGenotype = targetGenotype;
+                myActivity.targetSex = targetSex;
+                myActivity.currentDiffs = initialDiffs;
+                myActivity.currentGenotype = initialGenotype;
+                myActivity.currentSex = initialSex;
+                myActivity.moveCount = 0;
+                myActivity.requiredMoves = myRow.parameters.goalMoves;
+            }
         }
-        myRow.description = "Target alleles: " + targetDiffs + ", target drake is " + targetSex + ".<br>Initial alleles: " + initialDiffs + ", initial drake is " + initialSex + ".<br>" + myRow.parameters.goalMoves + moveStr + "required.<br>";
-        myActivity.targetDiffs = targetDiffs;
-        myActivity.targetGenotype = targetGenotype;
-        myActivity.targetSex = targetSex;
-        myActivity.currentDiffs = initialDiffs;
-        myActivity.currentGenotype = initialGenotype;
-        myActivity.currentSex = initialSex;
-        myActivity.moveCount = 0;
-        myActivity.requiredMoves = myRow.parameters.goalMoves;
-    }
 
-    function describeSexChanged() {
-        myActivity.moveCount++;
-        if (myActivity.moveCount == 1) {
-            moveStr = " move ";
-        } else {
-            moveStr = " moves ";
+        function describeSexChanged() {
+            if (simpleDomActivities.includes(myActivity.name)) {
+                myActivity.moveCount++;
+                if (myActivity.moveCount == 1) {
+                    moveStr = " move ";
+                } else {
+                    moveStr = " moves ";
+                }
+                if (myRow.parameters.newSex == "0") {
+                    myActivity.currentSex = "female";
+                    myRow.description = "Changed from male to female. Target sex is " + myActivity.targetSex + ".";
+                    if (myActivity.targetSex == "female") {
+                        myRow.description += "<br>Change is good.<br>";
+                    } else {
+                        var diffDescription = getPhenoDiffs(myActivity.targetGenotype, myActivity.currentGenotype);
+                        diffDescription += getSexDiffs(myActivity.targetSex, myActivity.currentSex);
+                        myRow.description = "Submitted a drake after " + myActivity.moveCount + moveStr + "<br>" + diffDescription;
+                    }
+                }
+            }
         }
-        if (myRow.parameters.newSex == "0") {
-            myActivity.currentSex = "female";
-            myRow.description = "Changed from male to female. Target sex is " + myActivity.targetSex + ".";
-            if (myActivity.targetSex == "female") {
-                myRow.description += "<br>Change is good.<br>";
+
+        function describeGuideHintReceived() {
+            var data = myRow.parameters.data;
+            myRow.hintLevel = data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
+            myRow.attribute = data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
+            myRow.conceptId = data.match(/("conceptId")([^a-zA-z]+)([^"]+)/)[3]
+            var rawScore = data.match(/("conceptScore")([^\d]+)([\d.]+)/)[3];
+            myRow.score = Math.round((parseFloat(rawScore) * 1000)) / 1000;
+            myRow.description = "Level " + myRow.hintLevel + " hint for " + myRow.attribute + " trait, concept ID = " + myRow.conceptId + ", probability learned = " + myRow.score + "<br>";
+        }
+
+        function describeITSDataUpdated() {
+            var conceptIds = [],
+                currentProbs = [],
+                prevProbs = [],
+                initProbs = [],
+                attemptStr,
+                attempts = [],
+                probs = [];
+            myRow.description = "";
+            data = myRow.parameters.studentModel;
+            //Get array of concept IDs from data
+            conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g);
+            //Get array of current probabilities learned from data
+            currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g);
+            //Get array of initial probabilities learned from data
+            initProbs = data.match(/(?<="L0"=>)([^,]+)/g);
+            attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g)
+            for (var i = 0; i < currentProbs.length; i++) {
+                myProb = new prob;
+                myProb.id = conceptIds[i];
+                myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
+                myProb.attempts = attempts[i];
+                probs.push(myProb);
+            }
+            //Set description
+            for (var j = 0; j < probs.length; j++) {
+                (probs[j].attempts > 1 ? attemptStr = " attempts." : attemptStr = " attempt.")
+                myRow.description += "Concept " + probs[j].id + " probability learned = " + probs[j].prob + ", " + probs[j].attempts + attemptStr + "<br>";
+            }
+        }
+
+        function describeAlleleChanged() {
+            if (simpleDomActivities.includes(myActivity.name)) {
+                myActivity.moveCount++;
+                var myChromosome = myRow.parameters.chromosome,
+                    mySide = myRow.parameters.side,
+                    newAllele = myRow.parameters.newAllele,
+                    oldAllele = myRow.parameters.previousAllele,
+                    targetAlleles = myActivity.targetDiffs,
+                    currentAlleles = myActivity.currentDiffs;
+                myEvent.score = scoreAlleleChange(newAllele, myActivity.currentGenotype, myActivity.targetGenotype);
+                updateCurrentAlleles(myActivity, oldAllele, newAllele, mySide);
+                myRow.description = "Changed allele " + oldAllele + " to " + newAllele + " on chromosome " + myChromosome + " side " + mySide + "<br>Alleles to be targeted are: " + targetAlleles + ". Score = " + myEvent.score + ".<br>";
+            }
+        }
+
+        function describeDrakeSubmitted() {
+            var moveStr;
+            (myActivity.moveCount == 1 ? moveStr = " move. " : moveStr = " moves. ");
+            if (myRow.parameters.correct == "true") {
+                myRow.description = "Submitted the correct drake after " + myActivity.moveCount + moveStr + "The minimum was " + myActivity.requiredMoves + "<br>";
             } else {
                 var diffDescription = getPhenoDiffs(myActivity.targetGenotype, myActivity.currentGenotype);
                 diffDescription += getSexDiffs(myActivity.targetSex, myActivity.currentSex);
                 myRow.description = "Submitted a drake after " + myActivity.moveCount + moveStr + "<br>" + diffDescription;
             }
+            findProbs(myRow);
         }
-    }
 
-    function describeGuideHintReceived() {
-        var data = myRow.parameters.data;
-        myRow.hintLevel = data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
-        myRow.attribute = data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
-        myRow.conceptId = data.match(/("conceptId")([^a-zA-z]+)([^"]+)/)[3]
-        var rawScore = data.match(/("conceptScore")([^\d]+)([\d.]+)/)[3];
-        myRow.score = Math.round((parseFloat(rawScore) * 1000)) / 1000;
-        myRow.description = "Level " + myRow.hintLevel + " hint for " + myRow.attribute + " trait, concept ID = " + myRow.conceptId + ", probability learned = " + myRow.score + "<br>";
-    }
-
-    function describeITSDataUpdated() {
-        var conceptIds = [],
-            currentProbs = [],
-            prevProbs = [],
-            initProbs = [];
-        myRow.description = "";
-        myActivity.probs = [];
-        data = myRow.parameters.studentModel;
-        //Get array of concept IDs from data
-        conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g);
-        //Get array of current probabilities learned from data
-        currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g);
-        //Get array of initial probabilities learned from data
-        initProbs = data.match(/(?<="L0"=>)([^,]+)/g);
-        for (var i = 0; i < currentProbs.length; i++) {
-            myProb = new prob;
-            myProb.id = conceptIds[i];
-            myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
-            myActivity.probs.push(myProb);
+        function describeGuideAlertReceived() {
+            data = myRow.parameters.data;
+            msg = "";
+            if (data.match(/(message)([^A-Za-z]+)([^"]+)/)) {
+                var msg = data.match(/(message)([^A-Za-z]+)([^"]+)/)[3];
+            }
+            myRow.description = msg + "<br>";
         }
-        //Set description
-        for (var j = 0; j < myActivity.probs.length; j++) {
-            myRow.description += "Concept " + myActivity.probs[j].id + " probability learned = " + myActivity.probs[j].prob + "<br>";
-        }
-    }
-
-    function describeAlleleChanged() {
-        myActivity.moveCount++;
-        var myChromosome = myRow.parameters.chromosome,
-            mySide = myRow.parameters.side,
-            newAllele = myRow.parameters.newAllele,
-            oldAllele = myRow.parameters.previousAllele,
-            targetAlleles = myActivity.targetDiffs,
-            currentAlleles = myActivity.currentDiffs;
-        myEvent.score = scoreAlleleChange(newAllele, myActivity.currentGenotype, myActivity.targetGenotype);
-        updateCurrentAlleles(myActivity, oldAllele, newAllele, mySide);
-        myRow.description = "Changed allele " + oldAllele + " to " + newAllele + " on chromosome " + myChromosome + " side " + mySide + "<br>Alleles to be targeted are: " + targetAlleles + ". Score = " + myEvent.score + ".<br>";
-    }
-
-    function describeDrakeSubmitted() {
-        var moveStr = " moves. ";
-        if (myActivity.moveCount == 1) {
-            moveStr = " move. ";
-        }
-        if (myRow.parameters.correct == "true") {
-            myRow.description = "Submitted the correct drake after " + myActivity.moveCount + moveStr + "The minimum was " + myActivity.requiredMoves + "<br>";
-        } else {
-            var diffDescription = getPhenoDiffs(myActivity.targetGenotype, myActivity.currentGenotype);
-            diffDescription += getSexDiffs(myActivity.targetSex, myActivity.currentSex);
-            myRow.description = "Submitted a drake after " + myActivity.moveCount + moveStr + "<br>" + diffDescription;
-        }
-        findProbs(myRow);
-    }
-
-    function describeGuideAlertReceived() {
-        data = myRow.parameters.data;
-        msg = "";
-        if (data.match(/(message)([^A-Za-z]+)([^"]+)/)) {
-            var msg = data.match(/(message)([^A-Za-z]+)([^"]+)/)[3];
-        }
-        myRow.description = msg + "<br>";
     }
 }
 
@@ -687,9 +696,9 @@ function findProbs(row) {
             }
 
             // console.log("Row " + index + " is " + rowObjs[index].event);
-            // for (var k = 0; k < myActivity.probs.length; k++) {
-            //     if (myActivity.probs[k].prob != newProbs[k].prob) {
-            //         console.log("For " + myActivity.probs[k].id + " old prob= " + myActivity.probs[k].prob + ", new prob = " + newProbs[k].prob);
+            // for (var k = 0; k < probs.length; k++) {
+            //     if (probs[k].prob != newProbs[k].prob) {
+            //         console.log("For " + probs[k].id + " old prob= " + probs[k].prob + ", new prob = " + newProbs[k].prob);
             //     }
             // }
             return (newProbs);

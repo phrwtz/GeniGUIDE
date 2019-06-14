@@ -1,8 +1,8 @@
-function MakeCSVFilec() {
+function MakeCSVFile() {
     var button = document.getElementById("toggleHintsButton");
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
         for (var j = 0, myAction; myAction = myStudent.actions[j]; j++) {
-            if ((myAction.event == "Guide-hint-received") || (myAction.event == "Drake-submitted")) {
+            if (myAction.event == "Drake-submitted") {
                 addCSVRow(myStudent, myAction);
             }
         }
@@ -11,9 +11,8 @@ function MakeCSVFilec() {
 }
 
 function addCSVRow(myStudent, myAction) {
-    var myActivity = myAction.activityObj,
-        oldProbs = myActivity.probs,
-        newProbs = [],
+    var oldProbs = myAction.oldProbs,
+        newProbs = myAction.newProbs,
         index = myAction.index,
         correctSubmission = myAction.parameters.correct;
     var hintsDiv = document.getElementById("hintsDiv");
@@ -24,8 +23,8 @@ function addCSVRow(myStudent, myAction) {
     var timeCell = document.createElement("td");
     var challengeCell = document.createElement("td");
     var eventCell = document.createElement("td");
-    var hintLevelCell = document.createElement("td");
-    var traitCell = document.createElement("td");
+    //  var hintLevelCell = document.createElement("td");
+    //   var traitCell = document.createElement("td");
     var submissionCell = document.createElement("td");
     var LG99Aold = document.createElement("td");
     var LG99Anew = document.createElement("td");
@@ -35,8 +34,14 @@ function addCSVRow(myStudent, myAction) {
     var LG1C2anew = document.createElement("td");
     var LG1C2bold = document.createElement("td");
     var LG1C2bnew = document.createElement("td");
+    var LG1C3old = document.createElement("td");
+    var LG1C3new = document.createElement("td");
+    var LG1P1old = document.createElement("td");
+    var LG1P1new = document.createElement("td");
     var LG1P2old = document.createElement("td");
     var LG1P2new = document.createElement("td");
+    var LG1P3old = document.createElement("td");
+    var LG1P3new = document.createElement("td");
 
     LG99Aold.id = "LG99.Aold" + index;
     LG99Anew.id = "LG99.Anew" + index;
@@ -46,8 +51,14 @@ function addCSVRow(myStudent, myAction) {
     LG1C2anew.id = "LG1.C2anew" + index;
     LG1C2bold.id = "LG1.C2bold" + index;
     LG1C2bnew.id = "LG1.C2bnew" + index;
+    LG1C3old.id = "LG1.C2bold" + index;
+    LG1C3new.id = "LG1.C2bnew" + index;
+    LG1P1old.id = "LG1.P2old" + index;
+    LG1P1new.id = "LG1.P2new" + index;
     LG1P2old.id = "LG1.P2old" + index;
     LG1P2new.id = "LG1.P2new" + index;
+    LG1P3old.id = "LG1.P2old" + index;
+    LG1P3new.id = "LG1.P2new" + index;
 
     LG99Aold.innerHTML = "N/A";
     LG99Aold.style.backgroundColor = "palegreen";
@@ -65,18 +76,30 @@ function addCSVRow(myStudent, myAction) {
     LG1C2bold.style.backgroundColor = "palegreen";
     LG1C2bnew.innerHTML = "N/A";
     LG1C2bnew.style.backgroundColor = "yellow";
+    LG1C3old.innerHTML = "N/A";
+    LG1C3old.style.backgroundColor = "palegreen";
+    LG1C3new.innerHTML = "N/A";
+    LG1C3new.style.backgroundColor = "yellow";
+    LG1P1old.innerHTML = "N/A";
+    LG1P1old.style.backgroundColor = "palegreen";
+    LG1P1new.innerHTML = "N/A";
+    LG1P1new.style.backgroundColor = "yellow";
     LG1P2old.innerHTML = "N/A";
     LG1P2old.style.backgroundColor = "palegreen";
     LG1P2new.innerHTML = "N/A";
     LG1P2new.style.backgroundColor = "yellow";
+    LG1P3old.innerHTML = "N/A";
+    LG1P3old.style.backgroundColor = "palegreen";
+    LG1P3new.innerHTML = "N/A";
+    LG1P3new.style.backgroundColor = "yellow";
 
     hintRow.appendChild(classCell);
     hintRow.appendChild(studentCell);
     hintRow.appendChild(timeCell);
     hintRow.appendChild(challengeCell);
     hintRow.appendChild(eventCell);
-    hintRow.appendChild(hintLevelCell);
-    hintRow.appendChild(traitCell);
+    //   hintRow.appendChild(hintLevelCell);
+    //   hintRow.appendChild(traitCell);
     hintRow.appendChild(submissionCell);
     hintRow.appendChild(LG99Aold);
     hintRow.appendChild(LG99Anew);
@@ -86,8 +109,14 @@ function addCSVRow(myStudent, myAction) {
     hintRow.appendChild(LG1C2anew);
     hintRow.appendChild(LG1C2bold);
     hintRow.appendChild(LG1C2bnew);
+    hintRow.appendChild(LG1C3old);
+    hintRow.appendChild(LG1C3new);
+    hintRow.appendChild(LG1P1old);
+    hintRow.appendChild(LG1P1new);
     hintRow.appendChild(LG1P2old);
     hintRow.appendChild(LG1P2new);
+    hintRow.appendChild(LG1P3old);
+    hintRow.appendChild(LG1P3new);
     hintsTable.appendChild(hintRow);
 
     classCell.innerHTML = myStudent.class.id;
@@ -95,6 +124,7 @@ function addCSVRow(myStudent, myAction) {
     timeCell.innerHTML = myAction.time;
     challengeCell.innerHTML = myAction.activity;
     eventCell.innerHTML = myAction.event;
+    /*
     (myAction.hintLevel ? hintLevelCell.innerHTML = myAction.hintLevel : hintLevelCell.innerHTML = "");
     if (myAction.attribute) {
         traitCell.innerHTML = myAction.attribute;
@@ -103,17 +133,33 @@ function addCSVRow(myStudent, myAction) {
     } else {
         traitCell.innerHTML = "";
     }
+    */
     (correctSubmission ? submissionCell.innerHTML = correctSubmission : submissionCell.innerHTML = "");
     newProbs = findProbs(myAction);
-    for (var i = 0; i < oldProbs.length; i++) {
-        document.getElementById(oldProbs[i].id + "old" + index).innerHTML = oldProbs[i].prob;
-    }
-    if (newProbs) {
-        for (var j = 0; j < newProbs.length; j++) {
-            document.getElementById(newProbs[j].id + "new" + index).innerHTML = newProbs[j].prob;
+    try {
+        if (oldProbs) {
+            if (oldProbs.length > 0) {
+                for (var i = 0; i < oldProbs.length; i++) {
+                    document.getElementById(oldProbs[i].id + "old" + index).innerHTML = oldProbs[i].prob;
+                }
+            }
+        } else {
+            console.log("No old probs. Last action was " + lastAction.event);
         }
+        if (newProbs) {
+            if (newProbs.length > 0) {
+                for (var j = 0; j < newProbs.length; j++) {
+                    document.getElementById(newProbs[j].id + "new" + index).innerHTML = newProbs[j].prob;
+                }
+            }
+        } else {
+            console.log("No new probs");
+        }
+    } catch (err) {
+        console.log("Can't find the array element.");
     }
 }
+
 
 function toggleHintsTable() {
     var hintsTable = document.getElementById("hintsTable");
