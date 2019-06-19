@@ -25,6 +25,9 @@ var prob = function () {};
 
 function filter(data) {
     parseJSON(data);
+    console.log("Data parsed.");
+    findFutureProbs();
+    console.log("Future probs found.");
     showClasses();
     MakeCSVFile();
 }
@@ -66,7 +69,7 @@ function parseJSON(data) {
                 if (!myClass.uniqueUsernames.includes(myRow.username)) {
                     myClass.uniqueUsernames.push(myRow.username);
                     myStudent = new student;
-                    myStudent.probs = [];
+                    myStudent.probsArray = [];
                     myStudent.actions = [];
                     myStudent.activities = [];
                     myStudent.activityNames = [];
@@ -78,59 +81,77 @@ function parseJSON(data) {
                     myClass.students.push(myStudent);
                     students.push(myStudent);
                 } else {
-                    myStudent = getComponentById(myClass.students, "id", myRow.username);
+                    myStudent = getComponentById(students, "id", myRow.username);
                 }
-                myRow.student = myStudent;
-                myRow.index = myStudent.actions.length;
-                if (myRow.activity) {
-                    if (!myStudent.activityNames.includes(myRow.activity)) {
-                        myActivity = new activity;
-                        myActivity.name = myRow.activity;
-                        myActivity.student = myStudent;
-                        myActivity.actions = [];
-                        myActivity.events = [];
-                        myActivity.hints = [];
-                        myActivity.hintReceived = false;
-                        myActivity.eventNames = [];
-                        myActivity.remediationRequested = false;
-                        myStudent.activityNames.push(myRow.activity);
-                        myStudent.activities.push(myActivity);
-                    } else {
-                        myActivity = getComponentById(myStudent.activities, "name", myRow.activity);
+                if (myStudent) {
+                    myRow.student = myStudent;
+                    try {
+                        myRow.index = myStudent.actions.length;
+                    } catch (err) {
+                        console.log("no student found")
                     }
-                    myRow.activityObj = myActivity;
-                    myActivity.actions.push(myRow);
-                    if (myRow.event) {
-                        myRow.event = myRow.event.replace(/ /g, "-");
-                        if (!myActivity.eventNames.includes(myRow.event)) {
-                            myActivity.eventNames.push(myRow.event);
-                            myEvent = new event;
-                            myEvent.name = myRow.event;
-                            myEvent.activity = myActivity;
-                            myEvent.actions = [];
-                            myActivity.events.push(myEvent);
+                    if (myRow.activity) {
+                        if (!myStudent.activityNames.includes(myRow.activity)) {
+                            myActivity = new activity;
+                            myActivity.name = myRow.activity;
+                            myActivity.student = myStudent;
+                            myActivity.actions = [];
+                            myActivity.events = [];
+                            myActivity.hints = [];
+                            myActivity.hintReceived = false;
+                            myActivity.eventNames = [];
+                            myActivity.remediationRequested = false;
+                            myStudent.activityNames.push(myRow.activity);
+                            myStudent.activities.push(myActivity);
                         } else {
-                            myEvent = getComponentById(myActivity.events, "name", myRow.event);
+                            myActivity = getComponentById(myStudent.activities, "name", myRow.activity);
                         }
-                        if (myStudent.actions[myStudent.actions.length - 1]) {
-                            myAction = myStudent.actions[myStudent.actions.length - 1];
+                        myRow.activityObj = myActivity;
+                        myActivity.actions.push(myRow);
+                        if (myRow.event) {
+                            myRow.event = myRow.event.replace(/ /g, "-");
+                            if (!myActivity.eventNames.includes(myRow.event)) {
+                                myActivity.eventNames.push(myRow.event);
+                                myEvent = new event;
+                                myEvent.name = myRow.event;
+                                myEvent.activity = myActivity;
+                                myEvent.actions = [];
+                                myActivity.events.push(myEvent);
+                            } else {
+                                myEvent = getComponentById(myActivity.events, "name", myRow.event);
+                            }
+                            if (myStudent.actions[myStudent.actions.length - 1]) {
+                                myAction = myStudent.actions[myStudent.actions.length - 1];
+                            }
+                            myEvent.actions.push(myRow);
+                            if (myEvent.name == "Guide-hint-received") {
+                                myActivity.hintReceived = true;
+                                myStudent.hintReceived = true;
+                                myClass.hintReceived = true;
+                            } else if (myEvent.name == "Guide-remediation-requested") {
+                                myActivity.remediationRequested = true;
+                                myStudent.remediationRequested = true;
+                                myClass.remediationRequested = true;
+                            }
+                            addDescription(myRow, myActivity, myEvent);
+                            myStudent.actions.push(myRow);
                         }
-                        addDescription(myRow, myActivity, myEvent);
-                        myEvent.actions.push(myRow);
-                        if (myEvent.name == "Guide-hint-received") {
-                            myActivity.hintReceived = true;
-                            myStudent.hintReceived = true;
-                            myClass.hintReceived = true;
-                        } else if (myEvent.name == "Guide-remediation-requested") {
-                            myActivity.remediationRequested = true;
-                            myStudent.remediationRequested = true;
-                            myClass.remediationRequested = true;
+                        if ((myRow.event == "ITS-Data-Updated") && (myStudent.actions.length > 10)) {
+                            try {
+                                var myProbs = getProbs(myRow, myStudent); //Returns a new prob object from the event
+                                if (myProbs) { //If there are new probs
+                                    myRow.probs = myProbs; //Add them to the action 
+                                    myStudent.probsArray.push(myProbs); //and push them to the student's array of probs
+                                } else if (myStudent.probsArray.length > 0) { //if the student's probs array is not empty then the action will inherit the probs as the last element in that array
+                                    myRow.probs = myStudent.probsArray[myStudent.probsArray.length - 1];
+                                    for (u = 0; u < myRow.probs.length; u++) { //Set all the probs to unchanged
+                                        myRow.probs[u].changed = false;
+                                    }
+                                } else myRow.probs = []; //If the student doesn't yet have any probs then neither does this action.
+                            } catch (err) {
+                                console.log("Problem with getProbs");
+                            }
                         }
-                    }
-                    myStudent.actions.push(myRow);
-                    var myProbs = getProbs(myRow, myStudent); //Returns new probabilities if there are any, otherwise returns null
-                    if (myProbs) {
-                        myStudent.probs.push(myProbs);
                     }
                 }
             }
@@ -138,239 +159,239 @@ function parseJSON(data) {
     }
 }
 
-    function getProbs(myRow, myStudent) {
-        if (myRow.event == "ITS-Data-Updated") {
-            myProbs = [];
-            data = myRow.parameters.studentModel;
-            conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g);
-            currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g);
-            initProbs = data.match(/(?<="L0"=>)([^,]+)/g);
-            attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g)
-            for (var i = 0; i < currentProbs.length; i++) {
-                myProb = new prob;
-                myProb.id = conceptIds[i];
-                myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
-                myProb.attempts = attempts[i];
-                myProb.changed = true; //First prob is changed from null
-                myProbs.push(myProb);
-            }
-        } else {
-            myProbs = null;
-        }
-        return myProbs;
+function getProbs(myRow) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
+    var myProbs = [],
+        myStudent = myRow.student,
+        previousRow = myRow.student.actions[myRow.student.actions.length - 1], //Note: this row hasn't been added to the student.actions array yet so the last action in the array is the previous action to this one.
+        oldProbs = previousRow.probs,
+        data = myRow.parameters.studentModel,
+        conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
+        currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
+        initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
+        attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
+    for (var i = 0; i < currentProbs.length; i++) {
+        myProb = new prob;
+        myProb.time = myRow.time;
+        myProb.id = conceptIds[i];
+        myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
+        myProb.attempts = attempts[i];
+        myProbs.push(myProb);
     }
+    compareProbs(oldProbs, myProbs);
+    return myProbs;
+}
 
-    function getSelectedClasses() { //Starting from global "classes," sets the global array "selectedClasses" to contain all the classes whose checkboxes are checked. Erases all columns to the right if no boxes are checked.
-        selectedClasses = [];
-        var selectedClassIds = checkedButtons("classButton"),
-            myClass;
-        if (selectedClassIds.length == 0) {
-            studentsPara.innerHTML = "";
-            activitiesPara.innerHTML = "";
-            eventsPara.innerHTML = "";
-        } else {
-            for (var i = 0; i < selectedClassIds.length; i++) {
-                myClass = getComponentById(classes, "id", selectedClassIds[i]);
-                selectedClasses.push(myClass);
-            }
-        }
-    }
-
-    function getSelectedStudents() { //Starting from the global array "selectedClasses," sets the global array "selectedStudents" to contain all the students in classes whose checkboxes are checked. Note: students may be duplicated if they are enrolled in more than one class. Erases all columns to the right if no student boxes are checked.
-        selectedStudents = [];
-        var selectedStudentIds = checkedButtons("studentButton"),
-            studentsToLookAt = [], //All students in selected classes
-            myClass,
-            myStudent;
-        if (selectedStudentIds.length == 0) {
-            activitiesPara.innerHTML = "";
-            eventsPara.innerHTML = "";
-        } else {
-            //For each class in selectedClasses,
-            for (var i = 0; i < selectedClasses.length; i++) {
-                myClass = selectedClasses[i];
-                //for each student in each class,
-                for (var j = 0; j < myClass.students.length; j++) {
-                    myStudent = myClass.students[j];
-                    //if the student's box has been checked
-                    if (selectedStudentIds.includes(myStudent.id)) {
-                        selectedStudents.push(myStudent);
-                    }
-                }
-            }
-        }
-    }
-
-
-    function getSelectedActivities() { //Starting from the global array "selectedStudents," sets the global array "selectedActivities" to contain all the activities engaged in by the students whose checkboxes are checked. Note: some activities may be duplicated if more than one selected student engages in them. Erases all columns to the right if no activity boxes are checked.
-        selectedActivities = [];
-        var selectedActivityIds = checkedButtons("activityButton"),
-            myStudent,
-            myActivity;
-        if (selectedActivityIds.length == 0) {
-            eventsPara.innerHTML = "";
-        } else {
-            for (var j = 0; j < selectedStudents.length; j++) {
-                myStudent = selectedStudents[j];
-                for (var k = 0; k < myStudent.activities.length; k++) {
-                    myActivity = myStudent.activities[k];
-                    if (selectedActivityIds.includes(myActivity.name)) {
-                        selectedActivities.push(myActivity);
-                    }
-                }
-            }
-        }
-    }
-
-
-    function getSelectedEvents() { //Starting from the global array "selectedActivities," sets the global array "selectedEvents" to contain all the events contained in one or more of the activities whose checkboxes are checked. Note: some events may be duplicated if they belong to more than one checked activity.
-        selectedEvents = [];
-        var selectedEventIds = checkedButtons("eventButton"),
-            myActivity,
-            myEvent;
-        for (var k = 0; k < selectedActivities.length; k++) {
-            myActivity = selectedActivities[k];
-            for (var l = 0; l < myActivity.events.length; l++) {
-                myEvent = myActivity.events[l];
-                if (selectedEventIds.includes(myEvent.name)) {
-                    selectedEvents.push(myEvent);
-                }
-            }
-        }
-    }
-
-    function showClasses() { //Sets up the classes checkboxes. Span contains the number of students in each class; onchange runs "showStudents"
+function getSelectedClasses() { //Starting from global "classes," sets the global array "selectedClasses" to contain all the classes whose checkboxes are checked. Erases all columns to the right if no boxes are checked.
+    selectedClasses = [];
+    var selectedClassIds = checkedButtons("classButton"),
+        myClass;
+    if (selectedClassIds.length == 0) {
+        studentsPara.innerHTML = "";
         activitiesPara.innerHTML = "";
         eventsPara.innerHTML = "";
-        makeButtons(classes, "id", "students", "radio", "classButton", "showStudents()", "Class IDs", classesPara);
+    } else {
+        for (var i = 0; i < selectedClassIds.length; i++) {
+            myClass = getComponentById(classes, "id", selectedClassIds[i]);
+            selectedClasses.push(myClass);
+        }
     }
+}
 
-    function showStudents() { //Sets up the students checkboxes. Span field contains the number of activities engaged in by each student; onchange runs "showActivities"
-        var selectedStudents = [],
-            myClass,
-            myStudent;
+function getSelectedStudents() { //Starting from the global array "selectedClasses," sets the global array "selectedStudents" to contain all the students in classes whose checkboxes are checked. Note: students may be duplicated if they are enrolled in more than one class. Erases all columns to the right if no student boxes are checked.
+    selectedStudents = [];
+    var selectedStudentIds = checkedButtons("studentButton"),
+        studentsToLookAt = [], //All students in selected classes
+        myClass,
+        myStudent;
+    if (selectedStudentIds.length == 0) {
         activitiesPara.innerHTML = "";
         eventsPara.innerHTML = "";
-        actionsPara.innerHTML = "";
-        getSelectedClasses();
-        if (selectedClasses.length > 0) {
-            for (var j = 0; j < selectedClasses.length; j++) {
-                myClass = selectedClasses[j];
-                makeButtons(myClass.students, "id", "activities", "radio", "studentButton", "showActivities()", "Student IDs", studentsPara)
+    } else {
+        //For each class in selectedClasses,
+        for (var i = 0; i < selectedClasses.length; i++) {
+            myClass = selectedClasses[i];
+            //for each student in each class,
+            for (var j = 0; j < myClass.students.length; j++) {
+                myStudent = myClass.students[j];
+                //if the student's box has been checked
+                if (selectedStudentIds.includes(myStudent.id)) {
+                    selectedStudents.push(myStudent);
+                }
             }
         }
     }
+}
 
-    function showActivities() { //Sets up the activites checkboxes. Span field contains the number of events executed within each activity; onchange runs "showEvents"
+
+function getSelectedActivities() { //Starting from the global array "selectedStudents," sets the global array "selectedActivities" to contain all the activities engaged in by the students whose checkboxes are checked. Note: some activities may be duplicated if more than one selected student engages in them. Erases all columns to the right if no activity boxes are checked.
+    selectedActivities = [];
+    var selectedActivityIds = checkedButtons("activityButton"),
+        myStudent,
+        myActivity;
+    if (selectedActivityIds.length == 0) {
         eventsPara.innerHTML = "";
-        actionsPara.innerHTML = "";
-        var selectedActivities = [],
-            myStudent,
-            myActivity,
-            myEvent;
-        getSelectedStudents(); //All the students, if any, whose boxes have been checked
-        if (selectedStudents.length != 0) {
-            for (var i = 0; i < selectedStudents.length; i++) {
-                myStudent = selectedStudents[i];
-                makeButtons(myStudent.activities, "name", "events", "radio", "activityButton", "showEvents()", "Activities", activitiesPara);
+    } else {
+        for (var j = 0; j < selectedStudents.length; j++) {
+            myStudent = selectedStudents[j];
+            for (var k = 0; k < myStudent.activities.length; k++) {
+                myActivity = myStudent.activities[k];
+                if (selectedActivityIds.includes(myActivity.name)) {
+                    selectedActivities.push(myActivity);
+                }
             }
         }
     }
+}
 
-    function showEvents() { //Sets up the events checkboxes. Span contains the number of actions executed within each event; onchange runs "showActions"
-        selectedEvents = [];
-        var uniqueEventNames = [],
-            uniqueEvents = [],
-            uniqueEvent = function () {},
-            myUniqueEvent,
-            myActivity,
-            myEvent,
-            myAction,
-            uniqueAction,
-            actionFound;
-        getSelectedActivities();
-        actionsPara.innerHTML = "";
-        if (selectedActivities.length > 0) {
-            for (var i = 0; i < selectedActivities.length; i++) {
-                myActivity = selectedActivities[i];
-                for (var j = 0; j < myActivity.events.length; j++) {
-                    myEvent = myActivity.events[j];
-                    if (!uniqueEventNames.includes(myEvent.name)) {
-                        uniqueEventNames.push(myEvent.name);
-                        myUniqueEvent = new uniqueEvent;
-                        myUniqueEvent.name = myEvent.name;
-                        myUniqueEvent.actions = myEvent.actions;
-                        uniqueEvents.push(myUniqueEvent);
-                    } else { //We've already encountered this event from another activity. We need to find the uniqueEvent object and add to its actions if we encounter new ones
-                        actionFound = false;
-                        myUniqueEvent = getComponentById(uniqueEvents, "name", myEvent.name);
-                        for (var k = 0; k < myEvent.actions.length; k++) {
-                            myAction = myEvent.actions[k];
-                            for (var l = 0; l < myUniqueEvent.actions.length; l++) {
-                                uniqueAction = myUniqueEvent.actions[l];
-                                if (myAction.id == uniqueAction.id) {
-                                    actionFound = true;
-                                }
+
+function getSelectedEvents() { //Starting from the global array "selectedActivities," sets the global array "selectedEvents" to contain all the events contained in one or more of the activities whose checkboxes are checked. Note: some events may be duplicated if they belong to more than one checked activity.
+    selectedEvents = [];
+    var selectedEventIds = checkedButtons("eventButton"),
+        myActivity,
+        myEvent;
+    for (var k = 0; k < selectedActivities.length; k++) {
+        myActivity = selectedActivities[k];
+        for (var l = 0; l < myActivity.events.length; l++) {
+            myEvent = myActivity.events[l];
+            if (selectedEventIds.includes(myEvent.name)) {
+                selectedEvents.push(myEvent);
+            }
+        }
+    }
+}
+
+function showClasses() { //Sets up the classes checkboxes. Span contains the number of students in each class; onchange runs "showStudents"
+    activitiesPara.innerHTML = "";
+    eventsPara.innerHTML = "";
+    makeButtons(classes, "id", "students", "radio", "classButton", "showStudents()", "Class IDs", classesPara);
+}
+
+function showStudents() { //Sets up the students checkboxes. Span field contains the number of activities engaged in by each student; onchange runs "showActivities"
+    var selectedStudents = [],
+        myClass,
+        myStudent;
+    activitiesPara.innerHTML = "";
+    eventsPara.innerHTML = "";
+    actionsPara.innerHTML = "";
+    getSelectedClasses();
+    if (selectedClasses.length > 0) {
+        for (var j = 0; j < selectedClasses.length; j++) {
+            myClass = selectedClasses[j];
+            makeButtons(myClass.students, "id", "activities", "radio", "studentButton", "showActivities()", "Student IDs", studentsPara)
+        }
+    }
+}
+
+function showActivities() { //Sets up the activites checkboxes. Span field contains the number of events executed within each activity; onchange runs "showEvents"
+    eventsPara.innerHTML = "";
+    actionsPara.innerHTML = "";
+    var selectedActivities = [],
+        myStudent,
+        myActivity,
+        myEvent;
+    getSelectedStudents(); //All the students, if any, whose boxes have been checked
+    if (selectedStudents.length != 0) {
+        for (var i = 0; i < selectedStudents.length; i++) {
+            myStudent = selectedStudents[i];
+            makeButtons(myStudent.activities, "name", "events", "radio", "activityButton", "showEvents()", "Activities", activitiesPara);
+        }
+    }
+}
+
+function showEvents() { //Sets up the events checkboxes. Span contains the number of actions executed within each event; onchange runs "showActions"
+    selectedEvents = [];
+    var uniqueEventNames = [],
+        uniqueEvents = [],
+        uniqueEvent = function () {},
+        myUniqueEvent,
+        myActivity,
+        myEvent,
+        myAction,
+        uniqueAction,
+        actionFound;
+    getSelectedActivities();
+    actionsPara.innerHTML = "";
+    if (selectedActivities.length > 0) {
+        for (var i = 0; i < selectedActivities.length; i++) {
+            myActivity = selectedActivities[i];
+            for (var j = 0; j < myActivity.events.length; j++) {
+                myEvent = myActivity.events[j];
+                if (!uniqueEventNames.includes(myEvent.name)) {
+                    uniqueEventNames.push(myEvent.name);
+                    myUniqueEvent = new uniqueEvent;
+                    myUniqueEvent.name = myEvent.name;
+                    myUniqueEvent.actions = myEvent.actions;
+                    uniqueEvents.push(myUniqueEvent);
+                } else { //We've already encountered this event from another activity. We need to find the uniqueEvent object and add to its actions if we encounter new ones
+                    actionFound = false;
+                    myUniqueEvent = getComponentById(uniqueEvents, "name", myEvent.name);
+                    for (var k = 0; k < myEvent.actions.length; k++) {
+                        myAction = myEvent.actions[k];
+                        for (var l = 0; l < myUniqueEvent.actions.length; l++) {
+                            uniqueAction = myUniqueEvent.actions[l];
+                            if (myAction.id == uniqueAction.id) {
+                                actionFound = true;
                             }
                         }
-                        if (!actionFound) {
-                            myUniqueEvent.actions.push(myAction);
-                        }
+                    }
+                    if (!actionFound) {
+                        myUniqueEvent.actions.push(myAction);
                     }
                 }
-                uniqueEvents.sort(function (a, b) {
-                    var x = a.name.toLowerCase();
-                    var y = b.name.toLowerCase();
-                    if (x < y) {
-                        return -1;
-                    }
-                    if (x > y) {
-                        return 1;
-                    }
-                    return 0;
-                })
-                makeButtons(uniqueEvents, "name", "actions", "checkbox", "eventButton", "showActions()", "Events", eventsPara)
             }
-        } else {
-            eventsPara.innerHTML = "";
-        }
-    }
-
-    function showActions() {
-        var myEvent,
-            myAction,
-            myFields,
-            unixTime;
-        getSelectedEvents();
-        if (selectedEvents.length == 0) {
-            actionsPara.innerHTML = "";
-        } else {
-            actionsPara.innerHTML = "<b>Actions</b><br>";
-            selectedActions = [];
-            for (var i = 0; i < selectedEvents.length; i++) {
-                myEvent = selectedEvents[i];
-                for (var j = 0; j < myEvent.actions.length; j++) {
-                    myAction = myEvent.actions[j];
-                    myAction.unixTime = new Date(myAction.time).getTime();
-                    selectedActions.push(myAction);
+            uniqueEvents.sort(function (a, b) {
+                var x = a.name.toLowerCase();
+                var y = b.name.toLowerCase();
+                if (x < y) {
+                    return -1;
                 }
-            }
-            selectedActions.sort(function (a, b) {
-                return a.unixTime - b.unixTime
+                if (x > y) {
+                    return 1;
+                }
+                return 0;
             })
-            for (var k = 0; k < selectedActions.length; k++) {
-                myAction = selectedActions[k];
-                myParameters = myAction.parameters;
-                myFields = Object.getOwnPropertyNames(myParameters);
-                actionsPara.innerHTML += ("<br><b>" + myAction.index + ": " + myAction.event + " at " + myAction.time + "</b><br>");
-                if (myAction.description) {
-                    actionsPara.innerHTML += myAction.description;
-                } else {
-                    for (var l = 0; l < myFields.length; l++) {
-                        myField = myFields[l];
-                        actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
-                    }
+            makeButtons(uniqueEvents, "name", "actions", "checkbox", "eventButton", "showActions()", "Events", eventsPara)
+        }
+    } else {
+        eventsPara.innerHTML = "";
+    }
+}
+
+function showActions() {
+    var myEvent,
+        myAction,
+        myFields,
+        unixTime;
+    getSelectedEvents();
+    if (selectedEvents.length == 0) {
+        actionsPara.innerHTML = "";
+    } else {
+        actionsPara.innerHTML = "<b>Actions</b><br>";
+        selectedActions = [];
+        for (var i = 0; i < selectedEvents.length; i++) {
+            myEvent = selectedEvents[i];
+            for (var j = 0; j < myEvent.actions.length; j++) {
+                myAction = myEvent.actions[j];
+                myAction.unixTime = new Date(myAction.time).getTime();
+                selectedActions.push(myAction);
+            }
+        }
+        selectedActions.sort(function (a, b) {
+            return a.unixTime - b.unixTime
+        })
+        for (var k = 0; k < selectedActions.length; k++) {
+            myAction = selectedActions[k];
+            myParameters = myAction.parameters;
+            myFields = Object.getOwnPropertyNames(myParameters);
+            actionsPara.innerHTML += ("<br><b>" + myAction.index + ": " + myAction.event + " at " + myAction.time + "</b><br>");
+            if (myAction.description) {
+                actionsPara.innerHTML += myAction.description;
+            } else {
+                for (var l = 0; l < myFields.length; l++) {
+                    myField = myFields[l];
+                    actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
                 }
             }
         }
     }
+}

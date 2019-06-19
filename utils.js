@@ -437,6 +437,9 @@ function addDescription(myRow, myActivity, myEvent) {
 
         function describeAlleleChanged() {
             if (simpleDomActivities.includes(myActivity.name)) {
+                if (isNaN(myActivity.moveCount)) {
+                    console.log("Move count is not a number");
+                }
                 myActivity.moveCount++;
                 var myChromosome = myRow.parameters.chromosome,
                     mySide = myRow.parameters.side,
@@ -460,7 +463,6 @@ function addDescription(myRow, myActivity, myEvent) {
                 diffDescription += getSexDiffs(myActivity.targetSex, myActivity.currentSex);
                 myRow.description = "Submitted a drake after " + myActivity.moveCount + moveStr + "<br>" + diffDescription;
             }
-            findProbs(myRow);
         }
 
         function describeGuideAlertReceived() {
@@ -662,48 +664,3 @@ function mergeArrays(arr1, arr2) { //Takes two arrays and returns an array consi
     return arr3;
 }
 
-function findProbs(row) {
-    var index = row.index,
-        myActivity = row.activityObj,
-        thisTime = new Date(row.time).getTime(),
-        newRow,
-        data,
-        conceptIds,
-        currentProbs,
-        newProbs = [],
-        newRowFound = false,
-        i = 1;
-    while (((new Date(rowObjs[index + i].time).getTime() - thisTime) < 1000) && !newRowFound) {
-        if (rowObjs[index + i].event == "ITS-Data-Updated") {
-            newRow = rowObjs[index + i];
-            newRowFound = true;
-        }
-        i++;
-    }
-    if (newRowFound) {
-        data = newRow.parameters.studentModel;
-        if (!data) {
-            return null;
-        } else {
-            conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g);
-            //Get array of current probabilities learned from data
-            currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g);
-            for (var ii = 0; ii < currentProbs.length; ii++) {
-                myProb = new prob;
-                myProb.id = conceptIds[ii];
-                myProb.prob = Math.round(100000 * parseFloat(currentProbs[ii])) / 100000;
-                newProbs.push(myProb);
-            }
-
-            // console.log("Row " + index + " is " + rowObjs[index].event);
-            // for (var k = 0; k < probs.length; k++) {
-            //     if (probs[k].prob != newProbs[k].prob) {
-            //         console.log("For " + probs[k].id + " old prob= " + probs[k].prob + ", new prob = " + newProbs[k].prob);
-            //     }
-            // }
-            return (newProbs);
-        }
-    } else { //Didn't find an ITS-Data-Updated event within one second
-        return null;
-    }
-}

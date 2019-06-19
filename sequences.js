@@ -1,3 +1,41 @@
+function findFutureProbs() { //Goes through all the actions for every student, searching ahead for a tenth of a second for a new set of probs for the same student (which only happens when the future event is ITS-Data-Updated). Adds the new probs to the action.
+    var actionsLength;
+    console.log("In findFutureProbs. There are " + students.length + " students here.");
+    for (var i = 0; i < students.length; i++) {
+        myStudent = students[i];
+        actionsLength = myStudent.actions.length;
+        if (actionsLength > 0) {
+            for (var j = 0; j < actionsLength; j++) {
+                myAction = myStudent.actions[j];
+                var index = myAction.index,
+                    thisTime = new Date(myAction.time).getTime(),
+                    newTime,
+                    newProbs = [],
+                    newProbsFound = false;
+                for (var k = 1;
+                    ((k < 6) && (index + k < actionsLength)); k++) {
+                    newTime = new Date(myStudent.actions[index + k].time).getTime();
+                    if (newTime - thisTime > 100) {
+                        break;
+                    }
+                    if ((myStudent.actions[index + k].event == "ITS-Data-Updated") && (!newProbsFound)) {
+                        newAction = myStudent.actions[index + k];
+                        newProbsFound = true;
+                    }
+                }
+                if (newProbsFound) {
+                    myAction.newProbs = getProbs(newAction);
+                } else { //Didn't find an ITS-Data-Updated event within 1/10 second
+                    myAction.newProbs = [];
+                }
+            }
+        } else {
+            console.log("Student " + i + " has no actions!");
+        }
+    }
+}
+
+
 function MakeCSVFile() {
     var button = document.getElementById("toggleHintsButton");
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
@@ -119,14 +157,13 @@ function addCSVRow(myStudent, myAction) {
     eventCell.innerHTML = myAction.event;
     indexCell.innerHTML = index;
 
-    if (myStudent.probs.length > 1) {
-        for (var j = 1; j < myStudent.probs.length; j++) {
-            oldProbs = myStudent.probs[j - 1];
-            newProbs = myStudent.probs[j];
-            compareProbs(oldProbs, newProbs);
+    if (myStudent.probsArray.length > 1) {
+        for (var j = 1; j < myStudent.probsArray.length; j++) {
+            oldProbs = myStudent.probsArray[j - 1];
+            newProbs = myStudent.probsArray[j];
+            compareProbs(oldProbs, newProbs); //Sets the changed property to true for each prob in newProbs that has a changed probability from oldProbs
         }
     }
-
     try {
         if (oldProbs) {
             if (oldProbs.length > 0) {
@@ -147,7 +184,7 @@ function addCSVRow(myStudent, myAction) {
             console.log("No new probs");
         }
     } catch (err) {
-        console.log("Can't find the array element.");
+        console.log("Can't find the array element. Error message = " + err);
     }
 }
 
