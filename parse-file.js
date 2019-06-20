@@ -49,6 +49,7 @@ function parseJSON(data) {
     })
     for (var j = 0; j < rowObjs.length; j++) {
         myRow = rowObjs[j];
+        myRow.probs = [];
         if (myRow.class_id) {
             if (!classIds.includes(myRow.class_id)) {
                 myClass = new clas;
@@ -134,25 +135,25 @@ function parseJSON(data) {
                                 myClass.remediationRequested = true;
                             }
                             addDescription(myRow, myActivity, myEvent);
-                            myStudent.actions.push(myRow);
-                        }
-                        if ((myRow.event == "ITS-Data-Updated") && (myStudent.actions.length > 10)) {
-                            try {
-                                var myProbs = getProbs(myRow, myStudent); //Returns a new prob object from the event
-                                if (myProbs) { //If there are new probs
-                                    myRow.probs = myProbs; //Add them to the action 
-                                    myStudent.probsArray.push(myProbs); //and push them to the student's array of probs
-                                } else if (myStudent.probsArray.length > 0) { //if the student's probs array is not empty then the action will inherit the probs as the last element in that array
-                                    myRow.probs = myStudent.probsArray[myStudent.probsArray.length - 1];
-                                    for (u = 0; u < myRow.probs.length; u++) { //Set all the probs to unchanged
-                                        myRow.probs[u].changed = false;
+                            if ((myRow.event == "ITS-Data-Updated") && (myStudent.actions.length > 1)) {
+                                try {
+                                    var myProbs = getProbs(myRow, myStudent); //Returns a new prob object from the event
+                                    if (myProbs) { //If there are new probs
+                                        myRow.probs = myProbs; //Add them to the action 
+                                        myStudent.probsArray.push(myProbs); //and push them to the student's array of probs
                                     }
-                                } else myRow.probs = []; //If the student doesn't yet have any probs then neither does this action.
-                            } catch (err) {
-                                console.log("Problem with getProbs");
+                                } catch (err) {
+                                    console.log("Problem with getProbs");
+                                }
+                            } else if (myStudent.probsArray.length > 0) { //If the event is not a data update and the student's probs array is not empty then the action inherits its probs as the last element in the student's probs array
+                                myRow.probs = myStudent.probsArray[myStudent.probsArray.length - 1];
+                                for (u = 0; u < myRow.probs.length; u++) { //Set all the probs to unchanged
+                                    myRow.probs[u].changed = false;
+                                }
                             }
                         }
                     }
+                    myStudent.actions.push(myRow);
                 }
             }
         }
@@ -384,14 +385,27 @@ function showActions() {
             myParameters = myAction.parameters;
             myFields = Object.getOwnPropertyNames(myParameters);
             actionsPara.innerHTML += ("<br><b>" + myAction.index + ": " + myAction.event + " at " + myAction.time + "</b><br>");
-            if (myAction.description) {
-                actionsPara.innerHTML += myAction.description;
-            } else {
-                for (var l = 0; l < myFields.length; l++) {
-                    myField = myFields[l];
-                    actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
-                }
+            //      if (myAction.description) {
+            //        actionsPara.innerHTML += myAction.description;
+            //  } else {
+            for (var l = 0; l < myFields.length; l++) {
+                myField = myFields[l];
+                actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
             }
+            actionsPara.innerHTML += probsList(myAction) + "<br>";
         }
     }
+}
+
+function probsList(myAction) {
+    var probs = myAction.probs;
+    var returnStr = "";
+    if (probs.length > 0) {
+        for (var i = 0; i < probs.length; i++) {
+            returnStr += "Concept ID " + probs[i].id + ", probability learned = " + probs[i].prob + "<br>";
+        }
+    } else {
+        returnStr = "No probability learned estimates.";
+    }
+    return returnStr;
 }
