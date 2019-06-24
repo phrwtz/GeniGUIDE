@@ -143,7 +143,7 @@ function parseJSON(data) {
                                         myStudent.probsArray.push(myProbs); //and push them to the student's array of probs
                                     }
                                 } catch (err) {
-                                    console.log("Problem with getProbs");
+                                    console.log("Problem with getProbs. Error = " + err);
                                 }
                             } else if (myStudent.probsArray.length > 0) { //If the event is not a data update and the student's probs array is not empty then the action inherits its probs as the last element in the student's probs array
                                 myRow.probs = myStudent.probsArray[myStudent.probsArray.length - 1];
@@ -162,8 +162,10 @@ function parseJSON(data) {
 
 function getProbs(myRow) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
     var myProbs = [],
-        myStudent = myRow.student,
-        previousRow = myRow.student.actions[myRow.student.actions.length - 1], //Note: this row hasn't been added to the student.actions array yet so the last action in the array is the previous action to this one.
+        myStudent = myRow.student;
+    if (myStudent.actions.length > 1) {
+        var previousRow = myRow.student.actions[myRow.student.actions.length - 1]; //Note: this row hasn't been added to the student.actions array yet so the last action in the array is the previous action to this one.
+    }
         oldProbs = previousRow.probs,
         data = myRow.parameters.studentModel,
         conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
@@ -172,6 +174,7 @@ function getProbs(myRow) { //Extracts prob objects from data when the event is I
         attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
     for (var i = 0; i < currentProbs.length; i++) {
         myProb = new prob;
+        myProb.action = myRow;
         myProb.time = myRow.time;
         myProb.id = conceptIds[i];
         myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
@@ -284,6 +287,7 @@ function showStudents() { //Sets up the students checkboxes. Span field contains
 }
 
 function showActivities() { //Sets up the activites checkboxes. Span field contains the number of events executed within each activity; onchange runs "showEvents"
+    document.getElementById("probsDiv").style.display = "inline";
     eventsPara.innerHTML = "";
     actionsPara.innerHTML = "";
     var selectedActivities = [],
@@ -399,13 +403,36 @@ function showActions() {
 
 function probsList(myAction) {
     var probs = myAction.probs;
-    var returnStr = "";
-    if (probs.length > 0) {
-        for (var i = 0; i < probs.length; i++) {
-            returnStr += "Concept ID " + probs[i].id + ", probability learned = " + probs[i].prob + "<br>";
+    var newProbs = myAction.newProbs;
+    if ((probs.length > 0) && (newProbs.length > 0)) {
+        var returnStr = "",
+            conceptStr,
+            oldProbVal,
+            newProbVal,
+            maxLength = Math.max(probs.length, newProbs.length);
+        compareProbs(probs, newProbs);
+        for (var i = 0; i < maxLength; i++) {
+            if ((i < probs.length) && (i < newProbs.length)) {
+                conceptStr = probs[i].id;
+                oldProbVal = probs[i].prob;
+                newProbVal = newProbs[i].prob;
+                if (newProbs[i].changed) {
+                    newProbVal = "<span style=\"color:red\">" + newProbs[i].prob + "</span>";
+                }
+                returnStr += "For concept ID " + conceptStr + " the prior probability estimate is " + oldProbVal + ", the new probability estimate is " + newProbVal + "<br>";
+            } else if ((i < probs.length) && (i >= newProbs.length)) {
+                conceptStr = probs[i].id;
+                oldProbVal = probs[i].prob;
+                returnStr += "For concept ID " + conceptStr + " the prior probability estimate is " + oldProbVal + ",  there is no new probability estimate.<br>";
+
+            } else if ((i >= probs.length) && (i < newProbs.length)) {
+                conceptStr = newProbs[i].id
+                newProbVal = newProbs[i].prob;
+                returnStr += "For concept ID " + conceptStr + " there is no prior probability estimate. The new probability estimate is " + newProbVal + "<br>";
+            }
         }
     } else {
-        returnStr = "No probability learned estimates.";
+        returnStr = "There are no probability estimates for this action.<br>"
     }
     return returnStr;
 }

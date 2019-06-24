@@ -63,10 +63,6 @@
             onclick="downloadHints()">
             Download CSV Table
         </button>
-        <button type="button" id="trackButton" style="display:inline;margin-right:20px"
-            onclick="trackStudents()">
-            Track students
-        </button>
         <table id="hintsTable" style="margin-top: 30px;display:none">
             <thead>
                 <tr id="headerRow">
@@ -87,6 +83,79 @@
                     </th>
                     <th>
                         Action index
+                    </th>
+                    <th>
+                        LG99.A old
+                    </th>
+                    <th>
+                        LG99.A new
+                    </th>
+                    <th>
+                        LG1.A3 old
+                    </th>
+                    <th>
+                        LG1.A3 new
+                    </th>
+                    <th>
+                        LG1.C2a old
+                    </th>
+                    <th>
+                        LG1.C2a new
+                    </th>
+                    <th>
+                        LG1.C2b old
+                    </th>
+                    <th>
+                        LG1.C2b new
+                    </th>
+                    <th>
+                        LG1.C3 old
+                    </th>
+                    <th>
+                        LG1.C3 new
+                    </th>
+                    <th>
+                        LG1.P1 old
+                    </th>
+                    <th>
+                        LG1.P1 new
+                    </th>
+                    <th>
+                        LG1.P2 old
+                    </th>
+                    <th>
+                        LG1.P2 new
+                    </th>
+                    <th>
+                        LG1.P3 old
+                    </th>
+                    <th>
+                        LG1.P3 new
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <div id="probsDiv" style="margin-top: 30px; display:none;">
+        <button type="button" id="trackButton" style="display:inline;margin-right:20px"
+            onclick="trackSelectedStudent()">
+            Track student
+        </button>
+        <table id="probsTable" style="margin-top: 30px;display:none">
+            <thead>
+                <tr id="headerRow">
+                    <th>
+                        Action index
+                    </th>
+                    <th>
+                        Time
+                    </th>
+                    <th>
+                        Challenge
+                    </th>
+                    <th>
+                        Event type
                     </th>
                     <th>
                         LG99.A old

@@ -17,7 +17,7 @@ function findSelectedButton(name) { // returns the id of the checked radio butto
 
 function getStudentByID(id) {
     for (var i = 0, myStudent; myStudent = students[i]; i++) {
-        if (myStudent.studentID == id) {
+        if (myStudent.id == id) {
             return myStudent;
         }
     }
@@ -33,21 +33,6 @@ function findSelectedClassID() {
         }
     }
     return null;
-}
-
-function findSelectedStudentID() {
-    var selectedStudentID,
-        studentRadios = document.getElementsByName("studentidRadio");
-    for (var i = 0; i < studentRadios.length; i++) {
-        if (studentRadios[i].checked) {
-            return studentRadios[i].id;
-        }
-    }
-    return null;
-}
-
-function getSelectedStudent() {
-    return getStudentByID(findSelectedStudentID);
 }
 
 function findActCountByActivity(activity, actCountArray) {
@@ -423,6 +408,7 @@ function addDescription(myRow, myActivity, myEvent) {
             attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g)
             for (var i = 0; i < currentProbs.length; i++) {
                 myProb = new prob;
+                myProb.action = myRow;
                 myProb.id = conceptIds[i];
                 myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
                 myProb.attempts = attempts[i];
