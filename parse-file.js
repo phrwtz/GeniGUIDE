@@ -166,7 +166,7 @@ function getProbs(myRow) { //Extracts prob objects from data when the event is I
     if (myStudent.actions.length > 1) {
         var previousRow = myRow.student.actions[myRow.student.actions.length - 1]; //Note: this row hasn't been added to the student.actions array yet so the last action in the array is the previous action to this one.
     }
-        oldProbs = previousRow.probs,
+    oldProbs = previousRow.probs,
         data = myRow.parameters.studentModel,
         conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
         currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
@@ -288,9 +288,7 @@ function showStudents() { //Sets up the students checkboxes. Span field contains
 
 function showActivities() { //Sets up the activites checkboxes. Span field contains the number of events executed within each activity; onchange runs "showEvents"
     document.getElementById("probsDiv").style.display = "inline";
-    eventsPara.innerHTML = "";
-    actionsPara.innerHTML = "";
-    var selectedActivities = [],
+    var selectedActivities = checkedButtons("activityButton"),
         myStudent,
         myActivity,
         myEvent;
@@ -301,6 +299,7 @@ function showActivities() { //Sets up the activites checkboxes. Span field conta
             makeButtons(myStudent.activities, "name", "events", "radio", "activityButton", "showEvents()", "Activities", activitiesPara);
         }
     }
+    showEvents();
 }
 
 function showEvents() { //Sets up the events checkboxes. Span contains the number of actions executed within each event; onchange runs "showActions"
@@ -315,7 +314,6 @@ function showEvents() { //Sets up the events checkboxes. Span contains the numbe
         uniqueAction,
         actionFound;
     getSelectedActivities();
-    actionsPara.innerHTML = "";
     if (selectedActivities.length > 0) {
         for (var i = 0; i < selectedActivities.length; i++) {
             myActivity = selectedActivities[i];
@@ -357,6 +355,7 @@ function showEvents() { //Sets up the events checkboxes. Span contains the numbe
             })
             makeButtons(uniqueEvents, "name", "actions", "checkbox", "eventButton", "showActions()", "Events", eventsPara)
         }
+        showActions();
     } else {
         eventsPara.innerHTML = "";
     }

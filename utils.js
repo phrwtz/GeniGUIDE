@@ -114,13 +114,22 @@ function makeConcordance(objectArray, field, sort) { //Takes an array of objects
     }
 }
 
-//Create a column of checkboxes or radio buttons, one for each object in <objects>, labeled by the <nameField> of the object with the <countField> of the object in parentheses. If the object's hintReceived property is true, make the nameField and countFields red.
+//Create a column of checkboxes or radio buttons, one for each object in <objects>, labeled by the <nameField> of the object with the <countField> of the object in parentheses. Color the nameField and countField appropritely it the object's hintReceived or remediationRequested property is true. If the buttons are already present and are being replaced, keep track of their checked status and persist it in the new buttons. 
 
 function makeButtons(objects, nameField, countField, type, name, onchange, title, destination, special) {
     var string,
         count,
         id,
-        name;
+        name,
+        statusArray = [];
+    buttons = document.getElementsByName(name);
+    if (buttons.length > 0) {
+        for (var y = 0; y < buttons.length; y++) {
+            myStatus = { id: buttons[y].id, checked: buttons[y].checked };
+            statusArray.push(myStatus);
+        }
+    }
+    
     if (title == "Guide-hint-received") {
         title = "<span style=\"color:red\">" + title + "</span>";
     }
@@ -144,11 +153,25 @@ function makeButtons(objects, nameField, countField, type, name, onchange, title
         }
         count = objects[i][countField].length;
         id = objects[i][nameField];
+        for (var j = 0; j < statusArray.length; j++) {
+            if (statusArray[j].id == id) {
+                buttonChecked = statusArray[j].checked;
+            }
+        }
         destination.innerHTML += "<input type=" + type + " id= " + id + " name=" + name + " onchange=" + onchange + "></input> " + string + " (" + count + ")<br>";
+    }
+    var newButtons = document.getElementsByName(name);
+    for (var x = 0; x < newButtons.length; x++) {
+        newButtons[x].checked = false;
+        for (var y = 0; y < statusArray.length; y++) {
+            if (newButtons[x].id == statusArray[y].id) {
+                newButtons[x].checked = statusArray[y].checked;
+            }
+        }
     }
 }
 
-function checkedButtons(name) { //returns the array of ids of all selected buttons with name <name>
+function checkedButtons(name) { //returns an array of ids of all checked buttons with name <name>. Returns an empty array if no buttons are checked
     var selectedIds = [];
     var buttons = document.getElementsByName(name);
     for (var i = 0; i < buttons.length; i++) {
