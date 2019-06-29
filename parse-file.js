@@ -95,7 +95,7 @@ function parseJSON(data) {
                     if (myRow.activity) {
                         if (!myStudent.activityNames.includes(myRow.activity)) {
                             myActivity = new activity;
-                            myActivity.startTime = new Date(myRow.time).getTime;
+                            myActivity.startTime = new Date(myRow.time).getTime();
                             myActivity.name = myRow.activity;
                             myActivity.student = myStudent;
                             myActivity.actions = [];
@@ -271,7 +271,7 @@ function showClasses() { //Sets up the classes checkboxes for all classes contai
     files.push(classes);
     activitiesPara.innerHTML = "";
     eventsPara.innerHTML = "";
-    makeButtons(files, "id", "students", "radio", "classButton", "showStudents()", "Class IDs", classesPara);
+    makeButtons(files, "id", "students", "checkbox", "classButton", "showStudents()", "Class IDs", classesPara);
 }
 
 function showStudents() { //Sets up the students checkboxes which are labeled with the ids of the students. Eventually there will be one checkbox for each student enrolled in at least one of the selected classes. The span fields contain the number of activities engaged in by each student; onchange runs "showActivities"
@@ -293,74 +293,28 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
 
 function showActivities() { //Sets up the activites checkboxes, which are labeled with the names of the intersection of the activities engaged by all the selected students. Span fields contain the number of events executed within each activity; onchange runs "showEvents"
     var names = [],
-        activitiesByStudent = [],
-        activitiesSummedOverStudents = [];
+        activitiesByStudent = [];
     document.getElementById("probsDiv").style.display = "inline"; //Makes the CSV file and table buttons visible
     getSelectedStudents(); //All the students, if any, whose boxes have been checked
-    names = getIntersectingNames(selectedStudents,"activities");
+    names = getIntersectingNames(selectedStudents, "activities");
     activitiesByStudent = getIntersectingObjects(selectedStudents, "activities", names); //Returns an array of arrays: for each selected student all the activities whose name field is in the names array.
-
+    activitiesByStudent.sort(function (a, b) {
+        return a[0].startTime - b[0].startTime;
+    })
     makeButtons(activitiesByStudent, "name", "events", "checkbox", "activityButton", "showEvents()", "Activities", activitiesPara);
     showEvents();
 }
 
 function showEvents() { //Sets up the events checkboxes. Span contains the number of actions executed within each event; onchange runs "showActions"
     selectedEvents = [];
-    var uniqueEventNames = [],
-        uniqueEvents = [],
-        uniqueEvent = function () {},
-        myUniqueEvent,
-        myActivity,
-        myEvent,
-        myAction,
-        uniqueAction,
-        actionFound;
+    var names = [],
+        eventsByActivity = [];
     getSelectedActivities();
-    if (selectedActivities.length > 0) {
-        for (var i = 0; i < selectedActivities.length; i++) {
-            myActivity = selectedActivities[i];
-            for (var j = 0; j < myActivity.events.length; j++) {
-                myEvent = myActivity.events[j];
-                if (!uniqueEventNames.includes(myEvent.name)) {
-                    uniqueEventNames.push(myEvent.name);
-                    myUniqueEvent = new uniqueEvent;
-                    myUniqueEvent.name = myEvent.name;
-                    myUniqueEvent.actions = myEvent.actions;
-                    uniqueEvents.push(myUniqueEvent);
-                } else { //We've already encountered this event from another activity. We need to find the uniqueEvent object and add to its actions if we encounter new ones
-                    actionFound = false;
-                    myUniqueEvent = getComponentById(uniqueEvents, "name", myEvent.name);
-                    for (var k = 0; k < myEvent.actions.length; k++) {
-                        myAction = myEvent.actions[k];
-                        for (var l = 0; l < myUniqueEvent.actions.length; l++) {
-                            uniqueAction = myUniqueEvent.actions[l];
-                            if (myAction.id == uniqueAction.id) {
-                                actionFound = true;
-                            }
-                        }
-                    }
-                    if (!actionFound) {
-                        myUniqueEvent.actions.push(myAction);
-                    }
-                }
-            }
-            uniqueEvents.sort(function (a, b) {
-                var x = a.name.toLowerCase();
-                var y = b.name.toLowerCase();
-                if (x < y) {
-                    return -1;
-                }
-                if (x > y) {
-                    return 1;
-                }
-                return 0;
-            })
-            makeButtons(uniqueEvents, "name", "actions", "checkbox", "eventButton", "showActions()", "Events", eventsPara)
-        }
-        showActions();
-    } else {
-        eventsPara.innerHTML = "";
-    }
+    names = getIntersectingNames(selectedActivities, "events");
+    eventsByActivity = getIntersectingObjects(selectedActivities, "events", names); //Returns an array of arrays: for each selected activity all the events whose name field is in the names array.
+
+    makeButtons(eventsByActivity, "name", "actions", "checkbox", "eventButton", "showActions()", "Events", eventsPara)
+    showActions();
 }
 
 function showActions() {
