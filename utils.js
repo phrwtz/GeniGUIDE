@@ -114,58 +114,67 @@ function makeConcordance(objectArray, field, sort) { //Takes an array of objects
     }
 }
 
-//Create a column of checkboxes or radio buttons, one for each object in <objects>, labeled by the <nameField> of the object with the <countField> of the object in parentheses. Color the nameField and countField appropritely it the object's hintReceived or remediationRequested property is true. If the buttons are already present and are being replaced, keep track of their checked status and persist it in the new buttons. 
+//Loop over each object in <superObjects> to get an object, then create a column of checkboxes or radio buttons for each object, labeled by the <nameField> of that object with the <countField> of the object in parentheses. Color the nameField and countField appropriately. If the buttons are already present and are being replaced, keep track of their checked status and persist it in the new buttons. Note: we need to wrap the objects in a superObject so that we can loop over students 
 
-function makeButtons(objects, nameField, countField, type, name, onchange, title, destination, special) {
+function makeButtons(objectsArray, nameField, countField, type, name, onchange, title, destination, special) {
     var string,
         count,
         id,
         name,
+        objects = [],
         statusArray = [];
     buttons = document.getElementsByName(name);
     if (buttons.length > 0) {
         for (var y = 0; y < buttons.length; y++) {
-            myStatus = { id: buttons[y].id, checked: buttons[y].checked };
+            myStatus = {
+                id: buttons[y].id,
+                checked: buttons[y].checked
+            };
             statusArray.push(myStatus);
         }
     }
-    
+
     if (title == "Guide-hint-received") {
         title = "<span style=\"color:red\">" + title + "</span>";
     }
     if (title == "Guide-remediation-requested") {
         title = "<span style=\"color:blue\">" + title + "</span>";
     }
-    if (objects.length == 0) {
-        destination.innerHTML = "";
-    } else {
-        destination.innerHTML = "<b>" + title + "</b><br>";
-    }
-    for (var i = 0; i < objects.length; i++) {
-        if (((objects[i]["hintReceived"]) && (!objects[i]["remediationRequested"])) || (objects[i].name == "Guide-hint-received")) {
-            string = "<span style=\"color:red\">" + objects[i][nameField] + "</span>";
-        } else if (((!objects[i]["hintReceived"]) && (objects[i]["remediationRequested"])) || (objects[i].name == "Guide-remediation-requested")) {
-            string = "<span style=\"color:blue\">" + objects[i][nameField] + "</span>";
-        } else if ((objects[i]["hintReceived"]) && (objects[i]["remediationRequested"])) {
-            string = "<span style=\"color:#990099\">" + objects[i][nameField] + "</span>";
+
+    for (var m = 0; m < objectsArray.length; m++) {
+        objects = objectsArray[m];
+        if (objects.length == 0) {
+            destination.innerHTML = "";
         } else {
-            string = objects[i][nameField];
+            destination.innerHTML = "<b>" + title + "</b><br>";
         }
-        count = objects[i][countField].length;
-        id = objects[i][nameField];
-        for (var j = 0; j < statusArray.length; j++) {
-            if (statusArray[j].id == id) {
-                buttonChecked = statusArray[j].checked;
+        for (var i = 0; i < objects.length; i++) {
+            count = objects[i][countField].length;
+            if (((objects[i]["hintReceived"]) && (!objects[i]["remediationRequested"])) || (objects[i].name == "Guide-hint-received")) {
+                string = "<span style=\"color:red\">" + objects[i][nameField] + "</span>";
+            } else if (((!objects[i]["hintReceived"]) && (objects[i]["remediationRequested"])) || (objects[i].name == "Guide-remediation-requested")) {
+                string = "<span style=\"color:blue\">" + objects[i][nameField] + "</span>";
+            } else if ((objects[i]["hintReceived"]) && (objects[i]["remediationRequested"])) {
+                string = "<span style=\"color:#990099\">" + objects[i][nameField] + "</span>";
+            } else {
+                string = objects[i][nameField];
             }
+
+            id = objects[i][nameField];
+            for (var j = 0; j < statusArray.length; j++) {
+                if (statusArray[j].id == id) {
+                    buttonChecked = statusArray[j].checked;
+                }
+            }
+            destination.innerHTML += "<input type=" + type + " id= " + id + " name=" + name + " onchange=" + onchange + "></input> " + string + " (" + count + ")<br>";
         }
-        destination.innerHTML += "<input type=" + type + " id= " + id + " name=" + name + " onchange=" + onchange + "></input> " + string + " (" + count + ")<br>";
-    }
-    var newButtons = document.getElementsByName(name);
-    for (var x = 0; x < newButtons.length; x++) {
-        newButtons[x].checked = false;
-        for (var y = 0; y < statusArray.length; y++) {
-            if (newButtons[x].id == statusArray[y].id) {
-                newButtons[x].checked = statusArray[y].checked;
+        var newButtons = document.getElementsByName(name);
+        for (var x = 0; x < newButtons.length; x++) {
+            newButtons[x].checked = false;
+            for (var y = 0; y < statusArray.length; y++) {
+                if (newButtons[x].id == statusArray[y].id) {
+                    newButtons[x].checked = statusArray[y].checked;
+                }
             }
         }
     }
@@ -644,32 +653,83 @@ function scoreAlleleChange(newAllele, currentGenotype, targetGenotype) { //retur
     }
 }
 
-function mergeArrays(arr1, arr2) { //Takes two arrays and returns an array consisting of their union (one entry for each element that is contained in at least one of the input arrays). It is assumed that the arrays are sorted in ascending order.
-    var i1 = 0,
-        i2 = 0,
-        arr3 = [];
-    while ((i1 < arr1.length) && (i2 < arr2.length)) {
-        if (arr1[i1] == arr2[i2]) {
-            arr3.push(arr1[i1]);
-            i1++;
-            i2++;
-        } else if (arr1[i1] > arr2[i2]) {
-            arr3.push(arr2[i2]);
-            i2++;
-        } else if (arr2[i2] > arr1[i1]) {
-            arr3.push(arr1[i1]);
-            i1++;
+function getIntersectingNames(fromArray,field) //Returns an array containing the names of all the instances of <field> that are contained by every element of <fromArray>. For exampe, fromArray could be selectedStudents and field could be activities. <field> is a string.
+{
+    var names = [],
+        myElement,
+        intersectingNames = [];
+    for (var i = 0; i < fromArray.length; i++) {
+        names[i] = [];
+        myFromElement = fromArray[i];
+        for (var j = 0; j < myFromElement[field].length; j++) {
+            names[i].push(myFromElement[field][j].name);
         }
+        names[i].sort(function (a, b) {
+            var x = a.toLowerCase();
+            var y = b.toLowerCase();
+            if (x < y) {
+                return -1;
+            }
+            if (x > y) {
+                return 1;
+            }
+            return 0;
+        })
     }
-    if (i1 < arr1.length) {
-        for (var i = i1; i < arr1.length; i++) {
-            arr3.push(arr1[i]);
-        }
-    } else {
-        for (var i = i2; i < arr2.length; i++) {
-            arr3.push(arr2[i]);
-        }
+    //names[i] is an array of the names of all the <field>
+    //elements of fromArray[i], sorted alphabetically.
+    //We now iterate over all the elements of fromArray to 
+    //find the intersection of the names.
+
+    intersectingNames = names[0]; //Start with the first element and iteratively compare to all the others in names
+    for (var s = 1; s < fromArray.length; s++) {
+        intersectingNames = intersection(intersectingNames, names[s]);
     }
-    return arr3;
+    return intersectingNames;
 }
 
+function getIntersectingObjects(fromArray, field, names) { //Returns an array of arrays: for each selected element of fromArray, all the <field>s whose name is in the names array
+    var myFromElement,
+        myComponent,
+        returnArray = [];
+    for (var i = 0; i < fromArray.length; i++) {
+        myFromElement = fromArray[i];
+        returnArray[i] = [];
+        for (var j = 0; j < myFromElement[field].length; j++) {
+            myComponent = getComponentById(myFromElement[field], "name", names[j]);
+            returnArray[i].push(myComponent);
+        }
+    }
+    return returnArray;
+}
+
+function intersection(array1, array2) {
+    //Returns all elements of array 1 that are also in array 2.
+    var n1 = 0,
+        n2 = 0,
+        returnArray = [],
+        searchElement,
+        compareElement;
+    while ((n1 < array1.length) && (n2 < array2.length)) {
+        compareElement = array1[n1];
+        searchElement = array2[n2];
+
+        //If the search element is smaller than the compare element then (because the arrays are sorted) the search  element is not matched. The compare element remains and we move on to another search element. n2 is incremented.
+
+        if (searchElement < compareElement) {
+            n2++;
+
+            //If the search element is bigger than the compare element then (because the arrays are sorted) the compare element is not matched. The search element becomes the new compare element. n1 is incremented.
+
+        } else if (searchElement > compareElement) {
+            n1++;
+
+            //If the search element is the same as the compare element then the compare element is matched. It goes into the return array and n1 and n2 are both incremented
+        } else {
+            returnArray.push(compareElement);
+            n1++;
+            n2++;
+        }
+    }
+    return returnArray;
+}

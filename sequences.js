@@ -68,8 +68,18 @@ function addCSVRow(myStudent, myAction) {
     var LG1C2anew = document.createElement("td");
     var LG1C2bold = document.createElement("td");
     var LG1C2bnew = document.createElement("td");
+    var LG1C2cold = document.createElement("td");
+    var LG1C2cnew = document.createElement("td");
+    var LG1C2dold = document.createElement("td");
+    var LG1C2dnew = document.createElement("td");
+    var LG1C2eold = document.createElement("td");
+    var LG1C2enew = document.createElement("td");
     var LG1C3old = document.createElement("td");
     var LG1C3new = document.createElement("td");
+    var LG1C4aold = document.createElement("td");
+    var LG1C4anew = document.createElement("td");
+    var LG1C4bold = document.createElement("td");
+    var LG1C4bnew = document.createElement("td");
     var LG1P1old = document.createElement("td");
     var LG1P1new = document.createElement("td");
     var LG1P2old = document.createElement("td");
@@ -85,8 +95,18 @@ function addCSVRow(myStudent, myAction) {
     LG1C2anew.id = "LG1.C2anew" + index;
     LG1C2bold.id = "LG1.C2bold" + index;
     LG1C2bnew.id = "LG1.C2bnew" + index;
+    LG1C2cold.id = "LG1.C2cold" + index;
+    LG1C2cnew.id = "LG1.C2cnew" + index;
+    LG1C2dold.id = "LG1.C2dold" + index;
+    LG1C2dnew.id = "LG1.C2dnew" + index;
+    LG1C2eold.id = "LG1.C2eold" + index;
+    LG1C2enew.id = "LG1.C2enew" + index;
     LG1C3old.id = "LG1.C3old" + index;
     LG1C3new.id = "LG1.C3new" + index;
+    LG1C4aold.id = "LG1.C4aold" + index;
+    LG1C4anew.id = "LG1.C4anew" + index;
+    LG1C4bold.id = "LG1.C4bold" + index;
+    LG1C4bnew.id = "LG1.C4bnew" + index;
     LG1P1old.id = "LG1.P1old" + index;
     LG1P1new.id = "LG1.P1new" + index;
     LG1P2old.id = "LG1.P2old" + index;
@@ -110,10 +130,30 @@ function addCSVRow(myStudent, myAction) {
     LG1C2bold.style.backgroundColor = "palegreen";
     LG1C2bnew.innerHTML = "N/A";
     LG1C2bnew.style.backgroundColor = "yellow";
+    LG1C2cold.innerHTML = "N/A";
+    LG1C2cold.style.backgroundColor = "palegreen";
+    LG1C2cnew.innerHTML = "N/A";
+    LG1C2cnew.style.backgroundColor = "yellow";
+    LG1C2dold.innerHTML = "N/A";
+    LG1C2dold.style.backgroundColor = "palegreen";
+    LG1C2dnew.innerHTML = "N/A";
+    LG1C2dnew.style.backgroundColor = "yellow";
+    LG1C2eold.innerHTML = "N/A";
+    LG1C2bold.style.backgroundColor = "palegreen";
+    LG1C2bnew.innerHTML = "N/A";
+    LG1C2bnew.style.backgroundColor = "yellow";
     LG1C3old.innerHTML = "N/A";
     LG1C3old.style.backgroundColor = "palegreen";
     LG1C3new.innerHTML = "N/A";
     LG1C3new.style.backgroundColor = "yellow";
+    LG1C4aold.innerHTML = "N/A";
+    LG1C4aold.style.backgroundColor = "palegreen";
+    LG1C4anew.innerHTML = "N/A";
+    LG1C4anew.style.backgroundColor = "yellow";
+    LG1C4bold.innerHTML = "N/A";
+    LG1C4bold.style.backgroundColor = "palegreen";
+    LG1C4bnew.innerHTML = "N/A";
+    LG1C4bnew.style.backgroundColor = "yellow";
     LG1P1old.innerHTML = "N/A";
     LG1P1old.style.backgroundColor = "palegreen";
     LG1P1new.innerHTML = "N/A";
@@ -141,8 +181,18 @@ function addCSVRow(myStudent, myAction) {
     hintRow.appendChild(LG1C2anew);
     hintRow.appendChild(LG1C2bold);
     hintRow.appendChild(LG1C2bnew);
+    hintRow.appendChild(LG1C2cold);
+    hintRow.appendChild(LG1C2cnew);
+    hintRow.appendChild(LG1C2dold);
+    hintRow.appendChild(LG1C2dnew);
+    hintRow.appendChild(LG1C2eold);
+    hintRow.appendChild(LG1C2enew);
     hintRow.appendChild(LG1C3old);
     hintRow.appendChild(LG1C3new);
+    hintRow.appendChild(LG1C4aold);
+    hintRow.appendChild(LG1C4anew);
+    hintRow.appendChild(LG1C4bold);
+    hintRow.appendChild(LG1C4bnew);
     hintRow.appendChild(LG1P1old);
     hintRow.appendChild(LG1P1new);
     hintRow.appendChild(LG1P2old);
@@ -177,15 +227,15 @@ function addCSVRow(myStudent, myAction) {
         }
         if (newProbs) {
             if (newProbs.length > 0) {
-                for (var j = 0; j < newProbs.length; j++) {
-                    document.getElementById(newProbs[j].id + "new" + index).innerHTML = newProbs[j].prob;
+                for (var k = 0; k < newProbs.length; k++) {
+                    document.getElementById(newProbs[k].id + "new" + index).innerHTML = newProbs[k].prob;
                 }
             }
         } else {
             console.log("No new probs");
         }
     } catch (err) {
-        console.log("Can't find the array element. Error message = " + err);
+        console.log("Can't find the array element. Error message = " + err + ". i = " + i + ". k = " + k);
     }
 }
 

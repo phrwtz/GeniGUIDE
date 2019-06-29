@@ -29,7 +29,7 @@ function filter(data) {
     findFutureProbs();
     console.log("Future probs found.");
     showClasses();
-    MakeCSVFile();
+    //    MakeCSVFile();
 }
 
 //This function takes one or more JSON files turns them into an array of objects then identifies classes by class_id, students by id, events by .
@@ -73,6 +73,7 @@ function parseJSON(data) {
                     myStudent.probsArray = [];
                     myStudent.actions = [];
                     myStudent.activities = [];
+                    myStudent.activitiesIntersection = [];
                     myStudent.activityNames = [];
                     myStudent.id = myRow.username;
                     myStudent.class = myClass;
@@ -94,6 +95,7 @@ function parseJSON(data) {
                     if (myRow.activity) {
                         if (!myStudent.activityNames.includes(myRow.activity)) {
                             myActivity = new activity;
+                            myActivity.startTime = new Date(myRow.time).getTime;
                             myActivity.name = myRow.activity;
                             myActivity.student = myStudent;
                             myActivity.actions = [];
@@ -201,7 +203,7 @@ function getSelectedClasses() { //Starting from global "classes," sets the globa
     }
 }
 
-function getSelectedStudents() { //Starting from the global array "selectedClasses," sets the global array "selectedStudents" to contain all the students in classes whose checkboxes are checked. Note: students may be duplicated if they are enrolled in more than one class. Erases all columns to the right if no student boxes are checked.
+function getSelectedStudents() { //Starting from the global array "selectedClasses," sets the global array selectedStudents to contain all the students in classes whose checkboxes are checked. Note: students may be duplicated if they are enrolled in more than one class. Erases all columns to the right if no student boxes are checked.
     selectedStudents = [];
     var selectedStudentIds = checkedButtons("studentButton"),
         studentsToLookAt = [], //All students in selected classes
@@ -227,7 +229,7 @@ function getSelectedStudents() { //Starting from the global array "selectedClass
 }
 
 
-function getSelectedActivities() { //Starting from the global array "selectedStudents," sets the global array "selectedActivities" to contain all the activities engaged in by the students whose checkboxes are checked. Note: some activities may be duplicated if more than one selected student engages in them. Erases all columns to the right if no activity boxes are checked.
+function getSelectedActivities() { //Starting from the global array "selectedStudents," sets the global array "selectedActivities" to contain all the activities engaged in by all the students whose checkboxes are checked. Erases all columns to the right if no activity boxes are checked.
     selectedActivities = [];
     var selectedActivityIds = checkedButtons("activityButton"),
         myStudent,
@@ -264,16 +266,18 @@ function getSelectedEvents() { //Starting from the global array "selectedActivit
     }
 }
 
-function showClasses() { //Sets up the classes checkboxes. Span contains the number of students in each class; onchange runs "showStudents"
+function showClasses() { //Sets up the classes checkboxes for all classes contained in the uploaded files. Span contains the number of students in each class; onchange runs "showStudents"
+    var files = []; //Eventually, an array of file objects that contain the classes and all other fields from that file. For the time being we're reading in only one file at a time so we push classes to files.
+    files.push(classes);
     activitiesPara.innerHTML = "";
     eventsPara.innerHTML = "";
-    makeButtons(classes, "id", "students", "radio", "classButton", "showStudents()", "Class IDs", classesPara);
+    makeButtons(files, "id", "students", "radio", "classButton", "showStudents()", "Class IDs", classesPara);
 }
 
-function showStudents() { //Sets up the students checkboxes. Span field contains the number of activities engaged in by each student; onchange runs "showActivities"
-    var selectedStudents = [],
+function showStudents() { //Sets up the students checkboxes which are labeled with the ids of the students. Eventually there will be one checkbox for each student enrolled in at least one of the selected classes. The span fields contain the number of activities engaged in by each student; onchange runs "showActivities"
+    var selectedStudents = [], //May not need this.
         myClass,
-        myStudent;
+        myStudents = []; //Will contain all students in the selected classes
     activitiesPara.innerHTML = "";
     eventsPara.innerHTML = "";
     actionsPara.innerHTML = "";
@@ -281,24 +285,22 @@ function showStudents() { //Sets up the students checkboxes. Span field contains
     if (selectedClasses.length > 0) {
         for (var j = 0; j < selectedClasses.length; j++) {
             myClass = selectedClasses[j];
-            makeButtons(myClass.students, "id", "activities", "radio", "studentButton", "showActivities()", "Student IDs", studentsPara)
+            myStudents.push(myClass.students);
         }
+        makeButtons(myStudents, "id", "activities", "checkbox", "studentButton", "showActivities()", "Student IDs", studentsPara)
     }
 }
 
-function showActivities() { //Sets up the activites checkboxes. Span field contains the number of events executed within each activity; onchange runs "showEvents"
-    document.getElementById("probsDiv").style.display = "inline";
-    var selectedActivities = checkedButtons("activityButton"),
-        myStudent,
-        myActivity,
-        myEvent;
+function showActivities() { //Sets up the activites checkboxes, which are labeled with the names of the intersection of the activities engaged by all the selected students. Span fields contain the number of events executed within each activity; onchange runs "showEvents"
+    var names = [],
+        activitiesByStudent = [],
+        activitiesSummedOverStudents = [];
+    document.getElementById("probsDiv").style.display = "inline"; //Makes the CSV file and table buttons visible
     getSelectedStudents(); //All the students, if any, whose boxes have been checked
-    if (selectedStudents.length != 0) {
-        for (var i = 0; i < selectedStudents.length; i++) {
-            myStudent = selectedStudents[i];
-            makeButtons(myStudent.activities, "name", "events", "radio", "activityButton", "showEvents()", "Activities", activitiesPara);
-        }
-    }
+    names = getIntersectingNames(selectedStudents,"activities");
+    activitiesByStudent = getIntersectingObjects(selectedStudents, "activities", names); //Returns an array of arrays: for each selected student all the activities whose name field is in the names array.
+
+    makeButtons(activitiesByStudent, "name", "events", "checkbox", "activityButton", "showEvents()", "Activities", activitiesPara);
     showEvents();
 }
 
