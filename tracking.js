@@ -1,124 +1,44 @@
-function trackStudents() {
-    var myAction,
-        myStudent;
-    for (var i = 0; i < students.length; i++) {
-        myStudent = students[i];
-        if (myStudent.probs.length > 1) {
-            for (var j = 1; j < myStudent.probs.length; j++) {
-                oldProbs = myStudent.probs[j - 1];
-                newProbs = myStudent.probs[j];
-                compareProbs(oldProbs, newProbs); //Sets the changed property to true for each prob in newProbs that has a changed probability from oldProbs
-            }
+function trackSelectedStudents() { //Tracks the probs of the selected students looking only at ITS-Data-Updated actions.
+    var probTable = document.getElementById("probTable");
+    var probBody = document.getElementById("probBody");
+    getSelectedStudents();
+    if (selectedStudents.length == 0) {
+        if (probBody) {
+            probTable.removeChild(probBody);
         }
     }
-    trackProb();
-}
-
-function trackSelectedStudent() { //Tracks the probs of the selected student looking only at Drake-submitted actions.
-    var selectedStudentID = findSelectedStudentID();
-    var myStudent = getStudentByID(selectedStudentID);
-    for (var i = 0; i < myStudent.actions.length; i++) {
-        myAction = myStudent.actions[i];
-        if (myAction.probs.length > 0) {
-            if (myAction.event == "Drake-submitted") {
-                addProbsRow(myStudent, myAction);
+    for (var i = 0; i < selectedStudents.length; i++) {
+        myStudent = selectedStudents[i];
+        for (var j = 0; j < myStudent.probsArray.length; j++) {
+            newProbs = myStudent.probsArray[j];
+            if (j > 0) {
+                oldProbs = myStudent.probsArray[j - 1];
+                addProbRow(myStudent, oldProbs, newProbs);
             }
-        }
-    }
-    probsTable.style.display = "inline";
-}
-
-function findSelectedStudentID() {
-    var studentRadioButtons = document.getElementsByName("studentButton");
-    if (studentRadioButtons.length > 0) {
-        for (var i = 0; i < studentRadioButtons.length; i++) {
-            if (studentRadioButtons[i].checked) {
-                return studentRadioButtons[i].id;
-            }
-        }
-        return null;
-    }
-}
-
-function compareProbs(oldProbs, newProbs) {
-    /*
-    Compares two prob arrays and sets the "changed" property to true for each prob in the second array that has a different probability learned value from the prob with the same concept id in the first array.
-    */
-    if (newProbs.length > 0 && oldProbs.length > 0) {
-        if (oldProbs[0].action.student.id != newProbs[0].action.student.id) {
-            console.log("Probs from different students being compared!");
-        }
-    }
-    try {
-        if (!oldProbs) {
-            for (var k = 0; k < newProbs.length; k++) {
-                newProbs[k].changed = true;
-            }
-        } else {
-            for (var j = 0; j < newProbs.length; j++) {
-                for (var i = 0; i < oldProbs.length; i++) {
-                    if (newProbs[j].id == oldProbs[i].id) {
-                        if (newProbs[j].prob == oldProbs[i].prob) {
-                            newProbs[j].changed = false;
-                        } else {
-                            newProbs[j].changed = true;
-                        }
-                    }
-                }
-            }
-        }
-    } catch (err) {
-        console.log("Failed in compareProbs. Error = " + err);
-    }
-}
-
-function trackProb() {
-    var probLearnedArray;
-    var conceptId = "LG1.P2"
-    for (var k = 0; k < students.length; k++) {
-        var myStudent = students[k];
-        probLearnedArray = [];
-        if (myStudent.probs.length > 0) {
-            for (var i = 0; i < myStudent.probs.length; i++) {
-                var myProb = myStudent.probs[i];
-                for (var j = 0; j < myProb.length; j++) {
-                    if ((myProb[j].id == conceptId) && (myProb[j].changed)) {
-                        probLearnedArray.push(myProb[j].prob);
-                    }
-                }
-            }
-        }
-        console.log("Probabilities for student " + myStudent.id + " for concept " + conceptId + ":");
-        for (var kk = 0; kk < probLearnedArray.length; kk++) {
-            console.log(probLearnedArray[kk]);
         }
     }
 }
 
-function findActionByStudent(classID, studentID, actionIndex) {
-    for (var k = 0; k < classes.length; k++) {
-        if (parseInt(classes[k].id) == classID) {
-            var myClass = classes[k];
-            for (var i = 0; i < myClass.students.length; i++) {
-                if (parseInt(students[i].id) == studentID) {
-                    var myStudent = students[i];
-                    var myAction = myStudent.actions[actionIndex];
-                }
-            }
-        }
+function addProbRow(myStudent, oldProbs, newProbs) {
+    var index = newProbs[0].action.index;
+    var date = newProbs[0].time.match(/[^T]+/)[0]
+    var time = newProbs[0].time.match(/(?<=T)([^Z]+)/)[0];
+    var probDiv = document.getElementById("probDiv");
+    var probTable = document.getElementById("probTable");
+    var probBody = document.getElementById("probBody");
+    if (!probBody) {
+        var probBody = document.createElement("tbody");
+        probBody.id = "probBody";
     }
-    return (myAction);
-}
-
-function addProbsRow(myStudent, myAction) {
-    var index = myAction.index;
-    var probsDiv = document.getElementById("probsDiv");
-    probsDiv.style.display = "inline";
+    probTable.appendChild(probBody);
     var probRow = document.createElement("tr");
+    probBody.appendChild(probRow);
+    probDiv.style.display = "inline";
+    probTable.style.display = "inline";
+    var studentCell = document.createElement("td");
+    var indexCell = document.createElement("td");
     var timeCell = document.createElement("td");
     var challengeCell = document.createElement("td");
-    var eventCell = document.createElement("td");
-    var indexCell = document.createElement("td");
     var LG99Aold = document.createElement("td");
     var LG99Anew = document.createElement("td");
     var LG1A3old = document.createElement("td");
@@ -161,6 +81,7 @@ function addProbsRow(myStudent, myAction) {
     var LG3P3new = document.createElement("td");
     var LG3P4old = document.createElement("td");
     var LG3P4new = document.createElement("td");
+
     LG99Aold.id = "LG99.Aold" + index;
     LG99Anew.id = "LG99.Anew" + index;
     LG1A3old.id = "LG1.A3old" + index;
@@ -204,95 +125,95 @@ function addProbsRow(myStudent, myAction) {
     LG3P4old.id = "LG3.P4old" + index;
     LG3P4new.id = "LG3.P4new" + index;
 
-    LG99Aold.innerHTML = "N/A";
+    LG99Aold.innerHTML = "";
     LG99Aold.style.backgroundColor = "palegreen";
-    LG99Anew.innerHTML = "N/A";
+    LG99Anew.innerHTML = "";
     LG99Anew.style.backgroundColor = "yellow";
-    LG1A3old.innerHTML = "N/A";
+    LG1A3old.innerHTML = "";
     LG1A3old.style.backgroundColor = "palegreen";
-    LG1A3new.innerHTML = "N/A";
+    LG1A3new.innerHTML = "";
     LG1A3new.style.backgroundColor = "yellow";
-    LG1C2aold.innerHTML = "N/A";
+    LG1C2aold.innerHTML = "";
     LG1C2aold.style.backgroundColor = "palegreen";
-    LG1C2anew.innerHTML = "N/A";
+    LG1C2anew.innerHTML = "";
     LG1C2anew.style.backgroundColor = "yellow";
-    LG1C2bold.innerHTML = "N/A";
+    LG1C2bold.innerHTML = "";
     LG1C2bold.style.backgroundColor = "palegreen";
-    LG1C2bnew.innerHTML = "N/A";
+    LG1C2bnew.innerHTML = "";
     LG1C2bnew.style.backgroundColor = "yellow";
-    LG1C2cold.innerHTML = "N/A";
+    LG1C2cold.innerHTML = "";
     LG1C2cold.style.backgroundColor = "palegreen";
-    LG1C2cnew.innerHTML = "N/A";
+    LG1C2cnew.innerHTML = "";
     LG1C2cnew.style.backgroundColor = "yellow";
-    LG1C2dold.innerHTML = "N/A";
+    LG1C2dold.innerHTML = "";
     LG1C2dold.style.backgroundColor = "palegreen";
-    LG1C2dnew.innerHTML = "N/A";
+    LG1C2dnew.innerHTML = "";
     LG1C2dnew.style.backgroundColor = "yellow";
-    LG1C2eold.innerHTML = "N/A";
+    LG1C2eold.innerHTML = "";
     LG1C2eold.style.backgroundColor = "palegreen";
-    LG1C2enew.innerHTML = "N/A";
+    LG1C2enew.innerHTML = "";
     LG1C2enew.style.backgroundColor = "yellow";
-    LG1C3old.innerHTML = "N/A";
+    LG1C3old.innerHTML = "";
     LG1C3old.style.backgroundColor = "palegreen";
-    LG1C3new.innerHTML = "N/A";
+    LG1C3new.innerHTML = "";
     LG1C3new.style.backgroundColor = "yellow";
-    LG1C4aold.innerHTML = "N/A";
+    LG1C4aold.innerHTML = "";
     LG1C4aold.style.backgroundColor = "palegreen";
-    LG1C4anew.innerHTML = "N/A";
+    LG1C4anew.innerHTML = "";
     LG1C4anew.style.backgroundColor = "yellow";
-    LG1C4bold.innerHTML = "N/A";
+    LG1C4bold.innerHTML = "";
     LG1C4bold.style.backgroundColor = "palegreen";
-    LG1C4bnew.innerHTML = "N/A";
+    LG1C4bnew.innerHTML = "";
     LG1C4bnew.style.backgroundColor = "yellow";
-    LG1C4cold.innerHTML = "N/A";
+    LG1C4cold.innerHTML = "";
     LG1C4cold.style.backgroundColor = "palegreen";
-    LG1C4cnew.innerHTML = "N/A";
+    LG1C4cnew.innerHTML = "";
     LG1C4cnew.style.backgroundColor = "yellow";
-    LG1C4dold.innerHTML = "N/A";
+    LG1C4dold.innerHTML = "";
     LG1C4dold.style.backgroundColor = "palegreen";
-    LG1C4dnew.innerHTML = "N/A";
+    LG1C4dnew.innerHTML = "";
     LG1C4dnew.style.backgroundColor = "yellow";
-    LG1C4eold.innerHTML = "N/A";
+    LG1C4eold.innerHTML = "";
     LG1C4eold.style.backgroundColor = "palegreen";
-    LG1C4enew.innerHTML = "N/A";
+    LG1C4enew.innerHTML = "";
     LG1C4enew.style.backgroundColor = "yellow";
-    LG1P1old.innerHTML = "N/A";
+    LG1P1old.innerHTML = "";
     LG1P1old.style.backgroundColor = "palegreen";
-    LG1P1new.innerHTML = "N/A";
+    LG1P1new.innerHTML = "";
     LG1P1new.style.backgroundColor = "yellow";
-    LG1P2old.innerHTML = "N/A";
+    LG1P2old.innerHTML = "";
     LG1P2old.style.backgroundColor = "palegreen";
-    LG1P2new.innerHTML = "N/A";
+    LG1P2new.innerHTML = "";
     LG1P2new.style.backgroundColor = "yellow";
-    LG1P3old.innerHTML = "N/A";
+    LG1P3old.innerHTML = "";
     LG1P3old.style.backgroundColor = "palegreen";
-    LG1P3new.innerHTML = "N/A";
+    LG1P3new.innerHTML = "";
     LG1P3new.style.backgroundColor = "yellow";
-    LG2P1old.innerHTML = "N/A";
+    LG2P1old.innerHTML = "";
     LG2P1old.style.backgroundColor = "palegreen";
-    LG2P1new.innerHTML = "N/A";
+    LG2P1new.innerHTML = "";
     LG2P1new.style.backgroundColor = "yellow";
-    LG3P1old.innerHTML = "N/A";
+    LG3P1old.innerHTML = "";
     LG3P1old.style.backgroundColor = "palegreen";
-    LG3P1new.innerHTML = "N/A";
+    LG3P1new.innerHTML = "";
     LG3P1new.style.backgroundColor = "yellow";
-    LG3P2old.innerHTML = "N/A";
+    LG3P2old.innerHTML = "";
     LG3P2old.style.backgroundColor = "palegreen";
-    LG3P2new.innerHTML = "N/A";
+    LG3P2new.innerHTML = "";
     LG3P2new.style.backgroundColor = "yellow";
-    LG3P3old.innerHTML = "N/A";
+    LG3P3old.innerHTML = "";
     LG3P3old.style.backgroundColor = "palegreen";
-    LG3P3new.innerHTML = "N/A";
+    LG3P3new.innerHTML = "";
     LG3P3new.style.backgroundColor = "yellow";
-    LG3P4old.innerHTML = "N/A";
+    LG3P4old.innerHTML = "";
     LG3P4old.style.backgroundColor = "palegreen";
-    LG3P4new.innerHTML = "N/A";
+    LG3P4new.innerHTML = "";
     LG3P4new.style.backgroundColor = "yellow";
 
+    probRow.appendChild(studentCell);
+    probRow.appendChild(indexCell);
     probRow.appendChild(timeCell);
     probRow.appendChild(challengeCell);
-    probRow.appendChild(eventCell);
-    probRow.appendChild(indexCell);
     probRow.appendChild(LG99Aold);
     probRow.appendChild(LG99Anew);
     probRow.appendChild(LG1A3old);
@@ -301,6 +222,12 @@ function addProbsRow(myStudent, myAction) {
     probRow.appendChild(LG1C2anew);
     probRow.appendChild(LG1C2bold);
     probRow.appendChild(LG1C2bnew);
+    probRow.appendChild(LG1C2cold);
+    probRow.appendChild(LG1C2cnew);
+    probRow.appendChild(LG1C2dold);
+    probRow.appendChild(LG1C2dnew);
+    probRow.appendChild(LG1C2eold);
+    probRow.appendChild(LG1C2enew);
     probRow.appendChild(LG1C3old);
     probRow.appendChild(LG1C3new);
     probRow.appendChild(LG1C4aold);
@@ -330,27 +257,19 @@ function addProbsRow(myStudent, myAction) {
     probRow.appendChild(LG3P4old);
     probRow.appendChild(LG3P4new);
 
-    timeCell.innerHTML = myAction.time.match(/(?<=T)([^Z]+)/)[0];
-    challengeCell.innerHTML = myAction.activity;
-    eventCell.innerHTML = myAction.event;
-    indexCell.innerHTML = index;
+    //Now add the row
 
-    if (myStudent.probsArray.length > 1) {
-        for (var j = 1; j < myStudent.probsArray.length; j++) {
-            oldProbs = myStudent.probsArray[j - 1];
-            newProbs = myStudent.probsArray[j];
-            compareProbs(oldProbs, newProbs); //Sets the changed property to true for each prob in newProbs that has a changed probability from oldProbs
-        }
-    }
-    try {
-        if (oldProbs) {
-            if (oldProbs.length > 0) {
-                for (var i = 0; i < oldProbs.length; i++) {
-                    document.getElementById(oldProbs[i].id + "old" + index).innerHTML = oldProbs[i].prob;
-                }
+    studentCell.innerHTML = myStudent.id;
+    indexCell.innerHTML = newProbs[0].action.index;
+    timeCell.innerHTML = date + "<br>" + time; 
+    challengeCell.innerHTML = newProbs[0].action.activity;
+
+    compareProbs(oldProbs, newProbs); //Sets the changed property to true for each prob in newProbs that has a changed probability from oldProbs
+    if (oldProbs) {
+        if (oldProbs.length > 0) {
+            for (var i = 0; i < oldProbs.length; i++) {
+                document.getElementById(oldProbs[i].id + "old" + index).innerHTML = oldProbs[i].prob;
             }
-        } else {
-            console.log("In addProbRow. No old probs. Last action was " + lastAction.event);
         }
         if (newProbs) {
             if (newProbs.length > 0) {
@@ -358,10 +277,86 @@ function addProbsRow(myStudent, myAction) {
                     document.getElementById(newProbs[j].id + "new" + index).innerHTML = newProbs[j].prob;
                 }
             }
-        } else {
-            console.log("In addProbRow. No new probs");
         }
-    } catch (err) {
-        console.log("In addProbRow. Can't find the array element. Error message = " + err);
     }
+}
+
+function findSelectedStudentID() {
+    var studentRadioButtons = document.getElementsByName("studentButton");
+    if (studentRadioButtons.length > 0) {
+        for (var i = 0; i < studentRadioButtons.length; i++) {
+            if (studentRadioButtons[i].checked) {
+                return studentRadioButtons[i].id;
+            }
+        }
+        return null;
+    }
+}
+
+function compareProbs(oldProbs, newProbs) {
+    /*
+    Compares two prob arrays and sets the "changed" property to true for each prob in the second array that has a different probability learned value from the prob with the same concept id in the first array. If the first array is empty then every element of the second away has changed = true.
+    */
+    if (newProbs.length > 0 && oldProbs.length > 0) {
+        if (oldProbs[0].action.student.id != newProbs[0].action.student.id) {
+            console.log("Probs from different students being compared!");
+        } else {
+            for (var j = 0; j < newProbs.length; j++) {
+                for (var i = 0; i < oldProbs.length; i++) {
+                    if (newProbs[j].id == oldProbs[i].id) {
+                        if (newProbs[j].prob == oldProbs[i].prob) {
+                            newProbs[j].changed = false;
+                        } else {
+                            newProbs[j].changed = true;
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        if (oldProbs.length == 0) {
+            for (var k = 0; k < newProbs.length; k++) {
+                oldProbs = newProbs[k].initProb;
+                newProbs[k].changed = true;
+            }
+        }
+    }
+}
+
+function trackProb() {
+    var probLearnedArray;
+    var conceptId = "LG1.P2"
+    for (var k = 0; k < students.length; k++) {
+        var myStudent = students[k];
+        probLearnedArray = [];
+        if (myStudent.probs.length > 0) {
+            for (var i = 0; i < myStudent.probs.length; i++) {
+                var myProb = myStudent.probs[i];
+                for (var j = 0; j < myProb.length; j++) {
+                    if ((myProb[j].id == conceptId) && (myProb[j].changed)) {
+                        probLearnedArray.push(myProb[j].prob);
+                    }
+                }
+            }
+        }
+        console.log("Probabilities for student " + myStudent.id + " for concept " + conceptId + ":");
+        for (var kk = 0; kk < probLearnedArray.length; kk++) {
+            console.log(probLearnedArray[kk]);
+        }
+    }
+}
+
+function findActionByStudent(classID, studentID, actionIndex) {
+    for (var k = 0; k < classes.length; k++) {
+        if (parseInt(classes[k].id) == classID) {
+            var myClass = classes[k];
+            for (var i = 0; i < myClass.students.length; i++) {
+                if (parseInt(students[i].id) == studentID) {
+                    var myStudent = students[i];
+                    var myAction = myStudent.actions[actionIndex];
+                }
+            }
+        }
+    }
+    return (myAction);
 }

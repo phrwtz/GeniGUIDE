@@ -137,14 +137,26 @@
         </table>
     </div>
 
-    <div id="probsDiv" style="margin-top: 30px; display:none;">
-        <button type="button" id="trackButton" style="display:inline;margin-right:20px"
-            onclick="trackSelectedStudent()">
+
+    <div id="filter" style="margin-top: 30px">
+        <p id="classes" width=20% style="display:inline;float:left;margin:20px"></p>
+        <p id="students" width=30% style="display:inline;float:left;margin:20px"></p>
+        <p id="activities" width=30% style="display:inline;float:left;margin:20px"></p>
+        <p id="events" width=30% style="display:inline;float:left;margin:20px"></p>
+        <p id="actions" width=30% style="display:inline;float:left;margin:20px"></p>
+        <p id="fields" width=30% style="display:inline;float:left;margin:20px"></p>
+    </div>
+
+    <div id="probDiv" style="margin-top: 30px; display:none;">
+        <button type="button" id="trackButton" style="display:none;margin-right:20px" onclick="trackSelectedStudents()">
             Track student
         </button>
-        <table id="probsTable" style="margin-top: 30px;display:none">
+        <table id="probTable" style="margin-top: 30px;display:none">
             <thead>
                 <tr id="headerRow">
+                    <th>
+                        Student ID
+                    </th>
                     <th>
                         Action index
                     </th>
@@ -153,9 +165,6 @@
                     </th>
                     <th>
                         Challenge
-                    </th>
-                    <th>
-                        Event type
                     </th>
                     <th>
                         LG99.A old
@@ -182,16 +191,58 @@
                         LG1.C2b new
                     </th>
                     <th>
+                        LG1.C2c old
+                    </th>
+                    <th>
+                        LG1.C2c new
+                    </th>
+                    <th>
+                        LG1.C2d old
+                    </th>
+                    <th>
+                        LG1.C2d new
+                    </th>
+                    <th>
+                        LG1.C2e new
+                    </th>
+                    <th>
+                        LG1.C2e old
+                    </th>
+                    <th>
                         LG1.C3 old
                     </th>
                     <th>
                         LG1.C3 new
                     </th>
                     <th>
+                        LG1.C4a old
+                    </th>
+                    <th>
+                        LG1.C4a new
+                    </th>
+                    <th>
                         LG1.C4b old
                     </th>
                     <th>
                         LG1.C4b new
+                    </th>
+                    <th>
+                        LG1.C4c old
+                    </th>
+                    <th>
+                        LG1.C4c new
+                    </th>
+                    <th>
+                        LG1.C4d old
+                    </th>
+                    <th>
+                        LG1.C4d new
+                    </th>
+                    <th>
+                        LG1.C4e new
+                    </th>
+                    <th>
+                        LG1.C4e old
                     </th>
                     <th>
                         LG1.P1 old
@@ -211,18 +262,39 @@
                     <th>
                         LG1.P3 new
                     </th>
+                    <th>
+                        LG2.P1 old
+                    </th>
+                    <th>
+                        LG2.P1 new
+                    </th>
+                    <th>
+                        LG3.P1 old
+                    </th>
+                    <th>
+                        LG3.P1 new
+                    </th>
+                    <th>
+                        LG3.P2 old
+                    </th>
+                    <th>
+                        LG3.P2 new
+                    </th>
+                    <th>
+                        LG3.P3 old
+                    </th>
+                    <th>
+                        LG3.P3 new
+                    </th>
+                    <th>
+                        LG3.P4 old
+                    </th>
+                    <th>
+                        LG3.P4 new
+                    </th>
                 </tr>
             </thead>
         </table>
-    </div>
-
-    <div id="filter" style="margin-top: 30px">
-        <p id="classes" width=20% style="display:inline;float:left;margin:20px"></p>
-        <p id="students" width=30% style="display:inline;float:left;margin:20px"></p>
-        <p id="activities" width=30% style="display:inline;float:left;margin:20px"></p>
-        <p id="events" width=30% style="display:inline;float:left;margin:20px"></p>
-        <p id="actions" width=30% style="display:inline;float:left;margin:20px"></p>
-        <p id="fields" width=30% style="display:inline;float:left;margin:20px"></p>
     </div>
 
     <div id="actionDiv" style="margin-top: 30px">

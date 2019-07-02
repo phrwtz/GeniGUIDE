@@ -661,7 +661,7 @@ function makeButtons(objectsArray, nameField, countField, type, name, onchange, 
     function getIntersectingNames(fromArray, field) //Returns an array containing the names of all the instances of <field> that are contained by every element of <fromArray>. For exampe, fromArray could be selectedStudents and field could be activities. <field> is a string.
     {
         var names = [],
-            myElement,
+            myFromElement,
             intersectingNames = [];
         for (var i = 0; i < fromArray.length; i++) {
             names[i] = [];

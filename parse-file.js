@@ -2,7 +2,7 @@
 var rowObjs = [];
 var classes = [];
 var students = [];
-var uniqueActivityNames = [];
+var activities = [];
 var uniqueHintActivityNames = [];
 var classesPara = document.getElementById("classes");
 var studentsPara = document.getElementById("students");
@@ -18,7 +18,7 @@ var selectedEvents = [];
 var selectedActions = [];
 var clas = function () {}; //No second "s" or it becomes a key word
 var student = function () {};
-var activity = function () {};
+var activity = function () { };
 var event = function () {};
 var hint = function () {};
 var prob = function () {};
@@ -73,6 +73,7 @@ function parseJSON(data) {
                     myStudent.probsArray = [];
                     myStudent.actions = [];
                     myStudent.activities = [];
+                    myStudent.uniqueActivityNames = [];
                     myStudent.activitiesIntersection = [];
                     myStudent.activityNames = [];
                     myStudent.id = myRow.username;
@@ -93,24 +94,25 @@ function parseJSON(data) {
                         console.log("no student found")
                     }
                     if (myRow.activity) {
-                        if (!myStudent.activityNames.includes(myRow.activity)) {
+                        if (!myStudent.uniqueActivityNames.includes(myRow.activity)) {
+                            myStudent.uniqueActivityNames.push(myRow.activity);
                             myActivity = new activity;
+                            activities.push(myActivity);
+                            myStudent.activities.push(myActivity);
                             myActivity.startTime = new Date(myRow.time).getTime();
                             myActivity.name = myRow.activity;
-                            myActivity.student = myStudent;
                             myActivity.actions = [];
                             myActivity.events = [];
                             myActivity.hints = [];
+                            myActivity.students = [];
+                            myActivity.students.push(myStudent);
                             myActivity.hintReceived = false;
                             myActivity.eventNames = [];
                             myActivity.remediationRequested = false;
-                            myStudent.activityNames.push(myRow.activity);
-                            myStudent.activities.push(myActivity);
                         } else {
                             myActivity = getComponentById(myStudent.activities, "name", myRow.activity);
                         }
                         myRow.activityObj = myActivity;
-                        myActivity.actions.push(myRow);
                         if (myRow.event) {
                             myRow.event = myRow.event.replace(/ /g, "-");
                             if (!myActivity.eventNames.includes(myRow.event)) {
@@ -136,7 +138,7 @@ function parseJSON(data) {
                                 myStudent.remediationRequested = true;
                                 myClass.remediationRequested = true;
                             }
-                            addDescription(myRow, myActivity, myEvent);
+      //                      addDescription(myRow, myActivity, myEvent);
                             if ((myRow.event == "ITS-Data-Updated") && (myStudent.actions.length > 1)) {
                                 try {
                                     var myProbs = getProbs(myRow, myStudent); //Returns a new prob object from the event
@@ -154,6 +156,7 @@ function parseJSON(data) {
                                 }
                             }
                         }
+                        myActivity.actions.push(myRow);
                     }
                     myStudent.actions.push(myRow);
                 }
@@ -180,6 +183,7 @@ function getProbs(myRow) { //Extracts prob objects from data when the event is I
         myProb.time = myRow.time;
         myProb.id = conceptIds[i];
         myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
+        myProb.initProb = Math.round(1000 * parseFloat(initProbs[i])) / 1000;
         myProb.attempts = attempts[i];
         myProbs.push(myProb);
     }
@@ -287,21 +291,26 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
             myClass = selectedClasses[j];
             myStudents.push(myClass.students);
         }
-        makeButtons(myStudents, "id", "activities", "checkbox", "studentButton", "showActivities()", "Student IDs", studentsPara)
+        makeButtons(myStudents, "id", "activities", "checkbox", "studentButton", "trackSelectedStudents()", "Student IDs", studentsPara)
     }
 }
 
 function showActivities() { //Sets up the activites checkboxes, which are labeled with the names of the intersection of the activities engaged by all the selected students. Span fields contain the number of events executed within each activity; onchange runs "showEvents"
-    var names = [],
-        activitiesByStudent = [];
+    var intersectingNames = [],
+        intersectingActivities = [];
     document.getElementById("probsDiv").style.display = "inline"; //Makes the CSV file and table buttons visible
-    getSelectedStudents(); //All the students, if any, whose boxes have been checked
-    names = getIntersectingNames(selectedStudents, "activities");
-    activitiesByStudent = getIntersectingObjects(selectedStudents, "activities", names); //Returns an array of arrays: for each selected student all the activities whose name field is in the names array.
-    activitiesByStudent.sort(function (a, b) {
+    //Get all the students, if any, whose boxes have been checked
+    getSelectedStudents();
+    //Run over the activities fields for those students and collect the intersection of the names of those activities
+    intersectingNames = getIntersectingNames(selectedStudents, "activities");
+    //Using the intersecting names, find the corresponding activties and return them
+    intersectingActivities = getIntersectingObjects(selectedStudents, "activities", intersectingNames);
+    //sort the intersection of the activities by start time
+    intersectingActivities.sort(function (a, b) {
         return a[0].startTime - b[0].startTime;
     })
-    makeButtons(activitiesByStudent, "name", "events", "checkbox", "activityButton", "showEvents()", "Activities", activitiesPara);
+    //and make the buttons
+    makeButtons(intersectingActivities, "name", "events", "checkbox", "activityButton", "showEvents()", "Activities", activitiesPara);
     showEvents();
 }
 
