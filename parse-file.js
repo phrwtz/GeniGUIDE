@@ -169,7 +169,7 @@ function parseJSON(myTeacher) {
         }
     }
     pruneClasses(myTeacher); //add classes to myTeacher but only if they have more than three students;
-    pruneStudents(myTeacher); //add students to myTeacher but only if they have more than three activities;
+    pruneStudents(myClass); //add students to myClass but only if they have more than three activities;
 }
 
 function getProbs(myRow) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
