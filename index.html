@@ -48,7 +48,7 @@
     <h2>Parse Geniventure JSON log files</h2>
     <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
 
-    <button type="button" id="analyzeButton" style="display:none" onclick="filter(data)">Analyze</button><br>
+    <button type="button" id="analyzeButton" style="display:none" onclick="filter()">Analyze</button><br>
 
     <button type="button" id="hintsButton" style="display:none" onclick="countStudentsWithHints()">Count hints</button>
 
@@ -315,24 +315,29 @@
 
 
     <script>
-        var data = new Array;
         var fileCount = 0;
 
         function openFiles(evt) {
             var files = evt.target.files; // FileList object
             for (var i = 0, f; f = files[i]; i++) {
                 var reader = new FileReader();
-                //closure to capture the file information
                 reader.onerror = function (err) {
                     console.log(err);
                 }
-                reader.onloadend = function (theFile) {
+                //closure to capture the file information
+                reader.onloadend = function (f) {
                     return function (e) {
                         fileCount++;
                         if (fileCount >= files.length - 1) {
+                            document.getElementById("fileInput").style.display = "none";
                             document.getElementById("analyzeButton").style.display = "block";
                         }
-                        data.push(e.target.result); //Push the student data onto the array–
+                        var myTeacher = new teacher;
+                        var myName = f.name.split(".")[0];
+                        myTeacher.name = myName;
+                        myTeacher.data = e.target.result;
+                        teachersObj[myName] = myTeacher;
+                        teachersArray.push(myTeacher);
                     }
                 }(f);
                 reader.readAsText(f);

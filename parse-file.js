@@ -1,5 +1,6 @@
 //Global variables
 var rowObjs = [];
+var teachersArray = [];
 var classes = [];
 var students = [];
 var activities = [];
@@ -16,24 +17,30 @@ var selectedStudents = [];
 var selectedActivities = [];
 var selectedEvents = [];
 var selectedActions = [];
-var clas = function () {}; //No second "s" or it becomes a key word
+var teachersObj = function () {};
+var classObj = function () {};
+var teacher = function () {};
 var student = function () {};
-var activity = function () { };
+var activity = function () {};
 var event = function () {};
 var hint = function () {};
 var prob = function () {};
 
-function filter(data) {
-    parseJSON(data);
-    console.log("Data parsed.");
-    findFutureProbs();
-    console.log("Future probs found.");
-    showClasses();
-    //    MakeCSVFile();
+function filter() {
+    for (var i = 0; i < teachersArray.length; i++) {
+        myTeacher = teachersArray[i];
+        parseJSON(myTeacher);
+        console.log("Data for file " + myTeacher.name + " parsed.");
+        findFutureProbs();
+        console.log("Future probs found.");
+        showClasses();
+        //    MakeCSVFile();
+    }
 }
 
+
 //This function takes one or more JSON files turns them into an array of objects then identifies classes by class_id, students by id, events by .
-function parseJSON(data) {
+function parseJSON(myTeacher) {
     var classIds = [],
         myRow,
         myClass,
@@ -41,9 +48,7 @@ function parseJSON(data) {
         myActivity,
         myEvent,
         myAction;
-    for (var i = 0; i < data.length; i++) {
-        rowObjs = JSON.parse(data[i]);
-    }
+    rowObjs = JSON.parse(myTeacher.data);
     rowObjs.sort(function (a, b) {
         return (new Date(a.time).getTime() - new Date(new Date(b.time).getTime()));
     })
@@ -52,7 +57,7 @@ function parseJSON(data) {
         myRow.probs = [];
         if (myRow.class_id) {
             if (!classIds.includes(myRow.class_id)) {
-                myClass = new clas;
+                myClass = new classObj;
                 myClass.id = myRow.class_id;
                 myClass.students = [];
                 myClass.uniqueUsernames = [];
@@ -138,7 +143,7 @@ function parseJSON(data) {
                                 myStudent.remediationRequested = true;
                                 myClass.remediationRequested = true;
                             }
-      //                      addDescription(myRow, myActivity, myEvent);
+                            //                      addDescription(myRow, myActivity, myEvent);
                             if ((myRow.event == "ITS-Data-Updated") && (myStudent.actions.length > 1)) {
                                 try {
                                     var myProbs = getProbs(myRow, myStudent); //Returns a new prob object from the event
@@ -163,6 +168,8 @@ function parseJSON(data) {
             }
         }
     }
+    pruneClasses(myTeacher); //add classes to myTeacher but only if they have more than three students;
+    pruneStudents(myTeacher); //add students to myTeacher but only if they have more than three activities;
 }
 
 function getProbs(myRow) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
