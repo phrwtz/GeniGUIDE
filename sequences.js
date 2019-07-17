@@ -39,15 +39,13 @@ function findFutureProbs() { //Goes through all the actions for every student, s
 
 function MakeCSVFile() {
     var button = document.getElementById("toggleHintsButton");
-    for (var i = 0, myStudent; myStudent = students[i]; i++) {
+    s = getSelected(studentsObj, "studentButton");
         for (var j = 0, myAction; myAction = myStudent.actions[j]; j++) {
             if (myAction.event == "ITS-Data-Updated") {
                 addCSVRow(myStudent, myAction);
             }
         }
     }
-    button.style.display = "inline";
-}
 
 function addCSVRow(myStudent, myAction) {
     var index = myAction.index;

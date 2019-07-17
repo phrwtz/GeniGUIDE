@@ -114,70 +114,15 @@ function makeConcordance(objectArray, field, sort) { //Takes an array of objects
     }
 }
 
-//Loop over each object in <superObjects> to get an object, then create a column of checkboxes or radio buttons for each object, labeled by the <nameField> of that object with the <countField> of the object in parentheses. Color the nameField and countField appropriately. If the buttons are already present and are being replaced, keep track of their checked status and persist it in the new buttons.
 
-function makeButtons(objectsArray, nameField, countField, type, name, onchange, title, destination) {
-    var string,
-        count,
-        id,
-        name,
-        objects = [],
-        statusArray = [];
-    buttons = document.getElementsByName(name);
-    if (buttons.length > 0) {
-        for (var y = 0; y < buttons.length; y++) {
-            myStatus = {
-                id: buttons[y].id,
-                checked: buttons[y].checked
-            };
-            statusArray.push(myStatus);
-        }
-    }
 
-    if (title == "Guide-hint-received") {
-        title = "<span style=\"color:red\">" + title + "</span>";
-    }
-    if (title == "Guide-remediation-requested") {
-        title = "<span style=\"color:blue\">" + title + "</span>";
-    }
-
-    if (objectsArray.length == 0) {
-        destination.innerHTML = "";
-    } else {
-        destination.innerHTML = "<b>" + title + "</b><br>";
-        for (var m = 0; m < objectsArray.length; m++) {
-            objects = objectsArray[m];
-            for (var i = 0; i < objects.length; i++) {
-                string = setColorCode(objects[i], nameField);
-                id = objects[i][nameField];
-                for (var j = 0; j < statusArray.length; j++) {
-                    if (statusArray[j].id == id) {
-                        buttonChecked = statusArray[j].checked;
-                    }
-                }
-                count = objects[i][countField].length;
-                destination.innerHTML += "<input type=" + type + " id= " + id + " name=" + name + " onchange=" + onchange + "></input> " + string + " (" + count + ")<br>";
-            }
-            var newButtons = document.getElementsByName(name);
-            for (var x = 0; x < newButtons.length; x++) {
-                newButtons[x].checked = false;
-                for (var y = 0; y < statusArray.length; y++) {
-                    if (newButtons[x].id == statusArray[y].id) {
-                        newButtons[x].checked = statusArray[y].checked;
-                    }
-                }
-            }
-        }
-    }
-}
-
-    function setColorCode(object, nameField) {
+    function setColorCode(object,nameField) {
         var string;
-        if (((object["hintReceived"]) && (!object["remediationRequested"])) || (object.name == "Guide-hint-received")) {
+        if ((object.hintReceived && !object.remediationRequested) || (object.name == "Guide-hint-received")) {
             string = "<span style=\"color:red\">" + object[nameField] + "</span>";
-        } else if (((!object["hintReceived"]) && (object["remediationRequested"])) || (object.name == "Guide-remediation-requested")) {
+        } else if ((!object.hintReceived && object.remediationRequested) || (object.name == "Guide-remediation-requested")) {
             string = "<span style=\"color:blue\">" + object[nameField] + "</span>";
-        } else if ((object["hintReceived"]) && (object["remediationRequested"])) {
+        } else if (object.hintReceived && object.remediationRequested) {
             string = "<span style=\"color:#990099\">" + object[nameField] + "</span>";
         } else {
             string = object[nameField];
@@ -280,7 +225,7 @@ function makeButtons(objectsArray, nameField, countField, type, name, onchange, 
                 if (myActivity.name.match("targetMatch")) {
                     for (var k = 0; myActivity.events.length; k++) {
                         myEvent = myActivity.events[k];
-                        if ((myEvent) && (myEvent.name == "Guide-hint-received")) {
+                        if ((myEvent) && (myEvent.id == "Guide-hint-received")) {
                             myStudent.hints++;
                             myActivity.hints++;
                         }
@@ -342,7 +287,7 @@ function makeButtons(objectsArray, nameField, countField, type, name, onchange, 
             moveStr,
             probabilityLearned;
         if (simpleDomActivities.includes(myActivity.name)) {
-            switch (myEvent.name) {
+            switch (myEvent.id) {
                 case "Navigated":
                     describeNavigated();
                     break;
@@ -658,18 +603,18 @@ function makeButtons(objectsArray, nameField, countField, type, name, onchange, 
         }
     }
 
-    function getIntersectingNames(fromArray, field) //Returns an array containing the names of all the instances of <field> that are contained by every element of <fromArray>. For exampe, fromArray could be selectedStudents and field could be activities. <field> is a string.
+    function getIntersecting(array) //Array is an array of arrays. Return the intersection of the items in the second index
     {
-        var names = [],
+        var students = 
             myFromElement,
-            intersectingNames = [];
+            intersectingIds = [];
         for (var i = 0; i < fromArray.length; i++) {
-            names[i] = [];
+            ids[i] = [];
             myFromElement = fromArray[i];
             for (var j = 0; j < myFromElement[field].length; j++) {
-                names[i].push(myFromElement[field][j].name);
+                ids[i].push(myFromElement[field][j]);
             }
-            names[i].sort(function (a, b) {
+            ids[i].sort(function (a, b) {
                 var x = a.toLowerCase();
                 var y = b.toLowerCase();
                 if (x < y) {
@@ -681,16 +626,16 @@ function makeButtons(objectsArray, nameField, countField, type, name, onchange, 
                 return 0;
             })
         }
-        //names[i] is an array of the names of all the <field>
+        //ids[i] is an array of all the <field>
         //elements of fromArray[i], sorted alphabetically.
         //We now iterate over all the elements of fromArray to 
-        //find the intersection of the names.
+        //find the intersection of the <field> strings.
 
-        intersectingNames = names[0]; //Start with the first element and iteratively compare to all the others in names
-        for (var s = 1; s < fromArray.length; s++) {
-            intersectingNames = intersection(intersectingNames, names[s]);
+        intersectingIds = ids[0]; //Start with the first element and iteratively compare to all the others in names
+        for (var s = 1; s < fromArray.length; s++) { //start with the second element
+            intersectingIds = intersection(intersectingIds, ids[s]);
         }
-        return intersectingNames;
+        return intersectingIds;
     }
 
     function getIntersectingObjects(fromArray, field, names) { //Returns an array of arrays: for each selected element of fromArray, all the <field>s whose name is in the names array
@@ -740,3 +685,4 @@ function makeButtons(objectsArray, nameField, countField, type, name, onchange, 
         }
         return returnArray;
     }
+

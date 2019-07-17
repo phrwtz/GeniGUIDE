@@ -79,10 +79,10 @@
                         Challenge
                     </th>
                     <th>
-                        Event type
+                        Event
                     </th>
                     <th>
-                        Action index
+                        Index
                     </th>
                     <th>
                         LG99.A old
@@ -139,6 +139,7 @@
 
 
     <div id="filter" style="margin-top: 30px">
+        <p id="teachers" width=20% style="display:inline;float:left;margin:20px"></p>
         <p id="classes" width=20% style="display:inline;float:left;margin:20px"></p>
         <p id="students" width=30% style="display:inline;float:left;margin:20px"></p>
         <p id="activities" width=30% style="display:inline;float:left;margin:20px"></p>
@@ -332,12 +333,10 @@
                             document.getElementById("fileInput").style.display = "none";
                             document.getElementById("analyzeButton").style.display = "block";
                         }
-                        var myTeacher = new teacher;
+                        var myTeacher = new Object;
                         var myName = f.name.split(".")[0];
-                        myTeacher.name = myName;
-                        myTeacher.classes = [];
+                        myTeacher.id = myName;
                         myTeacher.data = e.target.result;
-                        teachersObj[myName] = myTeacher;
                         teachersArray.push(myTeacher);
                     }
                 }(f);
@@ -352,6 +351,7 @@
     <script src="sequences.js"></script>
     <script src="tracking.js"></script>
     <script src="filter-functions.js"></script>
+    <script src="display-functions.js"></script>
     <!-- 
     <script src="plotly.v1.42.5.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js">
