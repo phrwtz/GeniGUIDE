@@ -41,7 +41,11 @@ function getSelected(objects, buttonName) {
 }
 
 function getSelectedTeachers() {
-    return getSelected(teachersObj, "teacherButton");
+    var selectedTeachers = getSelected(teachersObj, "teacherButton");
+    if (selectedTeachers.length == 0) {
+        classesPara.innerHTML = "";
+    }
+    return selectedTeachers;
 }
 
 function getSelectedClasses() {
@@ -54,7 +58,10 @@ function getSelectedClasses() {
             allSelectedClasses.push(classesByTeacher[j]);
         }
     }
-return allSelectedClasses;
+    if (allSelectedClasses.length == 0) {
+        studentsPara.innerHTML = "";
+    }
+    return allSelectedClasses;
 }
 
 function getSelectedStudents() {

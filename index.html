@@ -50,93 +50,13 @@
 
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">Analyze</button><br>
 
-    <button type="button" id="hintsButton" style="display:none" onclick="countStudentsWithHints()">Count hints</button>
+    <div id = "tableButtonsDiv" style="display:none">
+    <button type="button" id="csvButton" style="display:inline" onclick="makeCSVFile()">Download CSV file</button>
 
-    <div id="hintsDiv" style="margin-top: 30px; display:none;">
-        <button type="button" id="toggleHintsButton" style="display:inline;margin-right:20px"
-            onclick="toggleHintsTable()">
-            <span id="hintsSpan">
-                Show CSV Table
-            </span>
-        </button>
-        <button type="button" id="downloadHintsButton" style="display:inline;margin-right:20px"
-            onclick="downloadHints()">
-            Download CSV Table
-        </button>
-        <table id="hintsTable" style="margin-top: 30px;display:none">
-            <thead>
-                <tr id="headerRow">
-                    <th>
-                        Class ID
-                    </th>
-                    <th>
-                        Student ID
-                    </th>
-                    <th>
-                        Time
-                    </th>
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Event
-                    </th>
-                    <th>
-                        Index
-                    </th>
-                    <th>
-                        LG99.A old
-                    </th>
-                    <th>
-                        LG99.A new
-                    </th>
-                    <th>
-                        LG1.A3 old
-                    </th>
-                    <th>
-                        LG1.A3 new
-                    </th>
-                    <th>
-                        LG1.C2a old
-                    </th>
-                    <th>
-                        LG1.C2a new
-                    </th>
-                    <th>
-                        LG1.C2b old
-                    </th>
-                    <th>
-                        LG1.C2b new
-                    </th>
-                    <th>
-                        LG1.C3 old
-                    </th>
-                    <th>
-                        LG1.C3 new
-                    </th>
-                    <th>
-                        LG1.P1 old
-                    </th>
-                    <th>
-                        LG1.P1 new
-                    </th>
-                    <th>
-                        LG1.P2 old
-                    </th>
-                    <th>
-                        LG1.P2 new
-                    </th>
-                    <th>
-                        LG1.P3 old
-                    </th>
-                    <th>
-                        LG1.P3 new
-                    </th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-
+    <button type="button" id="tableButton" style="display:inline" onclick="toggleTable()">
+        <span id="tableSpan">Show table</span>
+    </button>
+</div>
 
     <div id="filter" style="margin-top: 30px">
         <p id="teachers" width=20% style="display:inline;float:left;margin:20px"></p>
@@ -149,17 +69,20 @@
     </div>
 
     <div id="probDiv" style="margin-top: 30px; display:none;">
-        <button type="button" id="trackButton" style="display:none;margin-right:20px" onclick="trackSelectedStudents()">
-            Track student
-        </button>
-        <table id="probTable" style="margin-top: 30px;display:none">
+        <table id="probTable" style="margin-top: 30px;display:block">
             <thead>
                 <tr id="headerRow">
+                    <th>
+                        Teacher
+                    </th>
+                    <th>
+                        Class ID
+                    </th>
                     <th>
                         Student ID
                     </th>
                     <th>
-                        Action index
+                        Date
                     </th>
                     <th>
                         Time
@@ -168,130 +91,73 @@
                         Challenge
                     </th>
                     <th>
-                        LG99.A old
+                        Action index
                     </th>
                     <th>
-                        LG99.A new
+                        Prior action
                     </th>
                     <th>
-                        LG1.A3 old
+                        LG99.A
                     </th>
                     <th>
-                        LG1.A3 new
+                        LG1.P1
                     </th>
                     <th>
-                        LG1.C2a old
+                        LG1.P2
                     </th>
                     <th>
-                        LG1.C2a new
+                        LG1.A3
                     </th>
                     <th>
-                        LG1.C2b old
+                        LG1.C2a
                     </th>
                     <th>
-                        LG1.C2b new
+                        LG1.C2b
                     </th>
                     <th>
-                        LG1.C2c old
+                        LG1.C2c
                     </th>
                     <th>
-                        LG1.C2c new
+                        LG1.C2d
                     </th>
                     <th>
-                        LG1.C2d old
+                        LG1.C2e
                     </th>
                     <th>
-                        LG1.C2d new
+                        LG1.C3
                     </th>
                     <th>
-                        LG1.C2e new
+                        LG1.P3
                     </th>
                     <th>
-                        LG1.C2e old
+                        LG1.C4a
                     </th>
                     <th>
-                        LG1.C3 old
+                        LG1.C4b
                     </th>
                     <th>
-                        LG1.C3 new
+                        LG1.C4c
                     </th>
                     <th>
-                        LG1.C4a old
+                        LG1.C4d
                     </th>
                     <th>
-                        LG1.C4a new
+                        LG1.C4e
                     </th>
                     <th>
-                        LG1.C4b old
+                        LG2.P1
                     </th>
                     <th>
-                        LG1.C4b new
+                        LG3.P1
                     </th>
                     <th>
-                        LG1.C4c old
+                        LG3.P2
                     </th>
                     <th>
-                        LG1.C4c new
+                        LG3.P3
                     </th>
                     <th>
-                        LG1.C4d old
-                    </th>
-                    <th>
-                        LG1.C4d new
-                    </th>
-                    <th>
-                        LG1.C4e new
-                    </th>
-                    <th>
-                        LG1.C4e old
-                    </th>
-                    <th>
-                        LG1.P1 old
-                    </th>
-                    <th>
-                        LG1.P1 new
-                    </th>
-                    <th>
-                        LG1.P2 old
-                    </th>
-                    <th>
-                        LG1.P2 new
-                    </th>
-                    <th>
-                        LG1.P3 old
-                    </th>
-                    <th>
-                        LG1.P3 new
-                    </th>
-                    <th>
-                        LG2.P1 old
-                    </th>
-                    <th>
-                        LG2.P1 new
-                    </th>
-                    <th>
-                        LG3.P1 old
-                    </th>
-                    <th>
-                        LG3.P1 new
-                    </th>
-                    <th>
-                        LG3.P2 old
-                    </th>
-                    <th>
-                        LG3.P2 new
-                    </th>
-                    <th>
-                        LG3.P3 old
-                    </th>
-                    <th>
-                        LG3.P3 new
-                    </th>
-                    <th>
-                        LG3.P4 old
-                    </th>
-                    <th>
-                        LG3.P4 new
+                        LG3.P4
                     </th>
                 </tr>
             </thead>
@@ -311,9 +177,6 @@
                 <th>Score</th>
             </tr>
     </div>
-
-
-
 
     <script>
         var fileCount = 0;

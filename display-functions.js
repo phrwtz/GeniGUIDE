@@ -120,8 +120,10 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         activityIdsByStudent = [],
         counts = [],
         selectedStudents = getSelectedStudents();
+    var tableButtonsDiv = document.getElementById("tableButtonsDiv");
     if (selectedStudents.length > 0) {
         //Run over the activities fields for those students and collect the intersection of the names of those activities
+        tableButtonsDiv.style.display = "block";   
         for (var i = 0; i < selectedStudents.length; i++) {
             myStudent = selectedStudents[i];
             activityIdsByStudent[i] = myStudent.activityIds;
@@ -209,7 +211,7 @@ function showActions() {
             }
         }
         selectedActions.sort(function (a, b) {
-            return a.unixTime - b.unixTime
+            return a.unixTime - b.unixTime;
         })
         for (var k = 0; k < selectedActions.length; k++) {
             myAction = selectedActions[k];
@@ -225,5 +227,18 @@ function showActions() {
             }
             actionsPara.innerHTML += probsList(myAction) + "<br>";
         }
+    }
+}
+
+function toggleTable() {
+    var table = document.getElementById("probTable");
+    var tableSpan = document.getElementById("tableSpan");
+    if (tableSpan.textContent == "Show table") {
+        tableSpan.textContent = "Hide table";
+        probTable.style.display = "inline";
+        makeCSVFile();
+    } else {
+        tableSpan.textContent = "Show table";
+        probTable.style.display = "none";
     }
 }

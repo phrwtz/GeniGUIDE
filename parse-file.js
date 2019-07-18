@@ -11,16 +11,10 @@ var fieldsPara = document.getElementById("fields");
 var actionsPara = document.getElementById("actions");
 var hintsTable = document.getElementById("hintsTable");
 
-var student = new Object();
-var teacher = new Object();
-var clas = new Object();
-var student = new Object();
-var activity = new Object();
-var event = new Object();
-var hint = new Object();
-var prob = new Object();
+
 
 function filter() {
+    var analyzeButton = document.getElementById("analyzeButton");
     for (var i = 0; i < teachersArray.length; i++) {
         myTeacher = teachersArray[i];
         var t = parseJSON(myTeacher); //Returns "fully dressed" teacher object
@@ -30,6 +24,7 @@ function filter() {
         findFutureProbs();
         console.log("Future probs found.");
     }
+    analyzeButton.style.display = "none";
     showTeachers();
     //    MakeCSVFile();
 }
@@ -81,6 +76,8 @@ function parseJSON(myTeacher) {
             if (!myClass.studentsObj[studentId]) {
                 myStudent = new Object;
                 myStudent.id = studentId;
+                myStudent.class = myClass;
+                myStudent.actions = [];
                 myStudent.probsArray = [];
                 myStudent.activitiesObj = new Object;
                 myStudent.activityIds = [];
@@ -89,7 +86,6 @@ function parseJSON(myTeacher) {
                 myStudent.hints = [];
                 myStudent.hintReceived = false;
                 myStudent.remediationRequested = false;
-                myStudent.actions = [];
                 myClass.studentsObj[studentId] = myStudent;
                 myClass.studentIds.push(studentId);
             } else {
@@ -137,6 +133,10 @@ function parseJSON(myTeacher) {
                 myEvent = myActivity.eventsObj[eventId];
             }
             myEvent.actions.push(myRow);
+            if ((myEvent.id != "Guide-alert-received") && (myEvent.id != "Modal-dialog-shown") && (myEvent.id != "Notifications-shown")) {
+            myRow.index = myStudent.actions.length;
+            myStudent.actions.push(myRow);
+            }
             if (eventId == "Guide-hint-received") {
                 myActivity.hintReceived = true;
                 myStudent.hintReceived = true;
@@ -163,26 +163,26 @@ function parseJSON(myTeacher) {
             }
         }
     }
-    
     pruneData(myTeacher); //add classes to myTeacher but only if they have more than three students. Add students with more than three activities to those classes.
-    return myTeacher;
     teachersObj[myTeacher.id] = myTeacher
+    return myTeacher;
 }
 
 function getProbs(myRow) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
     var myProbs = [],
+        myProb,
         myStudent = myRow.student;
     if (myStudent.actions.length > 1) {
-        var previousRow = myRow.student.actions[myRow.student.actions.length - 1]; //Note: this row hasn't been added to the student.actions array yet so the last action in the array is the previous action to this one.
+        var previousRow = myRow.student.actions[myRow.student.actions.length - 2];
     }
-    oldProbs = previousRow.probs,
+    var oldProbs = previousRow.probs,
         data = myRow.parameters.studentModel,
         conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
         currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
         initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
         attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
     for (var i = 0; i < currentProbs.length; i++) {
-        myProb = new prob;
+        myProb = new Object;
         myProb.action = myRow;
         myProb.time = myRow.time;
         myProb.id = conceptIds[i];

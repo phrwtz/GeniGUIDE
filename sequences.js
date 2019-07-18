@@ -37,217 +37,156 @@ function findFutureProbs() { //Goes through all the actions for every student, s
 }
 
 
-function MakeCSVFile() {
-    var button = document.getElementById("toggleHintsButton");
-    s = getSelected(studentsObj, "studentButton");
-        for (var j = 0, myAction; myAction = myStudent.actions[j]; j++) {
-            if (myAction.event == "ITS-Data-Updated") {
-                addCSVRow(myStudent, myAction);
-            }
-        }
-    }
-
-function addCSVRow(myStudent, myAction) {
-    var index = myAction.index;
-    var hintsDiv = document.getElementById("hintsDiv");
-    hintsDiv.style.display = "inline";
-    var hintRow = document.createElement("tr");
-    var classCell = document.createElement("td");
-    var studentCell = document.createElement("td");
-    var timeCell = document.createElement("td");
-    var challengeCell = document.createElement("td");
-    var eventCell = document.createElement("td");
-    var indexCell = document.createElement("td");
-    var LG99Aold = document.createElement("td");
-    var LG99Anew = document.createElement("td");
-    var LG1A3old = document.createElement("td");
-    var LG1A3new = document.createElement("td");
-    var LG1C2aold = document.createElement("td");
-    var LG1C2anew = document.createElement("td");
-    var LG1C2bold = document.createElement("td");
-    var LG1C2bnew = document.createElement("td");
-    var LG1C2cold = document.createElement("td");
-    var LG1C2cnew = document.createElement("td");
-    var LG1C2dold = document.createElement("td");
-    var LG1C2dnew = document.createElement("td");
-    var LG1C2eold = document.createElement("td");
-    var LG1C2enew = document.createElement("td");
-    var LG1C3old = document.createElement("td");
-    var LG1C3new = document.createElement("td");
-    var LG1C4aold = document.createElement("td");
-    var LG1C4anew = document.createElement("td");
-    var LG1C4bold = document.createElement("td");
-    var LG1C4bnew = document.createElement("td");
-    var LG1P1old = document.createElement("td");
-    var LG1P1new = document.createElement("td");
-    var LG1P2old = document.createElement("td");
-    var LG1P2new = document.createElement("td");
-    var LG1P3old = document.createElement("td");
-    var LG1P3new = document.createElement("td");
-
-    LG99Aold.id = "LG99.Aold" + index;
-    LG99Anew.id = "LG99.Anew" + index;
-    LG1A3old.id = "LG1.A3old" + index;
-    LG1A3new.id = "LG1.A3new" + index;
-    LG1C2aold.id = "LG1.C2aold" + index;
-    LG1C2anew.id = "LG1.C2anew" + index;
-    LG1C2bold.id = "LG1.C2bold" + index;
-    LG1C2bnew.id = "LG1.C2bnew" + index;
-    LG1C2cold.id = "LG1.C2cold" + index;
-    LG1C2cnew.id = "LG1.C2cnew" + index;
-    LG1C2dold.id = "LG1.C2dold" + index;
-    LG1C2dnew.id = "LG1.C2dnew" + index;
-    LG1C2eold.id = "LG1.C2eold" + index;
-    LG1C2enew.id = "LG1.C2enew" + index;
-    LG1C3old.id = "LG1.C3old" + index;
-    LG1C3new.id = "LG1.C3new" + index;
-    LG1C4aold.id = "LG1.C4aold" + index;
-    LG1C4anew.id = "LG1.C4anew" + index;
-    LG1C4bold.id = "LG1.C4bold" + index;
-    LG1C4bnew.id = "LG1.C4bnew" + index;
-    LG1P1old.id = "LG1.P1old" + index;
-    LG1P1new.id = "LG1.P1new" + index;
-    LG1P2old.id = "LG1.P2old" + index;
-    LG1P2new.id = "LG1.P2new" + index;
-    LG1P3old.id = "LG1.P3old" + index;
-    LG1P3new.id = "LG1.P3new" + index;
-
-    LG99Aold.innerHTML = "N/A";
-    LG99Aold.style.backgroundColor = "palegreen";
-    LG99Anew.innerHTML = "N/A";
-    LG99Anew.style.backgroundColor = "yellow";
-    LG1A3old.innerHTML = "N/A";
-    LG1A3old.style.backgroundColor = "palegreen";
-    LG1A3new.innerHTML = "N/A";
-    LG1A3new.style.backgroundColor = "yellow";
-    LG1C2aold.innerHTML = "N/A";
-    LG1C2aold.style.backgroundColor = "palegreen";
-    LG1C2anew.innerHTML = "N/A";
-    LG1C2anew.style.backgroundColor = "yellow";
-    LG1C2bold.innerHTML = "N/A";
-    LG1C2bold.style.backgroundColor = "palegreen";
-    LG1C2bnew.innerHTML = "N/A";
-    LG1C2bnew.style.backgroundColor = "yellow";
-    LG1C2cold.innerHTML = "N/A";
-    LG1C2cold.style.backgroundColor = "palegreen";
-    LG1C2cnew.innerHTML = "N/A";
-    LG1C2cnew.style.backgroundColor = "yellow";
-    LG1C2dold.innerHTML = "N/A";
-    LG1C2dold.style.backgroundColor = "palegreen";
-    LG1C2dnew.innerHTML = "N/A";
-    LG1C2dnew.style.backgroundColor = "yellow";
-    LG1C2eold.innerHTML = "N/A";
-    LG1C2bold.style.backgroundColor = "palegreen";
-    LG1C2bnew.innerHTML = "N/A";
-    LG1C2bnew.style.backgroundColor = "yellow";
-    LG1C3old.innerHTML = "N/A";
-    LG1C3old.style.backgroundColor = "palegreen";
-    LG1C3new.innerHTML = "N/A";
-    LG1C3new.style.backgroundColor = "yellow";
-    LG1C4aold.innerHTML = "N/A";
-    LG1C4aold.style.backgroundColor = "palegreen";
-    LG1C4anew.innerHTML = "N/A";
-    LG1C4anew.style.backgroundColor = "yellow";
-    LG1C4bold.innerHTML = "N/A";
-    LG1C4bold.style.backgroundColor = "palegreen";
-    LG1C4bnew.innerHTML = "N/A";
-    LG1C4bnew.style.backgroundColor = "yellow";
-    LG1P1old.innerHTML = "N/A";
-    LG1P1old.style.backgroundColor = "palegreen";
-    LG1P1new.innerHTML = "N/A";
-    LG1P1new.style.backgroundColor = "yellow";
-    LG1P2old.innerHTML = "N/A";
-    LG1P2old.style.backgroundColor = "palegreen";
-    LG1P2new.innerHTML = "N/A";
-    LG1P2new.style.backgroundColor = "yellow";
-    LG1P3old.innerHTML = "N/A";
-    LG1P3old.style.backgroundColor = "palegreen";
-    LG1P3new.innerHTML = "N/A";
-    LG1P3new.style.backgroundColor = "yellow";
-
-    hintRow.appendChild(classCell);
-    hintRow.appendChild(studentCell);
-    hintRow.appendChild(timeCell);
-    hintRow.appendChild(challengeCell);
-    hintRow.appendChild(eventCell);
-    hintRow.appendChild(indexCell);
-    hintRow.appendChild(LG99Aold);
-    hintRow.appendChild(LG99Anew);
-    hintRow.appendChild(LG1A3old);
-    hintRow.appendChild(LG1A3new);
-    hintRow.appendChild(LG1C2aold);
-    hintRow.appendChild(LG1C2anew);
-    hintRow.appendChild(LG1C2bold);
-    hintRow.appendChild(LG1C2bnew);
-    hintRow.appendChild(LG1C2cold);
-    hintRow.appendChild(LG1C2cnew);
-    hintRow.appendChild(LG1C2dold);
-    hintRow.appendChild(LG1C2dnew);
-    hintRow.appendChild(LG1C2eold);
-    hintRow.appendChild(LG1C2enew);
-    hintRow.appendChild(LG1C3old);
-    hintRow.appendChild(LG1C3new);
-    hintRow.appendChild(LG1C4aold);
-    hintRow.appendChild(LG1C4anew);
-    hintRow.appendChild(LG1C4bold);
-    hintRow.appendChild(LG1C4bnew);
-    hintRow.appendChild(LG1P1old);
-    hintRow.appendChild(LG1P1new);
-    hintRow.appendChild(LG1P2old);
-    hintRow.appendChild(LG1P2new);
-    hintRow.appendChild(LG1P3old);
-    hintRow.appendChild(LG1P3new);
-    hintsTable.appendChild(hintRow);
-
-    classCell.innerHTML = myStudent.class.id;
-    studentCell.innerHTML = myStudent.id;
-    timeCell.innerHTML = myAction.time.match(/(?<=T)([^Z]+)/)[0];
-    challengeCell.innerHTML = myAction.activity;
-    eventCell.innerHTML = myAction.event;
-    indexCell.innerHTML = index;
-
-    if (myStudent.probsArray.length > 1) {
-        for (var j = 1; j < myStudent.probsArray.length; j++) {
-            oldProbs = myStudent.probsArray[j - 1];
-            newProbs = myStudent.probsArray[j];
-            compareProbs(oldProbs, newProbs); //Sets the changed property to true for each prob in newProbs that has a changed probability from oldProbs
-        }
-    }
-    try {
-        if (oldProbs) {
-            if (oldProbs.length > 0) {
-                for (var i = 0; i < oldProbs.length; i++) {
-                    document.getElementById(oldProbs[i].id + "old" + index).innerHTML = oldProbs[i].prob;
+function makeCSVFile() {
+    var selectedStudents = getSelectedStudents();
+    for (var i = 0; i < selectedStudents.length; i++) {
+        myStudent = selectedStudents[i];
+        var actIds = myStudent.activityIds
+        actIds.sort(function (a, b) {
+            var acts = myStudent.activitiesObj;
+            return acts[a].startTime - acts[b].startTime;
+        });
+        for (var j = 0; j < actIds.length; j++) {
+            myActivityID = actIds[j];
+            myActivity = myStudent.activitiesObj[myActivityID];
+            myEvent = myActivity.eventsObj["ITS-Data-Updated"];
+            if (myEvent) { //Some activities – e.g., the tutorial – don't have events
+                myActions = myEvent.actions;
+                for (var k = 0; k < myActions.length; k++) {
+                    myAction = myActions[k];
+                    addCSVRow(myStudent, myActivity, myEvent, myAction);
                 }
             }
-        } else {
-            console.log("No old probs. Last action was " + lastAction.event);
         }
-        if (newProbs) {
-            if (newProbs.length > 0) {
-                for (var k = 0; k < newProbs.length; k++) {
-                    document.getElementById(newProbs[k].id + "new" + index).innerHTML = newProbs[k].prob;
-                }
-            }
-        } else {
-            console.log("No new probs");
-        }
-    } catch (err) {
-        console.log("Can't find the array element. Error message = " + err + ". i = " + i + ". k = " + k);
     }
 }
 
+function addCSVRow(myStudent, myActivity, myEvent, myAction) {
+    var index = myAction.index
+    var myClass = myStudent.class,
+        myTeacher = myClass.teacher;
+    var probDiv = document.getElementById("probDiv");
+    probDiv.style.display = "block";
+    probTable = document.getElementById("probTable");
+    var probRow = document.createElement("tr");
+    var teacherCell = document.createElement("td");
+    var classCell = document.createElement("td");
+    var studentCell = document.createElement("td");
+    var dateCell = document.createElement("td");
+    var timeCell = document.createElement("td");
+    var challengeCell = document.createElement("td");
+    var indexCell = document.createElement("td");
+    var priorActionCell = document.createElement("td");
+    var LG99A = document.createElement("td");
+    var LG1A3 = document.createElement("td");
+    var LG1C2a = document.createElement("td");
+    var LG1C2b = document.createElement("td");
+    var LG1C2c = document.createElement("td");
+    var LG1C2d = document.createElement("td");
+    var LG1C2e = document.createElement("td");
+    var LG1C3 = document.createElement("td");
+    var LG1C4a = document.createElement("td");
+    var LG1C4b = document.createElement("td");
+    var LG1C4c = document.createElement("td");
+    var LG1C4d = document.createElement("td");
+    var LG1C4e = document.createElement("td");
+    var LG1P1 = document.createElement("td");
+    var LG1P2 = document.createElement("td");
+    var LG1P3 = document.createElement("td");
+    var LG2P1 = document.createElement("td");
+    var LG3P1 = document.createElement("td");
+    var LG3P2 = document.createElement("td");
+    var LG3P3 = document.createElement("td");
+    var LG3P4 = document.createElement("td");
 
-function toggleHintsTable() {
-    var hintsTable = document.getElementById("hintsTable");
-    var hintsSpan = document.getElementById("hintsSpan");
-    var toggleHintsButton = document.getElementById("toggleHintsButton");
-    if (hintsTable.style.display == "none") {
-        hintsTable.style.display = "inline";
-        hintsSpan.innerHTML = "Hide Hints Table";
-    } else {
-        hintsTable.style.display = "none";
-        hintsSpan.innerHTML = "Show Hints Table";
+    LG99A.id = "LG99.A" + index;
+    LG1A3.id = "LG1.A3" + index;
+    LG1C2a.id = "LG1.C2a" + index;
+    LG1C2b.id = "LG1.C2b" + index;
+    LG1C2c.id = "LG1.C2c" + index;
+    LG1C2d.id = "LG1.C2d" + index;
+    LG1C2e.id = "LG1.C2e" + index;
+    LG1C3.id = "LG1.C3" + index;
+    LG1C4a.id = "LG1.C4a" + index;
+    LG1C4b.id = "LG1.C4b" + index;
+    LG1C4c.id = "LG1.C4c" + index;
+    LG1C4d.id = "LG1.C4d" + index;
+    LG1C4e.id = "LG1.C4e" + index;
+    LG1P1.id = "LG1.P1" + index;
+    LG1P2.id = "LG1.P2" + index;
+    LG1P3.id = "LG1.P3" + index;
+    LG2P1.id = "LG2.P1" + index;
+    LG3P1.id = "LG3.P1" + index;
+    LG3P2.id = "LG3.P2" + index;
+    LG3P3.id = "LG3.P3" + index;
+    LG3P4.id = "LG3.P4" + index;
+
+    LG1A3.innerHTML = "";
+    LG1C2a.innerHTML = "";
+    LG1C2b.innerHTML = "";
+    LG1C2c.innerHTML = "";
+    LG1C2d.innerHTML = "";
+    LG1C2e.innerHTML = "";
+    LG1C3.innerHTML = "";
+    LG1P1.innerHTML = "";
+    LG1P2.innerHTML = "";
+    LG1P3.innerHTML = "";
+    LG1C4a.innerHTML = "";
+    LG1C4b.innerHTML = "";
+    LG1C4c.innerHTML = "";
+    LG1C4d.innerHTML = "";
+    LG1C4e.innerHTML = "";
+    LG2P1.innerHTML = "";
+    LG3P1.innerHTML = "";
+    LG3P2.innerHTML = "";
+    LG3P3.innerHTML = "";
+    LG3P4.innerHTML = "";
+
+    probRow.appendChild(teacherCell);
+    probRow.appendChild(classCell);
+    probRow.appendChild(studentCell);
+    probRow.appendChild(dateCell);
+    probRow.appendChild(timeCell);
+    probRow.appendChild(challengeCell);
+    probRow.appendChild(indexCell);
+    probRow.appendChild(priorActionCell);
+    probRow.appendChild(LG99A);
+    probRow.appendChild(LG1P1);
+    probRow.appendChild(LG1P2);
+    probRow.appendChild(LG1A3);
+    probRow.appendChild(LG1C2a);
+    probRow.appendChild(LG1C2b);
+    probRow.appendChild(LG1C2c);
+    probRow.appendChild(LG1C2d);
+    probRow.appendChild(LG1C2e);
+    probRow.appendChild(LG1C3);
+    probRow.appendChild(LG1P3);
+    probRow.appendChild(LG1C4a);
+    probRow.appendChild(LG1C4b);
+    probRow.appendChild(LG1C4c);
+    probRow.appendChild(LG1C4d);
+    probRow.appendChild(LG1C4e);
+    probRow.appendChild(LG2P1);
+    probRow.appendChild(LG3P1);
+    probRow.appendChild(LG3P2);
+    probRow.appendChild(LG3P3);
+    probRow.appendChild(LG3P4);
+    probTable.appendChild(probRow);
+
+    teacherCell.innerHTML = myTeacher.id;
+    classCell.innerHTML = myClass.id;
+    studentCell.innerHTML = myStudent.id;
+    dateCell.innerHTML = myAction.time.split("T")[0]
+    timeCell.innerHTML = myAction.time.match(/(?<=T)([^Z]+)/)[0];
+    challengeCell.innerHTML = myActivity.id;
+    indexCell.innerHTML = myAction.index;
+    var priorAction = myStudent.actions[index - 1];
+    priorActionCell.innerHTML = priorAction.event;
+    if (myAction.probs.length > 1) {
+        for (var j = 1; j < myAction.probs.length; j++) {
+            var myProb = myAction.probs[j];
+            document.getElementById(myProb.id + index).innerHTML = myProb.prob;
+        }
     }
 }
 
