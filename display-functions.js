@@ -27,6 +27,7 @@ function makeButtons(objects, objectIds, counts, type, nameField, name, onchange
         destination.innerHTML = "";
     } else {
         destination.innerHTML = "<b>" + title + "</b><br>";
+        destination.innerHTML += "<input type='checkbox' + name = " + name + " onchange='toggleSelectAll(\"" + name + "\")'></input> all/none<br>"
         for (var m = 0; m < objectIds.length; m++) {
             object = objects[m];
             id = objectIds[m];
@@ -50,6 +51,21 @@ function makeButtons(objects, objectIds, counts, type, nameField, name, onchange
         }
     }
 }
+
+function toggleSelectAll(checkboxName) {
+    var checkboxArray = document.getElementsByName(checkboxName);
+    if (checkboxArray[0].checked) {
+        for (var i = 0; i < checkboxArray.length - 1; i++) {
+            checkboxArray[i + 1].checked = true;
+        }
+    } else {
+        for (var j = 0; j < checkboxArray.length - 1; j++) {
+            checkboxArray[j + 1].checked = false;
+        }
+    }
+}
+
+
 
 function showTeachers() {
     var teachers = [],
@@ -98,7 +114,7 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
 
     var students = [], //all student objects of selected classes
         studentIds = [], //all student ids of selected classes
-        counts = []
+       counts = []
     var selectedClasses = getSelectedClasses();
     for (var i = 0; i < selectedClasses.length; i++) {
         myClass = selectedClasses[i];
