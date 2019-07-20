@@ -1,4 +1,5 @@
 //Global variables
+var downloadFlag = false; //Set true by csvButton onclick.
 var teachersArray = []; //filled by openFiles function when files are read.
 var teachersObj = new Object();
 var teacherIds = [];
@@ -12,7 +13,6 @@ var actionsPara = document.getElementById("actions");
 var hintsTable = document.getElementById("hintsTable");
 
 
-
 function filter() {
     var analyzeButton = document.getElementById("analyzeButton");
     for (var i = 0; i < teachersArray.length; i++) {
@@ -24,7 +24,7 @@ function filter() {
         findFutureProbs();
         console.log("Future probs found.");
     }
-    analyzeButton.style.display = "none";
+    analyzeButton.disabled = "true";
     showTeachers();
     //    MakeCSVFile();
 }
