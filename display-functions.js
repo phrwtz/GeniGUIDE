@@ -145,7 +145,7 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
 }
 
 function showActivities() { //Sets up the activites checkboxes, which are labeled with the names of the intersection of the activities engaged by all the selected students. Span fields contain the number of events executed within each activity; onchange runs "showEvents"
-    var tableButtonsDiv = document.getElementById("tableButtonsDiv");
+    var tableButton = document.getElementById("tableButton");
     var intersectingActivityNames = [],
         intersectingActivities = [],
         activityNamesByStudent = [],
@@ -155,10 +155,10 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         activitiesPara.innerHTML = "";
         eventsPara.innerHTML = "";
         actionsPara.innerHTML = "";
-        tableButtonsDiv.style.display = "none";
+        tableButton.style.display = "none";
     } else {
         //Run over the activities fields for those students and collect the intersection of the names of those activities
-        tableButtonsDiv.style.display = "block";
+        tableButton.style.display = "block";
         for (var i = 0; i < selectedStudents.length; i++) {
             myStudent = selectedStudents[i];
             activityNamesByStudent[i] = myStudent.activityNames;
@@ -267,14 +267,13 @@ function toggleTable() {
     var tableButton = document.getElementById("tableButton");
     var table = document.getElementById("probTable");
     var tableSpan = document.getElementById("tableSpan");
-    var csvFile;
     if (tableSpan.textContent == "Show table") {
         tableSpan.textContent = "Hide table";
-        probTable.style.display = "inline";
+        table.style.display = "inline";
         makeProbTable("selected");
     } else {
         tableSpan.textContent = "Show table";
-        probTable.style.display = "none";
+        table.style.display = "none";
     }
 }
 

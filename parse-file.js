@@ -1,5 +1,4 @@
 //Global variables
-var downloadFlag = false; //Set true by csvButton onclick.
 var teachersArray = []; //filled by openFiles function when files are read.
 var teacherIds = [];
 var teachersPara = document.getElementById("teachers");
@@ -56,6 +55,7 @@ function filter() {
         console.log("Future probs found.");
     }
     analyzeButton.disabled = "true";
+    document.getElementById("csvDiv").style.display = "inline";
     showTeachers();
 }
 
@@ -217,7 +217,7 @@ function parseJSON(myTeacher) {
         }
     }
     pruneData(myTeacher); //add classes to myTeacher but only if they have more than three students. Add students with more than three activities to those classes.
-    teachersObj[myTeacher.id] = myTeacher
+    teachersObj[myTeacher.id] = myTeacher;
     return myTeacher;
 }
 

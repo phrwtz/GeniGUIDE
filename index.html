@@ -50,16 +50,14 @@
 
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">Analyze</button><br>
 
-    <div id="tableButtonsDiv" style="display:none">
-        <button type="button" id="tableButton" style="display:inline" onclick="toggleTable()">
-            <span id="tableSpan">Show table</span>
-        </button>
+    <button type="button" id="tableButton"  style="display:none" onclick="toggleTable()">
+        <span id = "tableSpan">Show table</span>
+    </button>
 
-        <input type = "text" value = "file name goes here" id = "csvFileName">
+    <div id="csvDiv" style="display:none">
+        <input type="text" display="inline" value="file name goes here" id="csvFileName">
 
-        <button type="button" id="csvButton" style="display:inline"
-            onclick="downloadFile()">Download CSV file</button>
-
+        <button type="button" id="csvButton" style="display:inline" onclick="downloadFile()">Download CSV file</button>
     </div>
 
     <div id="filter" style="margin-top: 10px">
