@@ -206,6 +206,7 @@
                         myTeacher.id = myName;
                         myTeacher.data = e.target.result;
                         teachersArray.push(myTeacher);
+                        console.log("File " + myName + " loaded.");
                     }
                 }(f);
                 reader.readAsText(f);

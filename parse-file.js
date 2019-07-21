@@ -1,7 +1,6 @@
 //Global variables
 var downloadFlag = false; //Set true by csvButton onclick.
 var teachersArray = []; //filled by openFiles function when files are read.
-var teachersObj = new Object();
 var teacherIds = [];
 var teachersPara = document.getElementById("teachers");
 var classesPara = document.getElementById("classes");
@@ -10,8 +9,39 @@ var activitiesPara = document.getElementById("activities");
 var eventsPara = document.getElementById("events");
 var fieldsPara = document.getElementById("fields");
 var actionsPara = document.getElementById("actions");
-var hintsTable = document.getElementById("hintsTable");
 
+var teachers = [],
+    teacherIds = [],
+    classes = [],
+    classIds = [],
+    students = [],
+    studentIds = [],
+    activities = [],
+    activityIds = [],
+    events = [],
+    eventIds = [];
+
+var selectedTeachers = [],
+    selectedTeacherIds = [],
+    selectedClasses = [],
+    selectedClassIds = [],
+    selectedStudents = [],
+    selectedStudentIds = [],
+    selectedActivities = [],
+    selectedActivityIds = [],
+    selectedEvents = [],
+    selectedEventIds;
+
+var teachersObj = new Object(),
+    selectedTeachersObj = new Object(),
+    classesObj = new Object(),
+    selectedClassesObj = new Object(),
+    studentsObj = new Object(),
+    selectedStudentsObj = new Object(),
+    activitiesObj = new Object(),
+    selectedActivitiesObj = new Object(),
+    eventsObj = new Object();
+selectedEventsObj = new Object();
 
 function filter() {
     var analyzeButton = document.getElementById("analyzeButton");
@@ -20,13 +50,13 @@ function filter() {
         var t = parseJSON(myTeacher); //Returns "fully dressed" teacher object
         delete t.data; //Don't need the (huge!) data property any more.
         teachersObj[t.id] = t;
+        teacherIds.push(t.id);
         console.log("Data for file " + myTeacher.id + " parsed.");
         findFutureProbs();
         console.log("Future probs found.");
     }
     analyzeButton.disabled = "true";
     showTeachers();
-    //    MakeCSVFile();
 }
 
 
@@ -65,10 +95,12 @@ function parseJSON(myTeacher) {
                 myClass.remediationRequested = false;
                 myTeacher.classesObj[classId] = myClass;
                 myTeacher.classIds.push(classId);
+                classesObj[classId] = myClass;
+                classIds.push(myClass.id);
             } else {
                 myClass = myTeacher.classesObj[classId];
             }
-        } 
+        }
         if (myRow.username) { // add student
             classId = myRow.class_id;
             myClass = myTeacher.classesObj[classId];
@@ -81,6 +113,7 @@ function parseJSON(myTeacher) {
                 myStudent.probsArray = [];
                 myStudent.activitiesObj = new Object;
                 myStudent.activityIds = [];
+                myStudent.activityNames = [];
                 myStudent.teacher = myTeacher;
                 myStudent.class = myClass;
                 myStudent.hints = [];
@@ -88,6 +121,9 @@ function parseJSON(myTeacher) {
                 myStudent.remediationRequested = false;
                 myClass.studentsObj[studentId] = myStudent;
                 myClass.studentIds.push(studentId);
+                studentsObj[studentId] = myStudent;
+                studentIds.push(myStudent.id);
+                students.push(myStudent);
             } else {
                 myStudent = myClass.studentsObj[studentId];
             }
@@ -96,56 +132,73 @@ function parseJSON(myTeacher) {
         if (myRow.activity) {
             classId = myRow.class_id;
             studentId = myRow.student.id;
-            activityId = myRow.activity;
+            activityName = myRow.activity;
+            activityId = Math.random().toString();
             myClass = myTeacher.classesObj[classId];
             myStudent = myClass.studentsObj[studentId];
-            if (!myStudent.activitiesObj[activityId]) {
+            if (!myStudent.activitiesObj[activityName]) {
                 myActivity = new Object;
                 myActivity.id = activityId;
-                myStudent.activitiesObj[activityId] = myActivity;
-                myStudent.activityIds.push(activityId);
+                myActivity.name = activityName;
                 myActivity.eventsObj = new Object;
                 myActivity.eventIds = [];
+                myActivity.eventNames = [];
                 myActivity.startTime = new Date(myRow.time).getTime();
                 myActivity.actions = [];
                 myActivity.hints = [];
                 myActivity.hintReceived = false;
                 myActivity.remediationRequested = false;
+                activityIds.push(activityId);
+                activitiesObj[activityName] = myActivity;
+                myStudent.activitiesObj[activityName] = myActivity;
+                myStudent.activityNames.push(activityName);
+                myStudent.activityIds.push(activityId);
+
             } else {
-                myActivity = myStudent.activitiesObj[activityId];
+                myActivity = myStudent.activitiesObj[myActivity.name];
             }
         }
         if (myRow.activity && myRow.event) { // add event (but some rows have events but no activity. Ignore those.)
             classId = myRow.class_id;
             studentId = myRow.student.id;
             activityId = myRow.activity;
-            eventId = myRow.event.replace(/ /g, "-");
+            eventId = Math.random().toString();
+            eventName = myRow.event.replace(/ /g, "-");
             myClass = myTeacher.classesObj[classId];
             myStudent = myClass.studentsObj[studentId];
-            myActivity = myStudent.activitiesObj[activityId];
-            if (!myActivity.eventsObj[eventId]) {
+            myActivity = myStudent.activitiesObj[activityName];
+            if (!myActivity.eventsObj[eventName]) {
                 myEvent = new Object;
-                myEvent.id = eventId;
-                myActivity.eventsObj[eventId] = myEvent;
-                myActivity.eventIds.push(eventId);
                 myEvent.actions = [];
+                myEvent.id = eventId;
+                myEvent.name = eventName;
+                eventsObj[eventName] = myEvent;
+                eventIds.push(eventId);
+                myActivity.eventsObj[eventName] = myEvent;
+                myActivity.eventIds.push(eventId);
+                myActivity.eventNames.push(eventName);
             } else {
-                myEvent = myActivity.eventsObj[eventId];
+                try {
+                    myEvent = myActivity.eventsObj[eventName];
+                    myEvent.actions.push(myRow);
+                }
+                catch (err) {
+                    console.log(err);
+                }
             }
-            myEvent.actions.push(myRow);
-            if ((myEvent.id != "Guide-alert-received") && (myEvent.id != "Modal-dialog-shown") && (myEvent.id != "Notifications-shown")) {
-            myRow.index = myStudent.actions.length;
-            myStudent.actions.push(myRow);
+            if ((myEvent.name != "Guide-alert-received") && (myEvent.name != "Modal-dialog-shown") && (myEvent.name != "Notifications-shown")) {
+                myRow.index = myStudent.actions.length;
+                myStudent.actions.push(myRow);
             }
-            if (eventId == "Guide-hint-received") {
+            if (myEvent.name == "Guide-hint-received") {
                 myActivity.hintReceived = true;
                 myStudent.hintReceived = true;
                 myClass.hintReceived = true;
-            } else if (eventId == "Guide-remediation-requested") {
+            } else if (myEvent.name == "Guide-remediation-requested") {
                 myActivity.remediationRequested = true;
                 myStudent.remediationRequested = true;
                 myClass.remediationRequested = true;
-            } else if ((eventId == "ITS-Data-Updated") && (myStudent.actions.length > 1)) {
+            } else if ((myEvent.name == "ITS-Data-Updated") && (myStudent.actions.length > 1)) {
                 try {
                     var myProbs = getProbs(myRow, myStudent); //Returns a new prob object from the event
                     if (myProbs) { //If there are new probs

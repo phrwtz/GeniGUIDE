@@ -13,6 +13,8 @@ function pruneData(teacher) { //Loop over all the classes for teacher, eliminati
         if (studentIds.length < 3) {
             delete teacher.classesObj[myClassId];
             teacher.classIds = Object.keys(teacher.classesObj);
+            delete classesObj[myClassId];
+            classIds = Object.keys(teacher.classesObj);
         } else {
             for (var j = 0; j < myClass.studentIds.length; j++) {
                 studentId = studentIds[j];
@@ -21,6 +23,8 @@ function pruneData(teacher) { //Loop over all the classes for teacher, eliminati
                 if (activityIds.length < 2) {
                     delete myClass.studentsObj[studentId];
                     myClass.studentIds = Object.keys(myClass.studentsObj);
+                    delete studentsObj[studentId];
+                    studentIds = Object.keys(myClass.studentsObj);
                 }
             }
         }
@@ -40,58 +44,10 @@ function getSelected(objects, buttonName) {
     return checkedObjects;
 }
 
-function getSelectedTeachers() {
-    var selectedTeachers = getSelected(teachersObj, "teacherButton");
-    if (selectedTeachers.length == 0) {
-        classesPara.innerHTML = "";
-    }
-    return selectedTeachers;
-}
-
-function getSelectedClasses() {
-    var selectedTeachers = getSelectedTeachers();
-    var classesByTeacher = [];
-    var allSelectedClasses = [];
-    for (var i = 0; i < selectedTeachers.length; i++) {
-        classesByTeacher = getSelected(selectedTeachers[i].classesObj, "classButton");
-        for (var j = 0; j < classesByTeacher.length; j++) {
-            allSelectedClasses.push(classesByTeacher[j]);
-        }
-    }
-    if (allSelectedClasses.length == 0) {
-        studentsPara.innerHTML = "";
-    }
-    return allSelectedClasses;
-}
-
-function getSelectedStudents() {
-    var selectedClasses = getSelectedClasses();
-    var studentsByClass = [];
-    var allSelectedStudents = [];
-    for (var i = 0; i < selectedClasses.length; i++) {
-        studentsByClass = getSelected(selectedClasses[i].studentsObj, "studentButton");
-        for (var j = 0; j < studentsByClass.length; j++) {
-            allSelectedStudents.push(studentsByClass[j]);
-        }
-    }
-    return allSelectedStudents;
-}
-
-function getSelectedActivities() {
-    var selectedStudents = getSelectedStudents();
-    var activitiesByStudent = [];
-    var allSelectedActivities = [];
-    for (var i = 0; i < selectedStudents.length; i++) {
-        activitiesByStudent = getSelected(selectedStudents[i].activitiesObj, "activityButton");
-    }
-    return allSelectedActivities;
-}
-
-function getSelectedEvents() {
-    var selectedActivities = getSelectedActivities();
-    var selectedEvents = [];
-    for (var i = 0; i < selectedActivities.length; i++) {
-        selectedEvents.push(selectedActivities[i].activitiesObj, "eventButton");
-    }
-    return selectedEvents;
+function setSelectedObjects() {
+    selectedTeachers = getSelected(teachersObj, "teacherButton");
+    selectedClasses = getSelected(classesObj, "classButton");
+    selectedStudents = getSelected(studentsObj, "studentButton");
+    selectedActivities = getSelected(activitiesObj, "activityButton");
+    selectedEvents = getSelected(eventsObj, "eventButton");
 }
