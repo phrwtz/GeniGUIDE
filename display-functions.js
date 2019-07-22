@@ -27,8 +27,8 @@ function makeButtons(objects, objectIds, counts, type, nameField, name, onchange
         destination.innerHTML = "";
     } else {
         destination.innerHTML = "<b>" + title + "</b><br>";
-        destination.innerHTML += "<input type='checkbox' + name = " + name + " onchange='toggleSelectAll(\"" + name + "\");'></input> all/none<br>"
-        for (var m = 0; m < objectIds.length; m++) {
+        destination.innerHTML += "<input type='checkbox' + name = " + name + " onchange='toggleSelectAll(\"" + name + "\");'></input> all/none<br>";
+        for (var m = 0; m < objects.length; m++) {
             object = objects[m];
             id = objectIds[m];
             count = counts[m];
@@ -64,6 +64,7 @@ function toggleSelectAll(checkboxName) {
         }
     }
     setSelectedObjects();
+    showTeachers();
 }
 
 function showTeachers() {
@@ -147,6 +148,7 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
 function showActivities() { //Sets up the activites checkboxes, which are labeled with the names of the intersection of the activities engaged by all the selected students. Span fields contain the number of events executed within each activity; onchange runs "showEvents"
     var tableButton = document.getElementById("tableButton");
     var intersectingActivityNames = [],
+        intersectingActivityIds = [],
         intersectingActivities = [],
         activityNamesByStudent = [],
         counts = [];
@@ -179,16 +181,18 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
             intersectingActivityNames = intersection(intersectingActivityNames, activityNamesByStudent[j]);
         }
         for (var k = 0; k < intersectingActivityNames.length; k++) {
-            intersectingActivities[k] = myStudent.activitiesObj[intersectingActivityNames[k]];
-            counts[k] = intersectingActivities[k].eventNames.length;
+            intersectingActivities[k] = myStudent.activitiesByName[intersectingActivityNames[k]];
+            intersectingActivityIds.push(intersectingActivities[k].id);
+            counts.push(intersectingActivities[k].eventNames.length);
         }
-        makeButtons(intersectingActivities, intersectingActivityNames, counts, "checkbox", "name", "activityButton", "showEvents()", "Activities", activitiesPara);
     }
+    makeButtons(intersectingActivities, intersectingActivityIds, counts, "checkbox", "name", "activityButton", "showEvents()", "Activities", activitiesPara);
     showEvents();
 }
 
 function showEvents() { //Sets up the events checkboxes. Span contains the number of actions executed within each event; onchange runs "showActions"
     var intersectingEventNames = [],
+        intersectingEventIds = [],
         intersectingEvents = [],
         eventNamesByStudent = [],
         counts = [];
@@ -217,48 +221,46 @@ function showEvents() { //Sets up the events checkboxes. Span contains the numbe
             intersectingEventNames = intersection(intersectingEventNames, eventNamesByStudent[j]);
         }
         for (var k = 0; k < intersectingEventNames.length; k++) {
-            intersectingEvents[k] = myActivity.eventsObj[intersectingEventNames[k]];
-            counts[k] = intersectingEvents[k].actions.length;
+            intersectingEvents[k] = myActivity.eventsByName[intersectingEventNames[k]];
+            intersectingEventIds.push(intersectingEvents[k].id);
+            counts.push(intersectingEvents[k].actions.length);
         }
-        makeButtons(intersectingEvents, intersectingEventNames, counts, "checkbox", "name", "eventButton", "showActions()", "Events", eventsPara);
+        makeButtons(intersectingEvents, intersectingEventIds, counts, "checkbox", "name", "eventButton", "showActions()", "Events", eventsPara);
     }
     showActions();
 }
 
 function showActions() {
-    var myEvent,
-        myAction,
-        myFields;
+    var acts,
+        myEvent,
+        myAction;
+
     setSelectedObjects();
     if (selectedEvents.length == 0) {
         actionsPara.innerHTML = "";
+    } else if (selectedStudents.length != 1) {
+        actionsPara.innerHTML = "<b>Actions can only be shown for one student at a time.</b>";
     } else {
-        actionsPara.innerHTML = "<b>Actions</b><br>";
-        selectedActions = [];
         for (var i = 0; i < selectedEvents.length; i++) {
             myEvent = selectedEvents[i];
-            for (var j = 0; j < myEvent.actions.length; j++) {
-                myAction = myEvent.actions[j];
-                myAction.unixTime = new Date(myAction.time).getTime();
-                selectedActions.push(myAction);
+            acts = myEvent.actions;
+            acts.sort(function (a, b) {
+                return a.unixTime - b.unixTime;
+            });
+            for (var k = 0; k < acts.length; k++) {
+                myAction = acts[k];
+                myParameters = myAction.parameters;
+                myFields = Object.getOwnPropertyNames(myParameters);
+                actionsPara.innerHTML += ("<br><b>" + myAction.index + ": " + myAction.event + " at " + myAction.time + "</b><br>");
+                //      if (myAction.description) {
+                //        actionsPara.innerHTML += myAction.description;
+                //  } else {
+                for (var l = 0; l < myFields.length; l++) {
+                    myField = myFields[l];
+                    actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
+                }
+                actionsPara.innerHTML += probsList(myAction) + "<br>";
             }
-        }
-        selectedActions.sort(function (a, b) {
-            return a.unixTime - b.unixTime;
-        })
-        for (var k = 0; k < selectedActions.length; k++) {
-            myAction = selectedActions[k];
-            myParameters = myAction.parameters;
-            myFields = Object.getOwnPropertyNames(myParameters);
-            actionsPara.innerHTML += ("<br><b>" + myAction.index + ": " + myAction.event + " at " + myAction.time + "</b><br>");
-            //      if (myAction.description) {
-            //        actionsPara.innerHTML += myAction.description;
-            //  } else {
-            for (var l = 0; l < myFields.length; l++) {
-                myField = myFields[l];
-                actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
-            }
-            actionsPara.innerHTML += probsList(myAction) + "<br>";
         }
     }
 }
@@ -278,29 +280,32 @@ function toggleTable() {
 }
 
 function makeProbTable(string) {
+    var ss = [];
     if (string == "all") {
-        var ss = students;
+        ss = students;
     } else {
         setSelectedObjects();
-        var ss = selectedStudents;
+        ss = selectedStudents;
     }
     for (var i = 0; i < ss.length; i++) {
         myStudent = ss[i];
         console.log("Working on student " + i + " of " + ss.length);
-        var actNames = myStudent.activityNames
-        actNames.sort(function (a, b) {
-            var acts = myStudent.activitiesObj;
-            return acts[a].startTime - acts[b].startTime;
-        });
-        for (var j = 0; j < actNames.length; j++) {
-            myActivityName = actNames[j];
-            myActivity = myStudent.activitiesObj[myActivityName];
-            myEvent = myActivity.eventsObj["ITS-Data-Updated"];
-            if (myEvent) { //Some activities – e.g., the tutorial – don't have events
-                myActions = myEvent.actions;
-                for (var k = 0; k < myActions.length; k++) {
-                    myAction = myActions[k];
-                    addCSVRow(myStudent, myActivity, myEvent, myAction);
+        var actNames = myStudent.activityNames;
+        if (actNames.length > 0) {
+            actNames.sort(function (a, b) {
+                var acts = myStudent.activitiesByName;
+                return acts[a].startTime - acts[b].startTime;
+            });
+            for (var j = 0; j < actNames.length; j++) {
+                myActivityName = actNames[j];
+                myActivity = myStudent.activitiesByName[myActivityName];
+                myEvent = myActivity.eventsByName["ITS-Data-Updated"];
+                if (myEvent) { //Some activities – e.g., the tutorial – don't have events
+                    myActions = myEvent.actions;
+                    for (var k = 0; k < myActions.length; k++) {
+                        myAction = myActions[k];
+                        addCSVRow(myStudent, myActivity, myEvent, myAction);
+                    }
                 }
             }
         }
@@ -334,7 +339,7 @@ function saveData(data, name) {
 }
 
 function addCSVRow(myStudent, myActivity, myEvent, myAction) {
-    var index = myAction.index
+    var index = myAction.index - 1; // We've already pushed the new action so the index is off.
     var myClass = myStudent.class,
         myTeacher = myClass.teacher;
     var probDiv = document.getElementById("probDiv");

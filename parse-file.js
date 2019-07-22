@@ -39,14 +39,15 @@ var teachersObj = new Object(),
     selectedStudentsObj = new Object(),
     activitiesObj = new Object(),
     selectedActivitiesObj = new Object(),
-    eventsObj = new Object();
-selectedEventsObj = new Object();
+    eventsObj = new Object(),
+    selectedEventsObj = new Object(),
+    actionsObj = new Object();
 
 function filter() {
     var analyzeButton = document.getElementById("analyzeButton");
     for (var i = 0; i < teachersArray.length; i++) {
         myTeacher = teachersArray[i];
-        var t = parseJSON(myTeacher); //Returns "fully dressed" teacher object
+        var t = parseJSON(myTeacher); //Returns "fully dressed" and pruned teacher object
         delete t.data; //Don't need the (huge!) data property any more.
         teachersObj[t.id] = t;
         teacherIds.push(t.id);
@@ -112,6 +113,7 @@ function parseJSON(myTeacher) {
                 myStudent.actions = [];
                 myStudent.probsArray = [];
                 myStudent.activitiesObj = new Object;
+                myStudent.activitiesByName = new Object;
                 myStudent.activityIds = [];
                 myStudent.activityNames = [];
                 myStudent.teacher = myTeacher;
@@ -133,14 +135,16 @@ function parseJSON(myTeacher) {
             classId = myRow.class_id;
             studentId = myRow.student.id;
             activityName = myRow.activity;
-            activityId = Math.random().toString();
+            activityId =
+                Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             myClass = myTeacher.classesObj[classId];
             myStudent = myClass.studentsObj[studentId];
-            if (!myStudent.activitiesObj[activityName]) {
+            if (!myStudent.activitiesByName[activityName]) {
                 myActivity = new Object;
                 myActivity.id = activityId;
                 myActivity.name = activityName;
                 myActivity.eventsObj = new Object;
+                myActivity.eventsByName = new Object;
                 myActivity.eventIds = [];
                 myActivity.eventNames = [];
                 myActivity.startTime = new Date(myRow.time).getTime();
@@ -149,91 +153,97 @@ function parseJSON(myTeacher) {
                 myActivity.hintReceived = false;
                 myActivity.remediationRequested = false;
                 activityIds.push(activityId);
-                activitiesObj[activityName] = myActivity;
-                myStudent.activitiesObj[activityName] = myActivity;
+                activitiesObj[activityId] = myActivity;
+                myStudent.activitiesObj[activityId] = myActivity;
+                myStudent.activitiesByName[activityName] = myActivity;
                 myStudent.activityNames.push(activityName);
                 myStudent.activityIds.push(activityId);
 
             } else {
-                myActivity = myStudent.activitiesObj[myActivity.name];
+                myActivity = myStudent.activitiesObj[activityName];
             }
         }
-        if (myRow.activity && myRow.event) { // add event (but some rows have events but no activity. Ignore those.)
-            classId = myRow.class_id;
-            studentId = myRow.student.id;
-            activityId = myRow.activity;
-            eventId = Math.random().toString();
-            eventName = myRow.event.replace(/ /g, "-");
-            myClass = myTeacher.classesObj[classId];
-            myStudent = myClass.studentsObj[studentId];
-            myActivity = myStudent.activitiesObj[activityName];
-            if (!myActivity.eventsObj[eventName]) {
-                myEvent = new Object;
-                myEvent.actions = [];
-                myEvent.id = eventId;
-                myEvent.name = eventName;
-                eventsObj[eventName] = myEvent;
-                eventIds.push(eventId);
-                myActivity.eventsObj[eventName] = myEvent;
-                myActivity.eventIds.push(eventId);
-                myActivity.eventNames.push(eventName);
-            } else {
-                try {
-                    myEvent = myActivity.eventsObj[eventName];
-                    myEvent.actions.push(myRow);
+        if (myRow.activity && myRow.event) {
+            var eventName = myRow.event.replace(/ /g, "-");
+            if ((eventName != "Guide-alert-received") && (eventName != "Modal-dialog-shown") && (eventName != "Notifications-shown") && (eventName != "@@router/LOCATION_CHANGE")) {
+                classId = myRow.class_id;
+                studentId = myRow.student.id;
+                activityId = myRow.activity;
+                eventId =
+                    Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                myClass = myTeacher.classesObj[classId];
+                myStudent = myClass.studentsObj[studentId];
+                myActivity = myStudent.activitiesByName[activityName];
+                if (!myActivity.eventsByName[eventName]) {
+                    myEvent = new Object;
+                    myEvent.actionNames = [];
+                    myEvent.actions = [];
+                    myEvent.id = eventId;
+                    myEvent.name = eventName;
+                    eventsObj[eventName] = myEvent;
+                    eventIds.push(eventId);
+                    eventsObj[eventId] = myEvent;
+                    myActivity.eventsObj[eventId] = myEvent;
+                    myActivity.eventsByName[eventName] = myEvent;
+                    myActivity.eventIds.push(eventId);
+                    myActivity.eventNames.push(eventName);
+                } else {
+                    myEvent = myActivity.eventsByName[eventName];
                 }
-                catch (err) {
-                    console.log(err);
-                }
-            }
-            if ((myEvent.name != "Guide-alert-received") && (myEvent.name != "Modal-dialog-shown") && (myEvent.name != "Notifications-shown")) {
-                myRow.index = myStudent.actions.length;
+                myEvent.actions.push(myRow);
+                //            console.log("student = " + myStudent.id + ", activity = " + myActivity.name + ", event = " + myEvent.name + " logging an action. Total actions for this event = " + myEvent.actions.length + ".");
                 myStudent.actions.push(myRow);
-            }
-            if (myEvent.name == "Guide-hint-received") {
-                myActivity.hintReceived = true;
-                myStudent.hintReceived = true;
-                myClass.hintReceived = true;
-            } else if (myEvent.name == "Guide-remediation-requested") {
-                myActivity.remediationRequested = true;
-                myStudent.remediationRequested = true;
-                myClass.remediationRequested = true;
-            } else if ((myEvent.name == "ITS-Data-Updated") && (myStudent.actions.length > 1)) {
-                try {
-                    var myProbs = getProbs(myRow, myStudent); //Returns a new prob object from the event
-                    if (myProbs) { //If there are new probs
-                        myRow.probs = myProbs; //Add them to the action 
-                        myStudent.probsArray.push(myProbs); //and push them to the student's array of probs
+                myRow.index = myStudent.actions.length;
+                myRow.unixTime = new Date(myRow.time).getTime();
+                if (myEvent.name == "Guide-hint-received") {
+                    myActivity.hintReceived = true;
+                    myStudent.hintReceived = true;
+                    myClass.hintReceived = true;
+                } else if (myEvent.name == "Guide-remediation-requested") {
+                    myActivity.remediationRequested = true;
+                    myStudent.remediationRequested = true;
+                    myClass.remediationRequested = true;
+                } else if ((myEvent.name == "ITS-Data-Updated") && (myStudent.actions.length > 1)) {
+                    try {
+                        var myProbs = getProbs(myRow, myStudent); //Returns a new prob object from the event
+                        if (myProbs) { //If there are new probs
+                            myRow.probs = myProbs; //Add them to the action 
+                            myStudent.probsArray.push(myProbs); //and push them to the student's array of probs
+                        }
+                    } catch (err) {
+                        console.log("Problem with getProbs. Error = " + err);
                     }
-                } catch (err) {
-                    console.log("Problem with getProbs. Error = " + err);
-                }
-            } else if (myStudent.probsArray.length > 0) { //If the event is not a data update and the student's probs array is not empty then the action inherits its probs as the last element in the student's probs array
-                myRow.probs = myStudent.probsArray[myStudent.probsArray.length - 1];
-                for (u = 0; u < myRow.probs.length; u++) { //Set all the probs to unchanged
-                    myRow.probs[u].changed = false;
+                } else if (myStudent.probsArray.length > 0) { //If the event is not a data update and the student's probs array is not empty then the action inherits its probs as the last element in the student's probs array
+                    myRow.probs = myStudent.probsArray[myStudent.probsArray.length - 1];
+                    for (u = 0; u < myRow.probs.length; u++) { //Set all the probs to unchanged
+                        myRow.probs[u].changed = false;
+                    }
                 }
             }
         }
-    }
+    } //Next rowObj
     pruneData(myTeacher); //add classes to myTeacher but only if they have more than three students. Add students with more than three activities to those classes.
-    teachersObj[myTeacher.id] = myTeacher;
     return myTeacher;
 }
 
 function getProbs(myRow) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
     var myProbs = [],
         myProb,
+        previousRow,
         myStudent = myRow.student;
     if (myStudent.actions.length > 1) {
-        var previousRow = myRow.student.actions[myRow.student.actions.length - 2];
+        previousRow = myRow.student.actions[myRow.student.actions.length - 1];
     }
-    var oldProbs = previousRow.probs,
-        data = myRow.parameters.studentModel,
-        conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
-        currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
-        initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
-        attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
+    try {
+        var oldProbs = previousRow.probs,
+            data = myRow.parameters.studentModel,
+            conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
+            currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
+            initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
+            attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
+    } catch (err) {
+        console.log(err);
+    }
     for (var i = 0; i < currentProbs.length; i++) {
         myProb = new Object;
         myProb.action = myRow;

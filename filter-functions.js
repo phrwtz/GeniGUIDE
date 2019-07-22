@@ -35,7 +35,8 @@ function pruneData(teacher) { //Loop over all the classes for teacher, eliminati
 function getSelected(objects, buttonName) {
     var buttonArray = document.getElementsByName(buttonName);
     var checkedObjects = [];
-    for (var i = 0; i < buttonArray.length; i++) {
+    //Leave out the top button: it's the all/none button
+    for (var i = 1; i < buttonArray.length; i++) {
         if (buttonArray[i].checked) {
             object = objects[buttonArray[i].id];
             checkedObjects.push(object);
@@ -50,4 +51,4 @@ function setSelectedObjects() {
     selectedStudents = getSelected(studentsObj, "studentButton");
     selectedActivities = getSelected(activitiesObj, "activityButton");
     selectedEvents = getSelected(eventsObj, "eventButton");
-}
+}   
