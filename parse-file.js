@@ -192,8 +192,8 @@ function parseJSON(myTeacher) {
                 }
                 myEvent.actions.push(myRow);
                 //            console.log("student = " + myStudent.id + ", activity = " + myActivity.name + ", event = " + myEvent.name + " logging an action. Total actions for this event = " + myEvent.actions.length + ".");
-                myStudent.actions.push(myRow);
                 myRow.index = myStudent.actions.length;
+                myStudent.actions.push(myRow);
                 myRow.unixTime = new Date(myRow.time).getTime();
                 if (myEvent.name == "Guide-hint-received") {
                     myActivity.hintReceived = true;

@@ -51,4 +51,9 @@ function setSelectedObjects() {
     selectedStudents = getSelected(studentsObj, "studentButton");
     selectedActivities = getSelected(activitiesObj, "activityButton");
     selectedEvents = getSelected(eventsObj, "eventButton");
-}   
+}
+
+function displayAction(studentId, index) {
+    var myStudent = studentsObj[studentId];
+    return myStudent.actions[index];
+}

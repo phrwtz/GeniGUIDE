@@ -186,15 +186,16 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         }
         for (var k = 0; k < intersectingActivityNames.length; k++) {
             intersectingActivities[k] = myStudent.activitiesByName[intersectingActivityNames[k]];
-            intersectingActivityIds.push(intersectingActivities[k].id);
-            counts.push(intersectingActivities[k].eventNames.length);
         }
-        //Sort by increasing start time;
-
-
+        //Sort activities by increasing start time;
         intersectingActivities.sort(function (a, b) {
             return a.startTime - b.startTime;
         });
+        //And set up the activityIds array
+        for (var l = 0; l < intersectingActivities.length; l++) {
+            intersectingActivityIds.push(intersectingActivities[l].id);
+            counts[l] = intersectingActivities[l].eventNames.length;
+        }
             
         makeButtons(intersectingActivities, intersectingActivityIds, counts, "checkbox", "name", "activityButton", "showEvents()", "Activities", activitiesPara);
         showEvents();
@@ -359,7 +360,7 @@ function saveData(data, name) {
 }
 
 function addCSVRow(myStudent, myActivity, myEvent, myAction) {
-    var index = myAction.index - 1; // We've already pushed the new action so the index is off.
+    var index = myAction.index; 
     var myClass = myStudent.class,
         myTeacher = myClass.teacher;
     var probDiv = document.getElementById("probDiv");
