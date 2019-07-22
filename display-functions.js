@@ -26,7 +26,7 @@ function makeButtons(objects, objectIds, counts, type, nameField, name, onchange
     if (objectIds.length == 0) {
         destination.innerHTML = "";
     } else {
-        destination.innerHTML = "<b>" + title + "</b><br>";
+        destination.innerHTML = "<b>" + title + "</b><br><br>";
         destination.innerHTML += "<input type='checkbox' + name = " + name + " onchange='toggleSelectAll(\"" + name + "\");'></input> all/none<br>";
         for (var m = 0; m < objects.length; m++) {
             object = objects[m];
@@ -159,8 +159,12 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         actionsPara.innerHTML = "";
         tableButton.style.display = "none";
     } else {
+        if (selectedStudents.length == 1) {
+            tableButton.style.display = "inline";
+        } else {
+            tableButton.style.display = "none";
+        }
         //Run over the activities fields for those students and collect the intersection of the names of those activities
-        tableButton.style.display = "block";
         for (var i = 0; i < selectedStudents.length; i++) {
             myStudent = selectedStudents[i];
             activityNamesByStudent[i] = myStudent.activityNames;
@@ -185,9 +189,16 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
             intersectingActivityIds.push(intersectingActivities[k].id);
             counts.push(intersectingActivities[k].eventNames.length);
         }
+        //Sort by increasing start time;
+
+
+        intersectingActivities.sort(function (a, b) {
+            return a.startTime - b.startTime;
+        });
+            
+        makeButtons(intersectingActivities, intersectingActivityIds, counts, "checkbox", "name", "activityButton", "showEvents()", "Activities", activitiesPara);
+        showEvents();
     }
-    makeButtons(intersectingActivities, intersectingActivityIds, counts, "checkbox", "name", "activityButton", "showEvents()", "Activities", activitiesPara);
-    showEvents();
 }
 
 function showEvents() { //Sets up the events checkboxes. Span contains the number of actions executed within each event; onchange runs "showActions"
@@ -231,8 +242,10 @@ function showEvents() { //Sets up the events checkboxes. Span contains the numbe
 }
 
 function showActions() {
-    var acts,
+    var acts = [],
         myEvent,
+        myFields,
+        myActions,
         myAction;
 
     setSelectedObjects();
@@ -241,26 +254,33 @@ function showActions() {
     } else if (selectedStudents.length != 1) {
         actionsPara.innerHTML = "<b>Actions can only be shown for one student at a time.</b>";
     } else {
+        actionsPara.innerHTML = "<b>Actions</b><br>";
+        acts = [];
         for (var i = 0; i < selectedEvents.length; i++) {
             myEvent = selectedEvents[i];
-            acts = myEvent.actions;
-            acts.sort(function (a, b) {
-                return a.unixTime - b.unixTime;
-            });
-            for (var k = 0; k < acts.length; k++) {
-                myAction = acts[k];
+            for (var j = 0; j < myEvent.actions.length; j++) {
+                acts.push(myEvent.actions[j]);
+            }
+        }
+        acts.sort(function (a, b) {
+            return a.unixTime - b.unixTime;
+        });
+        for (var k = 0; k < acts.length; k++) {
+            myAction = acts[k];
+            myFields = [];
+            if (myAction.parameters) {
                 myParameters = myAction.parameters;
                 myFields = Object.getOwnPropertyNames(myParameters);
-                actionsPara.innerHTML += ("<br><b>" + myAction.index + ": " + myAction.event + " at " + myAction.time + "</b><br>");
-                //      if (myAction.description) {
-                //        actionsPara.innerHTML += myAction.description;
-                //  } else {
-                for (var l = 0; l < myFields.length; l++) {
-                    myField = myFields[l];
-                    actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
-                }
-                actionsPara.innerHTML += probsList(myAction) + "<br>";
             }
+            actionsPara.innerHTML += ("<br><b>" + myAction.index + ": " + myAction.event + " at " + myAction.time + "</b><br>");
+            //      if (myAction.description) {
+            //        actionsPara.innerHTML += myAction.description;
+            //  } else {
+            for (var l = 0; l < myFields.length; l++) {
+                myField = myFields[l];
+                actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
+            }
+            actionsPara.innerHTML += probsList(myAction) + "<br>";
         }
     }
 }

@@ -258,8 +258,6 @@ function getProbs(myRow) { //Extracts prob objects from data when the event is I
     return myProbs;
 }
 
-
-
 function probsList(myAction) {
     var probs = myAction.probs;
     var newProbs = myAction.newProbs;
@@ -291,7 +289,7 @@ function probsList(myAction) {
             }
         }
     } else {
-        returnStr = "There are no probability estimates for this action.<br>"
+        returnStr = ""
     }
     return returnStr;
 }
