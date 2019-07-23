@@ -146,7 +146,9 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
 }
 
 function showActivities() { //Sets up the activites checkboxes, which are labeled with the names of the intersection of the activities engaged by all the selected students. Span fields contain the number of events executed within each activity; onchange runs "showEvents"
-    var tableButton = document.getElementById("tableButton");
+    var tableButton = document.getElementById("tableButton"),
+        csvDiv = document.getElementById("csvDiv"),
+        probTable = document.getElementById("probTable");
     var intersectingActivityNames = [],
         intersectingActivityIds = [],
         intersectingActivities = [],
@@ -157,13 +159,10 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         activitiesPara.innerHTML = "";
         eventsPara.innerHTML = "";
         actionsPara.innerHTML = "";
-        tableButton.style.display = "none";
+        csvDiv.style.display = "none";
+        probTable.style.display = "none";
     } else {
-        if (selectedStudents.length == 1) {
-            tableButton.style.display = "inline";
-        } else {
-            tableButton.style.display = "none";
-        }
+        csvDiv.style.display = "inline";
         //Run over the activities fields for those students and collect the intersection of the names of those activities
         for (var i = 0; i < selectedStudents.length; i++) {
             myStudent = selectedStudents[i];
@@ -196,7 +195,7 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
             intersectingActivityIds.push(intersectingActivities[l].id);
             counts[l] = intersectingActivities[l].eventNames.length;
         }
-            
+
         makeButtons(intersectingActivities, intersectingActivityIds, counts, "checkbox", "name", "activityButton", "showEvents()", "Activities", activitiesPara);
         showEvents();
     }
@@ -287,27 +286,34 @@ function showActions() {
 }
 
 function toggleTable() {
-    var tableButton = document.getElementById("tableButton");
     var table = document.getElementById("probTable");
     var tableSpan = document.getElementById("tableSpan");
     if (tableSpan.textContent == "Show table") {
         tableSpan.textContent = "Hide table";
-        table.style.display = "inline";
-        makeProbTable("selected");
+        makeProbTable();
     } else {
         tableSpan.textContent = "Show table";
-        table.style.display = "none";
     }
 }
 
-function makeProbTable(string) {
-    var ss = [];
-    if (string == "all") {
-        ss = students;
+
+
+function makeProbTable() {
+    var div = document.getElementById("probDiv");
+    var table = document.getElementById("probTable");
+    var body = document.getElementById("probTableBody");
+    clear(body);
+    var tableSpan = document.getElementById("tableSpan");
+    if (tableSpan.textContent == "Show table") {
+        div.style.display = "none";
+        table.style.display = "none";
     } else {
-        setSelectedObjects();
-        ss = selectedStudents;
+        div.style.display = "inline";
+        table.style.display = "inline";
     }
+    var ss = [];
+    setSelectedObjects();
+    ss = selectedStudents;
     for (var i = 0; i < ss.length; i++) {
         myStudent = ss[i];
         console.log("Working on student " + i + " of " + ss.length);
@@ -333,39 +339,12 @@ function makeProbTable(string) {
     }
 }
 
-function downloadFile() {
-    var nameInput = document.getElementById("csvFileName");
-    var fileName = nameInput.value;
-    var header = document.getElementById("probHeaderRow");
-    var table = document.getElementById("probTable");
-    makeProbTable("all");
-    csvFile = tableToCSV(header, table);
-    saveData()(csvFile, fileName);
-}
-
-function saveData(data, name) {
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style = "display: none";
-    return function (data, fileName) {
-        var blob = new Blob([data], {
-            type: "text/csv;encoding:utf-8"
-        });
-        var url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        window.URL.revokeObjectURL(url);
-    }
-}
-
 function addCSVRow(myStudent, myActivity, myEvent, myAction) {
-    var index = myAction.index; 
-    var myClass = myStudent.class,
-        myTeacher = myClass.teacher;
-    var probDiv = document.getElementById("probDiv");
-    probDiv.style.display = "block";
-    probTable = document.getElementById("probTable");
+    var index = myAction.index,
+        myClass = myStudent.class,
+        myTeacher = myClass.teacher,
+        probDiv = document.getElementById("probDiv"),
+        probTableBody = document.getElementById("probTableBody");
     var probRow = document.createElement("tr");
     var teacherCell = document.createElement("td");
     var classCell = document.createElement("td");
@@ -469,7 +448,7 @@ function addCSVRow(myStudent, myActivity, myEvent, myAction) {
     probRow.appendChild(LG3P2);
     probRow.appendChild(LG3P3);
     probRow.appendChild(LG3P4);
-    probTable.appendChild(probRow);
+    probTableBody.appendChild(probRow);
 
     teacherCell.innerHTML = myTeacher.id;
     classCell.innerHTML = myClass.id;
@@ -480,25 +459,24 @@ function addCSVRow(myStudent, myActivity, myEvent, myAction) {
     indexCell.innerHTML = myAction.index;
     var priorAction = myStudent.actions[index - 1];
     priorActionCell.innerHTML = priorAction.event;
-    if (myAction.probs.length > 1) {
-        for (var j = 1; j < myAction.probs.length; j++) {
+    if (myAction.probs.length > 0) {
+        for (var j = 0; j < myAction.probs.length; j++) {
             var myProb = myAction.probs[j];
             document.getElementById(myProb.id + index).innerHTML = myProb.prob;
         }
     }
 }
 
-function tableToCSV(headerRow, table) { //Converts an HTML table to a csv file
+function tableToCSV(headerRow, body) { //Converts an HTML table to a csv file
     var returnCSV = ""
-    var myRow;
-    var myCell;
+    var bodyRow;
     var headerCell;
     var text;
     var contents;
     for (var i = 0; i < headerRow.children.length; i++) {
         headerCell = headerRow.children[i];
         text = headerCell.innerText;
-        contents = text.match(/[^"]+/)[0];
+        contents = text.match(/[^"^\s]+/)[0];
         returnCSV += contents;
         if (i != headerRow.children.length - 1) {
             returnCSV += ",";
@@ -506,12 +484,12 @@ function tableToCSV(headerRow, table) { //Converts an HTML table to a csv file
             returnCSV += "\n";
         }
     }
-    for (var j = 1; j < table.children.length; j++) {
-        myRow = table.children[j];
-        for (var k = 0; k < myRow.children.length; k++) {
-            contents = myRow.children[k].innerText;
+    for (var j = 0; j < body.children.length; j++) {
+        bodyRow = body.children[j];
+        for (var k = 0; k < bodyRow.children.length; k++) {
+            contents = bodyRow.children[k].innerText;
             returnCSV += contents;
-            if (k != myRow.children.length - 1) {
+            if (k != bodyRow.children.length - 1) {
                 returnCSV += ",";
             } else {
                 returnCSV += "\n";
@@ -519,4 +497,40 @@ function tableToCSV(headerRow, table) { //Converts an HTML table to a csv file
         }
     }
     return (returnCSV);
+}
+
+function clear(element) { //Have to work backwards otherwise the loop doesn't work!
+    var children = element.childNodes;
+    if (children.length > 3) {
+        for (var i = children.length; i > 0; i--) {
+            element.removeChild(children[i - 1]);
+        }
+    }
+}
+
+function downloadFile() {
+    var nameInput = document.getElementById("csvFileName");
+    var fileName = nameInput.value;
+    var header = document.getElementById("probHeaderRow");
+    var table = document.getElementById("probTable");
+    var body = document.getElementById("probTableBody");
+    makeProbTable();
+    csvFile = tableToCSV(header, body);
+    saveData()(csvFile, fileName);
+}
+
+function saveData(data, name) {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    return function (data, fileName) {
+        var blob = new Blob([data], {
+            type: "text/csv;encoding:utf-8"
+        });
+        var url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
 }

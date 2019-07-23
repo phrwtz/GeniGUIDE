@@ -56,7 +56,6 @@ function filter() {
         console.log("Future probs found.");
     }
     analyzeButton.disabled = "true";
-    document.getElementById("csvDiv").style.display = "inline";
     showTeachers();
 }
 
@@ -226,24 +225,14 @@ function parseJSON(myTeacher) {
     return myTeacher;
 }
 
-function getProbs(myRow) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
+function getProbs(myRow, myStudent) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
     var myProbs = [],
-        myProb,
-        previousRow,
-        myStudent = myRow.student;
-    if (myStudent.actions.length > 1) {
-        previousRow = myRow.student.actions[myRow.student.actions.length - 1];
-    }
-    try {
-        var oldProbs = previousRow.probs,
-            data = myRow.parameters.studentModel,
-            conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
-            currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
-            initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
-            attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
-    } catch (err) {
-        console.log(err);
-    }
+        myProb;
+        data = myRow.parameters.studentModel,
+        conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
+        currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
+        initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
+        attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
     for (var i = 0; i < currentProbs.length; i++) {
         myProb = new Object;
         myProb.action = myRow;
@@ -254,7 +243,6 @@ function getProbs(myRow) { //Extracts prob objects from data when the event is I
         myProb.attempts = attempts[i];
         myProbs.push(myProb);
     }
-    compareProbs(oldProbs, myProbs);
     return myProbs;
 }
 
