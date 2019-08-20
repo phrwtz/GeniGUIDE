@@ -1,23 +1,4 @@
-function trackSelectedStudents() { //Tracks the probs of the selected students looking only at ITS-Data-Updated actions.
-    var probTable = document.getElementById("probTable");
-    var probBody = document.getElementById("probBody");
-    getSelectedStudents();
-    if (selectedStudents.length == 0) {
-        if (probBody) {
-            probTable.removeChild(probBody);
-        }
-    }
-    for (var i = 0; i < selectedStudents.length; i++) {
-        myStudent = selectedStudents[i];
-        for (var j = 0; j < myStudent.probsArray.length; j++) {
-            newProbs = myStudent.probsArray[j];
-            if (j > 0) {
-                oldProbs = myStudent.probsArray[j - 1];
-                addProbRow(myStudent, oldProbs, newProbs);
-            }
-        }
-    }
-}
+
 
 function addProbRow(myStudent, oldProbs, newProbs) {
     var index = newProbs[0].action.index;

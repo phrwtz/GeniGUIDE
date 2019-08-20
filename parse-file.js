@@ -1,4 +1,4 @@
-//Global variables
+// Global variables
 var teachersArray = []; //filled by openFiles function when files are read.
 var teacherIds = [];
 var teachersPara = document.getElementById("teachers");
@@ -31,7 +31,7 @@ var selectedTeachers = [],
     selectedEvents = [],
     selectedEventIds;
 
-var teachersObj = new Object(),
+var teachersObj = Object(),
     selectedTeachersObj = new Object(),
     classesObj = new Object(),
     selectedClassesObj = new Object(),
@@ -77,7 +77,7 @@ function parseJSON(myTeacher) {
     rowObjs.sort(function (a, b) {
         return (new Date(a.time).getTime() - new Date(new Date(b.time).getTime()));
     })
-    myTeacher.classesObj = new Object;
+    myTeacher.classesObj = new Object();
     myTeacher.classIds = [];
     for (var j = 0; j < rowObjs.length; j++) {
         myRow = rowObjs[j];
@@ -85,8 +85,8 @@ function parseJSON(myTeacher) {
         if (myRow.class_id) { //addClass;
             classId = myRow.class_id;
             if (!myTeacher.classesObj[classId]) {
-                myClass = new Object;
-                myClass.studentsObj = new Object;
+                myClass = new Object();
+                myClass.studentsObj = new Object();
                 myClass.studentIds = [];
                 myClass.id = classId;
                 myClass.teacher = myTeacher;
@@ -106,13 +106,13 @@ function parseJSON(myTeacher) {
             myClass = myTeacher.classesObj[classId];
             studentId = myRow.username;
             if (!myClass.studentsObj[studentId]) {
-                myStudent = new Object;
+                myStudent = new Object();
                 myStudent.id = studentId;
                 myStudent.class = myClass;
                 myStudent.actions = [];
                 myStudent.probsArray = [];
-                myStudent.activitiesObj = new Object;
-                myStudent.activitiesByName = new Object;
+                myStudent.activitiesObj = new Object();
+                myStudent.activitiesByName = new Object();
                 myStudent.activityIds = [];
                 myStudent.activityNames = [];
                 myStudent.teacher = myTeacher;
@@ -139,11 +139,11 @@ function parseJSON(myTeacher) {
             myClass = myTeacher.classesObj[classId];
             myStudent = myClass.studentsObj[studentId];
             if (!myStudent.activitiesByName[activityName]) {
-                myActivity = new Object;
+                myActivity = new Object();
                 myActivity.id = activityId;
                 myActivity.name = activityName;
-                myActivity.eventsObj = new Object;
-                myActivity.eventsByName = new Object;
+                myActivity.eventsObj = new Object();
+                myActivity.eventsByName = new Object();
                 myActivity.eventIds = [];
                 myActivity.eventNames = [];
                 myActivity.startTime = new Date(myRow.time).getTime();
@@ -174,7 +174,7 @@ function parseJSON(myTeacher) {
                 myStudent = myClass.studentsObj[studentId];
                 myActivity = myStudent.activitiesByName[activityName];
                 if (!myActivity.eventsByName[eventName]) {
-                    myEvent = new Object;
+                    myEvent = new Object();
                     myEvent.actionNames = [];
                     myEvent.actions = [];
                     myEvent.id = eventId;
@@ -234,7 +234,7 @@ function getProbs(myRow, myStudent) { //Extracts prob objects from data when the
         initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
         attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
     for (var i = 0; i < currentProbs.length; i++) {
-        myProb = new Object;
+        myProb = new Object();
         myProb.action = myRow;
         myProb.time = myRow.time;
         myProb.id = conceptIds[i];

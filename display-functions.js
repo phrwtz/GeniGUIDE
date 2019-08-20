@@ -263,7 +263,7 @@ function showActions() {
             }
         }
         acts.sort(function (a, b) {
-            return a.unixTime - b.unixTime;
+            return a.index - b.index;
         });
         for (var k = 0; k < acts.length; k++) {
             myAction = acts[k];
