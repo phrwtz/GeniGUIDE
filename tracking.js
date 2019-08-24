@@ -2,7 +2,7 @@
 
 function addProbRow(myStudent, oldProbs, newProbs) {
     var index = newProbs[0].action.index;
-    var date = newProbs[0].time.match(/[^T]+/)[0]
+    var date = newProbs[0].time.match(/[^T]+/)[0];
     var time = newProbs[0].time.match(/(?<=T)([^Z]+)/)[0];
     var probDiv = document.getElementById("probDiv");
     var probTable = document.getElementById("probTable");
@@ -306,7 +306,7 @@ function compareProbs(oldProbs, newProbs) {
 
 function trackProb() {
     var probLearnedArray;
-    var conceptId = "LG1.P2"
+    var conceptId = "LG1.P2";
     for (var k = 0; k < students.length; k++) {
         var myStudent = students[k];
         probLearnedArray = [];
@@ -328,13 +328,14 @@ function trackProb() {
 }
 
 function findActionByStudent(classID, studentID, actionIndex) {
+    var myAction;
     for (var k = 0; k < classes.length; k++) {
         if (parseInt(classes[k].id) == classID) {
             var myClass = classes[k];
             for (var i = 0; i < myClass.students.length; i++) {
                 if (parseInt(students[i].id) == studentID) {
                     var myStudent = students[i];
-                    var myAction = myStudent.actions[actionIndex];
+                    myAction = myStudent.actions[actionIndex];
                 }
             }
         }

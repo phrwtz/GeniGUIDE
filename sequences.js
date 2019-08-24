@@ -41,7 +41,7 @@ function findFutureProbs() { //Goes through all the actions for every student, s
 function downloadTable(table) {
     var hintsTable = document.getElementById("hintsTable");
     var hintsCSV = tableToCSV(hintsTable);
-    filename = "MC3PA_hints_data.csv"
+    filename = "MC3PA_hints_data.csv";
     saveData()(hintsCSV, filename);
 }
 

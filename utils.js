@@ -1,6 +1,6 @@
 function findSelectedButton(name) { // returns the id of the checked radio button with name. If no radio button has been checked returns null.
     var buttons = document.getElementsByName(name);
-    if (!buttons.length == 0) {
+    if (buttons.length != 0) {
         var myButton,
             myLevel;
         for (var t = 0; t < buttons.length; t++) {
@@ -498,8 +498,8 @@ function getPheno(genoStr, trait) { //returns the pheno ("D", "H", or "R") from 
         };
         if ((genoStr.search("a:" + alleleLetters[1] + ",b:" + alleleLetters[1])) != -1) {
             return "D";
-        };
-    } catch {
+        }
+    } catch (err) {
         console.log(err);
     }
 }
@@ -557,7 +557,7 @@ function scoreAlleleChange(newAllele, currentGenotype, targetGenotype) { //retur
                 return "redundant";
             }
         }
-    } catch {
+    } catch (err) {
         console.log("Couldn't score allele change");
     }
 }
@@ -636,6 +636,39 @@ function intersection(array1, array2) {
             n1++;
 
             //If the search element is the same as the compare element then the compare element is matched. It goes into the return array and n1 and n2 are both incremented
+        } else {
+            returnArray.push(compareElement);
+            n1++;
+            n2++;
+        }
+    }
+    return returnArray;
+}
+
+function union(array1, array2) {
+    //Returns all elements of array 1 and array 2 but with only one copy if the elements match.
+    var n1 = 0,
+        n2 = 0,
+        returnArray = [],
+        searchElement,
+        compareElement;
+    while ((n1 < array1.length) && (n2 < array2.length)) {
+        compareElement = array1[n1];
+        searchElement = array2[n2];
+
+        //If the search element is smaller than the compare element then the search element is not matched and will not be matched (since the arrays are sorted). We push the search element, increment the search array and move on.
+
+        if (searchElement < compareElement) {
+            returnArray.push(searchElement);
+            n2++;
+
+            //If the search element is bigger than the compare element is not matched and will not be matched (since the arrays are sorted). We push the compare element, increment the compare array and move on.
+
+        } else if (searchElement > compareElement) {
+            returnArray.push(compareElement);
+            n1++;
+
+            //If the search element is the same as the compare element then the compare element is matched. We push one of them (doesn't matter which) and increment both arrays.
         } else {
             returnArray.push(compareElement);
             n1++;

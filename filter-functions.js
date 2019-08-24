@@ -2,7 +2,6 @@ function pruneData(teacher) { //Loop over all the classes for teacher, eliminati
     var myClass,
         myClassId,
         myClassIds = [],
-        studentIds,
         student,
         studentId;
     myClassIds = Object.keys(teacher.classesObj);
@@ -21,6 +20,7 @@ function pruneData(teacher) { //Loop over all the classes for teacher, eliminati
                 student = myClass.studentsObj[studentId];
                 activityIds = Object.keys(student.activitiesObj);
                 if (activityIds.length < 2) {
+                    console.log("Student " + studentId + " has fewer than two activities and is being eliminated");
                     delete myClass.studentsObj[studentId];
                     myClass.studentIds = Object.keys(myClass.studentsObj);
                     delete studentsObj[studentId];
@@ -49,6 +49,7 @@ function setSelectedObjects() {
     selectedTeachers = getSelected(teachersObj, "teacherButton");
     selectedClasses = getSelected(classesObj, "classButton");
     selectedStudents = getSelected(studentsObj, "studentButton");
+    selectedConcepts = getSelected(conceptsObj, "conceptButton");
     selectedActivities = getSelected(activitiesObj, "activityButton");
     selectedEvents = getSelected(eventsObj, "eventButton");
 }

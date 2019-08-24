@@ -4,6 +4,7 @@ var teacherIds = [];
 var teachersPara = document.getElementById("teachers");
 var classesPara = document.getElementById("classes");
 var studentsPara = document.getElementById("students");
+var conceptsPara = document.getElementById("concepts");
 var activitiesPara = document.getElementById("activities");
 var eventsPara = document.getElementById("events");
 var fieldsPara = document.getElementById("fields");
@@ -26,6 +27,8 @@ var selectedTeachers = [],
     selectedClassIds = [],
     selectedStudents = [],
     selectedStudentIds = [],
+    selectedConcepts = [],
+    selectedConceptIds = [],
     selectedActivities = [],
     selectedActivityIds = [],
     selectedEvents = [],
@@ -37,6 +40,8 @@ var teachersObj = Object(),
     selectedClassesObj = new Object(),
     studentsObj = new Object(),
     selectedStudentsObj = new Object(),
+    conceptsObj = new Object(),
+    selectedConceptsObj = new Object(),
     activitiesObj = new Object(),
     selectedActivitiesObj = new Object(),
     eventsObj = new Object(),
@@ -54,7 +59,11 @@ function filter() {
         console.log("Data for file " + myTeacher.id + " parsed.");
         findFutureProbs();
         console.log("Future probs found.");
+        for (var j = 0; j < studentIds.length; j++) {
+            createConceptsArray(studentIds[j]);
+        }
     }
+    console.log("Concepts added to students")
     analyzeButton.disabled = "true";
     showTeachers();
 }
@@ -76,7 +85,7 @@ function parseJSON(myTeacher) {
         rowObjs = JSON.parse(myTeacher.data);
     rowObjs.sort(function (a, b) {
         return (new Date(a.time).getTime() - new Date(new Date(b.time).getTime()));
-    })
+    });
     myTeacher.classesObj = new Object();
     myTeacher.classIds = [];
     for (var j = 0; j < rowObjs.length; j++) {
@@ -206,7 +215,7 @@ function parseJSON(myTeacher) {
                     try {
                         var myProbs = getProbs(myRow, myStudent); //Returns a new prob object from the event
                         if (myProbs) { //If there are new probs
-                            myRow.probs = myProbs; //Add them to the action 
+                            myRow.probs = myProbs; //Add them to the action
                             myStudent.probsArray.push(myProbs); //and push them to the student's array of probs
                         }
                     } catch (err) {
@@ -228,7 +237,7 @@ function parseJSON(myTeacher) {
 function getProbs(myRow, myStudent) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
     var myProbs = [],
         myProb;
-        data = myRow.parameters.studentModel,
+    data = myRow.parameters.studentModel,
         conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
         currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
         initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
@@ -247,11 +256,11 @@ function getProbs(myRow, myStudent) { //Extracts prob objects from data when the
 }
 
 function probsList(myAction) {
-    var probs = myAction.probs;
-    var newProbs = myAction.newProbs;
+    var probs = myAction.probs,
+        returnStr = "",
+        newProbs = myAction.newProbs;
     if ((probs.length > 0) && (newProbs.length > 0)) {
-        var returnStr = "",
-            conceptStr,
+        var conceptStr,
             oldProbVal,
             newProbVal,
             maxLength = Math.max(probs.length, newProbs.length);
@@ -271,13 +280,59 @@ function probsList(myAction) {
                 returnStr += "For concept ID " + conceptStr + " the prior probability estimate is " + oldProbVal + ",  there is no new probability estimate.<br>";
 
             } else if ((i >= probs.length) && (i < newProbs.length)) {
-                conceptStr = newProbs[i].id
+                conceptStr = newProbs[i].id;
                 newProbVal = newProbs[i].prob;
                 returnStr += "For concept ID " + conceptStr + " there is no prior probability estimate. The new probability estimate is " + newProbVal + "<br>";
             }
         }
     } else {
-        returnStr = ""
+        returnStr = "";
     }
     return returnStr;
+}
+
+//Each student gets a "concepts" object that contains a bunch of concepts for which the student has probability learned values. Concepts are objects that have an id (e.g., "LG3.P1"), an array of all the changed probability values for that concept, and an activities array of all the activities in which there are changed probabilties for that concept.
+
+function createConceptsArray(id) {
+    try {
+        myStudent = studentsObj[id];
+        myStudent.concepts = [];
+        myStudent.conceptIds = [];
+    } catch (err) {
+        console.log("no student with id " + id);
+    }
+    for (var j = 0; j < myStudent.probsArray.length; j++) {
+        for (var k = 0; k < myStudent.probsArray[j].length; k++) {
+            myProb = myStudent.probsArray[j][k];
+            //If the concept id has not been seen before for this student, we make a new concept object with this id and set up the activities and probs fields as empty arrays.
+            if (!myStudent.conceptIds.includes(myProb.id)) {
+                myConcept = new Object();
+                myConcept.id = myProb.id;
+                myConcept.activities = [];
+                myConcept.probs = [];
+                myStudent.concepts[myConcept.id] = myConcept;
+                myStudent.conceptIds.push(myConcept.id);
+            } else {
+                myConcept = myStudent.concepts[myProb.id];
+            }
+            //If the activity is new we push it onto the activities array for this concept,
+            try {
+                if (!myConcept.activities.includes(myProb.action.activity)) {
+                    myConcept.activities.push(myProb.action.activity);
+                }
+            } catch (err) {
+                console.log("No concept!" + err);
+            }
+            //and if the probability for this concept has changed or this is the first prob we have encountered for this concept, we push this prob object onto the probs array for this concept.
+            if (myConcept.probs.length == 0) {
+                myConcept.probs.push(myProb.prob);
+            } else {
+                lastProb = myConcept.probs[myConcept.probs.length - 1];
+                if (lastProb != myProb.prob) {
+                    myConcept.probs.push(myProb.prob);
+                }
+            }
+
+        }
+    }
 }

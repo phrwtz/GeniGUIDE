@@ -43,9 +43,9 @@ function makeButtons(objects, objectIds, counts, type, nameField, name, onchange
         var newButtons = document.getElementsByName(name);
         for (var x = 0; x < newButtons.length; x++) {
             newButtons[x].checked = false;
-            for (var y = 0; y < statusArray.length; y++) {
-                if (newButtons[x].id == statusArray[y].id) {
-                    newButtons[x].checked = statusArray[y].checked;
+            for (var z = 0; z < statusArray.length; z++) {
+                if (newButtons[x].id == statusArray[z].id) {
+                    newButtons[x].checked = statusArray[z].checked;
                 }
             }
         }
@@ -140,9 +140,61 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
                 counts.push(myCount);
             }
         }
-        makeButtons(students, studentIds, counts, "checkbox", "id", "studentButton", "showActivities()", "Student IDs", studentsPara);
+        makeButtons(students, studentIds, counts, "checkbox", "id", "studentButton", "showConcepts()", "Student IDs", studentsPara);
     }
-    showActivities();
+    showConcepts();
+}
+
+function showConcepts() {
+    //Sets up the concepts checkboxes, which are labeled with the names of the union of the activities engaged by all the selected students. Span fields contain the number of activities that contain probability learned fields for that concept; onchange runs "showActivities"
+
+    var conceptIdsByStudent = [],
+        unionConceptIds = [],
+        unionConcepts = [],
+        counts = [];
+    setSelectedObjects();
+    if (selectedStudents.length == 0) {
+        conceptsPara.innerHTML = "";
+        activitiesPara.innerHTML = "";
+        eventsPara.innerHTML = "";
+        actionsPara.innerHTML = "";
+        csvDiv.style.display = "none";
+        probTable.style.display = "none";
+    } else {
+        csvDiv.style.display = "inline"; //Run over the concepts fields for those students and collect the union of the names of those activities
+        for (var i = 0; i < selectedStudents.length; i++) {
+            myStudent = selectedStudents[i];
+            conceptIdsByStudent[i] = myStudent.conceptIds;
+            conceptIdsByStudent.sort(function (a, b) {
+                var x = a.toLowerCase();
+                var y = b.toLowerCase();
+                if (x < y) {
+                    return -1;
+                }
+                if (x > y) {
+                    return 1;
+                }
+                return 0;
+            });
+        }
+        unionConceptIds = conceptIdsByStudent[0];
+        //Start with the first element and iteratively compare to all the others
+
+        for (var j = 1; j < conceptIdsByStudent.length; j++) { //start with the second element
+            unionConceptIds = union(unionConceptIds, conceptIdsByStudent[j]);
+        }
+        //Get the concepts corresponding to the union of the concept IDs (needed for the buttons)
+        for (var k = 0; k < unionConceptIds.length; k++) {
+            unionConcepts[k] = myStudent.concepts[unionConceptIds[k]];
+        }
+        //Set up the conceptIds array
+        for (var l = 0; l < unionConcepts.length; l++) {
+            unionConceptIds.push(unionConcepts[l].id);
+            counts[l] = unionConcepts[l].activities.length;
+        }
+        makeButtons(unionConcepts, unionConceptIds, counts, "checkbox", "id", "conceptButton", "showActivities()", "Concepts", conceptsPara);
+        showActivities();
+    }
 }
 
 function showActivities() { //Sets up the activites checkboxes, which are labeled with the names of the intersection of the activities engaged by all the selected students. Span fields contain the number of events executed within each activity; onchange runs "showEvents"
@@ -155,7 +207,7 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         activityNamesByStudent = [],
         counts = [];
     setSelectedObjects();
-    if (selectedStudents.length == 0) {
+    if (selectedConcepts.length == 0) {
         activitiesPara.innerHTML = "";
         eventsPara.innerHTML = "";
         actionsPara.innerHTML = "";
@@ -177,9 +229,10 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
                     return 1;
                 }
                 return 0;
-            })
+            });
         }
         intersectingActivityNames = activityNamesByStudent[0]; //Start with the first element and iteratively compare to all the others in names
+
         for (var j = 1; j < activityNamesByStudent.length; j++) { //start with the second element
             intersectingActivityNames = intersection(intersectingActivityNames, activityNamesByStudent[j]);
         }
@@ -290,14 +343,13 @@ function toggleTable() {
     var tableSpan = document.getElementById("tableSpan");
     if (tableSpan.textContent == "Show table") {
         tableSpan.textContent = "Hide table";
-        makeProbTable();
     } else {
         tableSpan.textContent = "Show table";
     }
+    makeProbTable();
 }
 
-
-
+//Check the tableSpan text field. If it displays "Show table" hide the table and the div; otherwise set the div and the table to "inline"
 function makeProbTable() {
     var div = document.getElementById("probDiv");
     var table = document.getElementById("probTable");
@@ -453,7 +505,7 @@ function addCSVRow(myStudent, myActivity, myEvent, myAction) {
     teacherCell.innerHTML = myTeacher.id;
     classCell.innerHTML = myClass.id;
     studentCell.innerHTML = myStudent.id;
-    dateCell.innerHTML = myAction.time.split("T")[0]
+    dateCell.innerHTML = myAction.time.split("T")[0];
     timeCell.innerHTML = myAction.time.match(/(?<=T)([^Z]+)/)[0];
     challengeCell.innerHTML = myActivity.name;
     indexCell.innerHTML = myAction.index;
@@ -468,7 +520,7 @@ function addCSVRow(myStudent, myActivity, myEvent, myAction) {
 }
 
 function tableToCSV(headerRow, body) { //Converts an HTML table to a csv file
-    var returnCSV = ""
+    var returnCSV = "";
     var bodyRow;
     var headerCell;
     var text;
@@ -532,5 +584,5 @@ function saveData(data, name) {
         a.download = fileName;
         a.click();
         window.URL.revokeObjectURL(url);
-    }
+    };
 }
