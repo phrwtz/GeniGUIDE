@@ -297,7 +297,7 @@ function createConceptsArray(id) {
     try {
         myStudent = studentsObj[id];
         myStudent.concepts = [];
-        myStudent.conceptIds = [];
+        myStudent.conceptNames = [];
     } catch (err) {
         console.log("no student with id " + id);
     }
@@ -305,13 +305,16 @@ function createConceptsArray(id) {
         for (var k = 0; k < myStudent.probsArray[j].length; k++) {
             myProb = myStudent.probsArray[j][k];
             //If the concept id has not been seen before for this student, we make a new concept object with this id and set up the activities and probs fields as empty arrays.
-            if (!myStudent.conceptIds.includes(myProb.id)) {
+            if (!myStudent.conceptNames.includes(myProb.id)) {
                 myConcept = new Object();
-                myConcept.id = myProb.id;
+                myConcept.id =
+                    Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                myConcept.name = myProb.id;
+                myConcept.student = myStudent;
                 myConcept.activities = [];
                 myConcept.probs = [];
-                myStudent.concepts[myConcept.id] = myConcept;
-                myStudent.conceptIds.push(myConcept.id);
+                myStudent.concepts[myProb.id] = myConcept;
+                conceptsObj[myConcept.id] = myConcept; myStudent.conceptNames.push(myConcept.name);
             } else {
                 myConcept = myStudent.concepts[myProb.id];
             }

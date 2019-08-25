@@ -148,9 +148,10 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
 function showConcepts() {
     //Sets up the concepts checkboxes, which are labeled with the names of the union of the activities engaged by all the selected students. Span fields contain the number of activities that contain probability learned fields for that concept; onchange runs "showActivities"
 
-    var conceptIdsByStudent = [],
-        unionConceptIds = [],
-        unionConcepts = [],
+    var conceptNamesByStudent = [],
+        unionConceptNames = [], //Names are repeated from student to student
+        unionConceptIds = [], //Needed to identify the concept objects globally
+        unionConcepts = [], //Will contain the union of the concept objects
         counts = [];
     setSelectedObjects();
     if (selectedStudents.length == 0) {
@@ -164,8 +165,8 @@ function showConcepts() {
         csvDiv.style.display = "inline"; //Run over the concepts fields for those students and collect the union of the names of those activities
         for (var i = 0; i < selectedStudents.length; i++) {
             myStudent = selectedStudents[i];
-            conceptIdsByStudent[i] = myStudent.conceptIds;
-            conceptIdsByStudent.sort(function (a, b) {
+            conceptNamesByStudent[i] = myStudent.conceptNames;
+            conceptNamesByStudent[i].sort(function (a, b) {
                 var x = a.toLowerCase();
                 var y = b.toLowerCase();
                 if (x < y) {
@@ -177,22 +178,23 @@ function showConcepts() {
                 return 0;
             });
         }
-        unionConceptIds = conceptIdsByStudent[0];
+        unionConceptNames = conceptNamesByStudent[0];
         //Start with the first element and iteratively compare to all the others
 
-        for (var j = 1; j < conceptIdsByStudent.length; j++) { //start with the second element
-            unionConceptIds = union(unionConceptIds, conceptIdsByStudent[j]);
+        for (var j = 1; j < conceptNamesByStudent.length; j++) { //start with the second element
+            unionConceptNames = union(unionConceptNames, conceptNamesByStudent[j]);
         }
         //Get the concepts corresponding to the union of the concept IDs (needed for the buttons)
-        for (var k = 0; k < unionConceptIds.length; k++) {
-            unionConcepts[k] = myStudent.concepts[unionConceptIds[k]];
+        for (var k = 0; k < unionConceptNames.length; k++) {
+            unionConcepts[k] = myStudent.concepts[unionConceptNames[k]];
+            unionConceptIds[k] = unionConcepts[k].id;
         }
         //Set up the conceptIds array
         for (var l = 0; l < unionConcepts.length; l++) {
-            unionConceptIds.push(unionConcepts[l].id);
+            unionConceptNames.push(unionConcepts[l].id);
             counts[l] = unionConcepts[l].activities.length;
         }
-        makeButtons(unionConcepts, unionConceptIds, counts, "checkbox", "id", "conceptButton", "showActivities()", "Concepts", conceptsPara);
+        makeButtons(unionConcepts, unionConceptIds, counts, "checkbox", "name", "conceptButton", "showActivities()", "Concepts", conceptsPara);
         showActivities();
     }
 }
