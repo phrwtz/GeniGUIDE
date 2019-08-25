@@ -119,8 +119,8 @@ function showClasses() { //Sets up the classes checkboxes for all classes contai
 
 function showStudents() { //Sets up the students checkboxes which are labeled with the ids of the students. Eventually there will be one checkbox for each student enrolled in at least one of the selected classes. The span fields contain the number of activities engaged in by each student; onchange runs "showActivities"
 
-    var students = [], //all student objects of selected classes
-        studentIds = [], //all student ids of selected classes
+    var theseStudents = [], //all student objects of selected classes
+        theseStudentIds = [], //all student ids of selected classes
         counts = [];
     setSelectedObjects();
     if (selectedClasses.length == 0) {
@@ -135,12 +135,12 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
                 myStudentId = myClass.studentIds[j];
                 myStudent = myClass.studentsObj[myStudentId];
                 myCount = myStudent.activityIds.length;
-                studentIds.push(myStudentId);
-                students.push(myStudent);
+                theseStudentIds.push(myStudentId);
+                theseStudents.push(myStudent);
                 counts.push(myCount);
             }
         }
-        makeButtons(students, studentIds, counts, "checkbox", "id", "studentButton", "showConcepts()", "Student IDs", studentsPara);
+        makeButtons(theseStudents, theseStudentIds, counts, "checkbox", "id", "studentButton", "showConcepts()", "Student IDs", studentsPara);
     }
     showConcepts();
 }
@@ -165,18 +165,23 @@ function showConcepts() {
         csvDiv.style.display = "inline"; //Run over the concepts fields for those students and collect the union of the names of those activities
         for (var i = 0; i < selectedStudents.length; i++) {
             myStudent = selectedStudents[i];
-            conceptNamesByStudent[i] = myStudent.conceptNames;
-            conceptNamesByStudent[i].sort(function (a, b) {
-                var x = a.toLowerCase();
-                var y = b.toLowerCase();
-                if (x < y) {
-                    return -1;
-                }
-                if (x > y) {
-                    return 1;
-                }
-                return 0;
-            });
+            if (!myStudent.conceptNames) {
+                console.log("Student " + myStudent.id + " has no conceptNames field.");
+            }
+            if (myStudent.conceptNames.length > 1) {
+                conceptNamesByStudent[i] = myStudent.conceptNames;
+                conceptNamesByStudent[i].sort(function (a, b) {
+                    var x = a.toLowerCase();
+                    var y = b.toLowerCase();
+                    if (x < y) {
+                        return -1;
+                    }
+                    if (x > y) {
+                        return 1;
+                    }
+                    return 0;
+                });
+            }
         }
         unionConceptNames = conceptNamesByStudent[0];
         //Start with the first element and iteratively compare to all the others
@@ -252,6 +257,9 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         }
 
         makeButtons(intersectingActivities, intersectingActivityIds, counts, "checkbox", "name", "activityButton", "showEvents()", "Activities", activitiesPara);
+        if (selectedConcepts.length == 1) {
+            makeGraph(selectedConcepts);
+        }
         showEvents();
     }
 }
@@ -516,7 +524,7 @@ function addCSVRow(myStudent, myActivity, myEvent, myAction) {
     if (myAction.probs.length > 0) {
         for (var j = 0; j < myAction.probs.length; j++) {
             var myProb = myAction.probs[j];
-            document.getElementById(myProb.id + index).innerHTML = myProb.prob;
+            document.getElementById(myProb.id + index).innerHTML = myProb.value;
         }
     }
 }

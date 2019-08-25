@@ -2,34 +2,36 @@ function pruneData(teacher) { //Loop over all the classes for teacher, eliminati
     var myClass,
         myClassId,
         myClassIds = [],
-        student,
-        studentId;
+        myStudent,
+        myStudentId,
+        myStudentIds,
+        myActivityIds;
     myClassIds = Object.keys(teacher.classesObj);
     for (var i = 0; i < myClassIds.length; i++) {
         myClassId = myClassIds[i];
         myClass = teacher.classesObj[myClassId];
-        studentIds = Object.keys(myClass.studentsObj);
-        if (studentIds.length < 3) {
+        myStudentIds = Object.keys(myClass.studentsObj);
+        if (myStudentIds.length < 3) {
             delete teacher.classesObj[myClassId];
             teacher.classIds = Object.keys(teacher.classesObj);
             delete classesObj[myClassId];
             classIds = Object.keys(teacher.classesObj);
         } else {
             for (var j = 0; j < myClass.studentIds.length; j++) {
-                studentId = studentIds[j];
-                student = myClass.studentsObj[studentId];
-                activityIds = Object.keys(student.activitiesObj);
-                if (activityIds.length < 2) {
-                    console.log("Student " + studentId + " has fewer than two activities and is being eliminated");
-                    delete myClass.studentsObj[studentId];
+                myStudentId = myClass.studentIds[j];
+                myStudent = myClass.studentsObj[myStudentId];
+                myActivityIds = Object.keys(myStudent.activitiesObj);
+                if (myActivityIds.length < 2) {
+                    console.log("Student " + myStudentId + " has fewer than two activities and is being eliminated");
+                    delete myClass.studentsObj[myStudentId];
                     myClass.studentIds = Object.keys(myClass.studentsObj);
-                    delete studentsObj[studentId];
-                    studentIds = Object.keys(myClass.studentsObj);
+                    delete studentsObj[myStudentId];
+                    studentIds = Object.keys(studentsObj);
                 }
             }
         }
     }
-    console.log("Data pruned");
+    console.log("Data pruned. Student IDs number " + studentIds.length);
 }
 
 function getSelected(objects, buttonName) {

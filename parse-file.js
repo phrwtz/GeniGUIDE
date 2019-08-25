@@ -59,11 +59,11 @@ function filter() {
         console.log("Data for file " + myTeacher.id + " parsed.");
         findFutureProbs();
         console.log("Future probs found.");
-        for (var j = 0; j < studentIds.length; j++) {
-            createConceptsArray(studentIds[j]);
-        }
     }
-    console.log("Concepts added to students")
+    for (var j = 0; j < studentIds.length; j++) {
+        createConceptsArray(studentIds[j]);
+    }
+    console.log("Concepts added to " + studentIds.length + " students")
     analyzeButton.disabled = "true";
     showTeachers();
 }
@@ -133,6 +133,7 @@ function parseJSON(myTeacher) {
                 myClass.studentIds.push(studentId);
                 studentsObj[studentId] = myStudent;
                 studentIds.push(myStudent.id);
+                console.log("Student " + myStudent.id + " added to studentIds. Length = " + studentIds.length);
                 students.push(myStudent);
             } else {
                 myStudent = myClass.studentsObj[studentId];
@@ -247,8 +248,8 @@ function getProbs(myRow, myStudent) { //Extracts prob objects from data when the
         myProb.action = myRow;
         myProb.time = myRow.time;
         myProb.id = conceptIds[i];
-        myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
-        myProb.initProb = Math.round(1000 * parseFloat(initProbs[i])) / 1000;
+        myProb.value = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
+        myProb.initValue = Math.round(1000 * parseFloat(initProbs[i])) / 1000;
         myProb.attempts = attempts[i];
         myProbs.push(myProb);
     }
@@ -291,7 +292,7 @@ function probsList(myAction) {
     return returnStr;
 }
 
-//Each student gets a "concepts" object that contains a bunch of concepts for which the student has probability learned values. Concepts are objects that have an id (e.g., "LG3.P1"), an array of all the changed probability values for that concept, and an activities array of all the activities in which there are changed probabilties for that concept.
+//Each student gets a "concepts" object that contains a bunch of concepts for which the student has probability learned values. Concepts are objects that have a name (e.g., "LG3.P1") and a unique id (so that they can be identified across students) by which they are designated. They contain an array of all their changed probability values and another for all the activities in which those changed probabilties appear. They also have a student property identifying the student to whom they apply.
 
 function createConceptsArray(id) {
     try {
@@ -312,7 +313,7 @@ function createConceptsArray(id) {
                 myConcept.name = myProb.id;
                 myConcept.student = myStudent;
                 myConcept.activities = [];
-                myConcept.probs = [];
+                myConcept.probObjs = [];
                 myStudent.concepts[myProb.id] = myConcept;
                 conceptsObj[myConcept.id] = myConcept; myStudent.conceptNames.push(myConcept.name);
             } else {
@@ -327,15 +328,14 @@ function createConceptsArray(id) {
                 console.log("No concept!" + err);
             }
             //and if the probability for this concept has changed or this is the first prob we have encountered for this concept, we push this prob object onto the probs array for this concept.
-            if (myConcept.probs.length == 0) {
-                myConcept.probs.push(myProb.prob);
+            if (myConcept.probObjs.length == 0) {
+                myConcept.probObjs.push(myProb);
             } else {
-                lastProb = myConcept.probs[myConcept.probs.length - 1];
-                if (lastProb != myProb.prob) {
-                    myConcept.probs.push(myProb.prob);
+                lastProbValue = myConcept.probObjs[myConcept.probObjs.length - 1].value;
+                if (lastProbValue != myProb.value) {
+                    myConcept.probObjs.push(myProb);
                 }
             }
-
         }
     }
 }

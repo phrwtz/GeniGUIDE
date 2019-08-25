@@ -351,7 +351,7 @@ function addDescription(myRow, myActivity, myEvent) {
                 myProb = new prob;
                 myProb.action = myRow;
                 myProb.id = conceptIds[i];
-                myProb.prob = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
+                myProb.value = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
                 myProb.attempts = attempts[i];
                 probs.push(myProb);
             }
