@@ -97,6 +97,7 @@ function showClasses() { //Sets up the classes checkboxes for all classes contai
         activitiesPara.innerHTML = "";
         eventsPara.innerHTML = "";
         actionsPara.innerHTML = "";
+        graphDiv.innerHTML = "";
     } else {
         for (var i = 0; i < selectedTeachers.length; i++) {
             myTeacher = selectedTeachers[i];
@@ -128,6 +129,7 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
         activitiesPara.innerHTML = "";
         eventsPara.innerHTML = "";
         actionsPara.innerHTML = "";
+        graphDiv.innerHTML = "";
     } else {
         for (var i = 0; i < selectedClasses.length; i++) {
             myClass = selectedClasses[i];
@@ -140,7 +142,7 @@ function showStudents() { //Sets up the students checkboxes which are labeled wi
                 counts.push(myCount);
             }
         }
-        makeButtons(theseStudents, theseStudentIds, counts, "checkbox", "id", "studentButton", "showConcepts()", "Student IDs", studentsPara);
+        makeButtons(theseStudents, theseStudentIds, counts, "radio", "id", "studentButton", "showConcepts()", "Student IDs", studentsPara);
     }
     showConcepts();
 }
@@ -159,8 +161,8 @@ function showConcepts() {
         activitiesPara.innerHTML = "";
         eventsPara.innerHTML = "";
         actionsPara.innerHTML = "";
+        graphDiv.innerHTML = "";
         csvDiv.style.display = "none";
-        probTable.style.display = "none";
     } else {
         csvDiv.style.display = "inline"; //Run over the concepts fields for those students and collect the union of the names of those activities
         for (var i = 0; i < selectedStudents.length; i++) {
@@ -189,18 +191,17 @@ function showConcepts() {
         for (var j = 1; j < conceptNamesByStudent.length; j++) { //start with the second element
             unionConceptNames = union(unionConceptNames, conceptNamesByStudent[j]);
         }
-        //Get the concepts corresponding to the union of the concept IDs (needed for the buttons)
+        //Get the concepts corresponding to the union of the concept names (needed for the buttons)
         for (var k = 0; k < unionConceptNames.length; k++) {
-            unionConcepts[k] = myStudent.concepts[unionConceptNames[k]];
-            unionConceptIds[k] = unionConcepts[k].id;
+            try {
+                unionConcepts[k] = myStudent.concepts[unionConceptNames[k]];
+                unionConceptIds[k] = unionConcepts[k].id;
+                counts[k] = unionConcepts[k].countChangedProbs;
+            } catch (err) {
+                console.log(err);
+            }
         }
-        //Set up the conceptIds array
-        for (var l = 0; l < unionConcepts.length; l++) {
-            unionConceptNames.push(unionConcepts[l].id);
-            counts[l] = unionConcepts[l].activities.length;
-        }
-        makeButtons(unionConcepts, unionConceptIds, counts, "checkbox", "name", "conceptButton", "showActivities()", "Concepts", conceptsPara);
-        showActivities();
+        makeButtons(unionConcepts, unionConceptIds, counts, "radio", "name", "conceptButton", "showConceptDescription(this.id);showActivities()", "Concepts", conceptsPara);
     }
 }
 
@@ -220,6 +221,7 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         actionsPara.innerHTML = "";
         csvDiv.style.display = "none";
         probTable.style.display = "none";
+        graphDiv.innerHTML = "";
     } else {
         csvDiv.style.display = "inline";
         //Run over the activities fields for those students and collect the intersection of the names of those activities
@@ -257,9 +259,7 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         }
 
         makeButtons(intersectingActivities, intersectingActivityIds, counts, "checkbox", "name", "activityButton", "showEvents()", "Activities", activitiesPara);
-        if (selectedConcepts.length == 1) {
-            makeGraph(selectedConcepts);
-        }
+        makeGraph(selectedConcepts);
         showEvents();
     }
 }
@@ -378,7 +378,6 @@ function makeProbTable() {
     ss = selectedStudents;
     for (var i = 0; i < ss.length; i++) {
         myStudent = ss[i];
-        console.log("Working on student " + i + " of " + ss.length);
         var actNames = myStudent.activityNames;
         if (actNames.length > 0) {
             actNames.sort(function (a, b) {

@@ -9,6 +9,10 @@ var activitiesPara = document.getElementById("activities");
 var eventsPara = document.getElementById("events");
 var fieldsPara = document.getElementById("fields");
 var actionsPara = document.getElementById("actions");
+var infoPara = document.getElementById("infoPara");
+var graphDiv = document.getElementById("graphDiv");
+
+var conceptDescriptions = [];
 
 var teachers = [],
     teacherIds = [],
@@ -60,10 +64,11 @@ function filter() {
         findFutureProbs();
         console.log("Future probs found.");
     }
+    conceptDescriptions = reportConceptData();
     for (var j = 0; j < studentIds.length; j++) {
         createConceptsArray(studentIds[j]);
     }
-    console.log("Concepts added to " + studentIds.length + " students")
+    console.log("Concepts added to students.");
     analyzeButton.disabled = "true";
     showTeachers();
 }
@@ -133,7 +138,6 @@ function parseJSON(myTeacher) {
                 myClass.studentIds.push(studentId);
                 studentsObj[studentId] = myStudent;
                 studentIds.push(myStudent.id);
-                console.log("Student " + myStudent.id + " added to studentIds. Length = " + studentIds.length);
                 students.push(myStudent);
             } else {
                 myStudent = myClass.studentsObj[studentId];
@@ -314,26 +318,24 @@ function createConceptsArray(id) {
                 myConcept.student = myStudent;
                 myConcept.activities = [];
                 myConcept.probObjs = [];
+                myConcept.probObjs.push(myProb);
+                myConcept.countChangedProbs = 1;
                 myStudent.concepts[myProb.id] = myConcept;
-                conceptsObj[myConcept.id] = myConcept; myStudent.conceptNames.push(myConcept.name);
+                conceptsObj[myConcept.id] = myConcept;
+                myStudent.conceptNames.push(myConcept.name);
             } else {
                 myConcept = myStudent.concepts[myProb.id];
             }
             //If the activity is new we push it onto the activities array for this concept,
-            try {
-                if (!myConcept.activities.includes(myProb.action.activity)) {
-                    myConcept.activities.push(myProb.action.activity);
-                }
-            } catch (err) {
-                console.log("No concept!" + err);
+            if (!myConcept.activities.includes(myProb.action.activity)) {
+                myConcept.activities.push(myProb.action.activity);
             }
-            //and if the probability for this concept has changed or this is the first prob we have encountered for this concept, we push this prob object onto the probs array for this concept.
-            if (myConcept.probObjs.length == 0) {
-                myConcept.probObjs.push(myProb);
-            } else {
+            //and if this is not the first probability for this concept and the probability for this concept has changed since the last one, we push this prob object onto the probObjs array for this concept and increment the count.
+            if (myConcept.probObjs.length > 0) {
                 lastProbValue = myConcept.probObjs[myConcept.probObjs.length - 1].value;
                 if (lastProbValue != myProb.value) {
                     myConcept.probObjs.push(myProb);
+                    myConcept.countChangedProbs++;
                 }
             }
         }
