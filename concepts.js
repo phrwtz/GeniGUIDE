@@ -3,10 +3,23 @@ function showConcepts() {
 
     var id,
         destination = document.getElementById("concepts");
+    var count = 0;
+    setSelectedObjects();
+    if (selectedStudents.length == 1) {
+        var selectedStudent = selectedStudents[0];
+    }
     destination.innerHTML = "<b>Concept Ids</b><br><br>";
     for (var i = 0; i < conceptIds.length; i++) {
         id = conceptIds[i];
-        destination.innerHTML += "<input type ='radio' id=" + id + " name='conceptButton' + onchange='setSelectedConceptName(this.id)'> </input > " + id + "<br>";
+        if (selectedStudent) {
+            if (selectedStudent.concepts[id]) {
+                count = selectedStudent.concepts[id].probObjs.length;
+            }
+        }
+        destination.innerHTML += "<input type ='radio' id=" + id + " name='conceptButton' + onchange='setSelectedConceptName(this.id);makeGraph()'> </input > " + id + " (" + count + ")<br>";
+    }
+    if (selectedConceptName) {
+        document.getElementById(selectedConceptName).checked = true;
     }
 }
 

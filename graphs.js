@@ -1,34 +1,40 @@
-function makeGraph(studentId) {
-    if (selectedConceptName) {
-        var selectedStudent = studentsObj[studentId];
-        var myConcept = selectedStudent.concepts[selectedConceptName];
-        var myConceptName = myConcept.name;
-        var myProbs = [],
-            myValues = [],
-            myActivities = [];
-        trace = new Object(),
-            graphDiv.innerHTML = "";
-        for (var j = 0; j < myConcept.probObjs.length; j++) {
-            myProbs.push(myConcept.probObjs[j]);
-            myValues.push(myConcept.probObjs[j].value);
-            myActivities.push(myConcept.probObjs[j].action.index + "." + myConcept.probObjs[j].action.activity);
-        }
-        trace.type = "scatter";
-        trace.mode = "lines+markers";
-        trace.color = 'hsl(75,100,100)';
-        trace.x = myActivities;
-        trace.y = myValues;
-        trace.size = 200;
-        trace.width = 200;
-        trace.hovertext = myConcept.name;
-        var data = [trace];
-        var layout = {
-            title: ("Student = " + studentId),
-            yaxis: {
-                range: [0, 1.1]
+function makeGraph() {
+    setSelectedObjects();
+    if ((selectedStudents.length > 0) && (selectedConceptName)) {
+        var myStudent = selectedStudents[0];
+        var studentId = myStudent.id;
+        var myConcept = myStudent.concepts[selectedConceptName];
+        if (myConcept) {
+            var myConceptName = myConcept.name;
+            var myProbs = [],
+                myValues = [],
+                myActivities = [];
+            trace = new Object(),
+                graphDiv.innerHTML = "";
+            for (var j = 0; j < myConcept.probObjs.length; j++) {
+                myProbs.push(myConcept.probObjs[j]);
+                myValues.push(myConcept.probObjs[j].value);
+                myActivities.push(myConcept.probObjs[j].action.index + "." + myConcept.probObjs[j].action.activity);
             }
+            trace.type = "scatter";
+            trace.mode = "lines+markers";
+            trace.color = 'hsl(75,100,100)';
+            trace.x = myActivities;
+            trace.y = myValues;
+            trace.size = 200;
+            trace.width = 200;
+            trace.hovertext = myConcept.name;
+            var data = [trace];
+            var layout = {
+                title: ("Student = " + studentId + ", concept = " + myConcept.name + ": " + conceptDescription(myConcept.id)),
+                yaxis: {
+                    range: [0, 1.1]
+                }
+            }
+            Plotly.newPlot("graphDiv", data, layout);
+        } else {
+            graphDiv.innerHTML = "";
         }
-        Plotly.newPlot("graphDiv", data, layout);
     }
 }
 
@@ -51,7 +57,7 @@ function reportConceptData() {
     return ci;
 }
 
-function showConceptDescription(id) {
+function conceptDescription(id) {
     var concept = conceptsObj[id];
-    infoPara.innerHTML = concept.name + " = " + conceptDescriptions[concept.name];
+    return conceptDescriptions[concept.name];
 }

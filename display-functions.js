@@ -5,21 +5,6 @@ function makeButtons(objects, objectIds, counts, type, nameField, name, onchange
         count,
         id,
         statusArray = [];
-    //Keep the conceptButton checked when the student changes, if it exists.
-    if (name == "conceptButton") {
-        //get the checked/notchecked status of the button array so that we can reproduce it when we're done.
-        buttons = document.getElementsByName(name);
-        if (buttons.length > 0) {
-            for (var y = 1; y < buttons.length; y++) {
-                myStatus = {
-                    id: buttons[y].id,
-                    checked: buttons[y].checked
-                };
-                statusArray.push(myStatus); //Contains all the buttons that are checked.
-            }
-        }
-    }
-
     if (title == "Guide-hint-received") {
         title = "<span style=\"color:red\">" + title + "</span>";
     }
@@ -43,23 +28,6 @@ function makeButtons(objects, objectIds, counts, type, nameField, name, onchange
                 }
             }
             destination.innerHTML += "<input type=" + type + " id= " + id + " name=" + name + " onchange=" + onchange + "></input> " + string + " (" + counts[m] + ")<br>";
-        }
-        //Restore checked status of concepts button.
-        if (name == "conceptButton") {
-            var newButtons = document.getElementsByName(name);
-            for (var x = 0; x < newButtons.length; x++) {
-                newButtons[x].checked = false;
-                for (var z = 0; z < statusArray.length; z++) {
-    //Check to see if the buttons in the arrays have ids. They won't, for instance, if they are "all/none" buttons.
-                    if (newButtons[x].id && statusArray[z].id) {
-                        newName = conceptsObj[newButtons[x].id].name;
-                        oldName = conceptsObj[statusArray[z].id].name
-                        if (newName == oldName) {
-                            newButtons[x].checked = statusArray[z].checked;
-                        }
-                    }
-                }
-            }
         }
     }
 }
@@ -98,37 +66,6 @@ function makeButtons(objects, objectIds, counts, type, nameField, name, onchange
     }
 
 
-    function showClasses() { //Sets up the classes checkboxes for all classes contained in the uploaded files. Span contains the number of students in each class; onchange runs "showStudents"
-        var classes = [], //all class objects of selected teachers
-            classIds = [], //all class ids of selected teachers
-            counts = []; //array of student counts ofeach class
-        setSelectedObjects();
-        if (selectedTeachers.length == 0) {
-            classesPara.innerHTML = "";
-            studentsPara.innerHTML = "";
-            activitiesPara.innerHTML = "";
-            eventsPara.innerHTML = "";
-            actionsPara.innerHTML = "";
-            graphDiv.innerHTML = "";
-        } else {
-            for (var i = 0; i < selectedTeachers.length; i++) {
-                myTeacher = selectedTeachers[i];
-                for (var j = 0; j < myTeacher.classIds.length; j++) {
-                    myClassId = myTeacher.classIds[j];
-                    myClass = myTeacher.classesObj[myClassId];
-                    if (myClass) { //Have to check because some classes have been pruned
-                        studentIds = Object.keys(myClass.studentsObj);
-                        myCount = studentIds.length;
-                        classIds.push(myClassId);
-                        classes.push(myClass);
-                        counts.push(myCount);
-                    }
-                }
-                makeButtons(classes, classIds, counts, "checkbox", "id", "classButton", "showStudents()", "Class IDs", classesPara);
-            }
-        }
-        showStudents();
-    }
 
 
 
