@@ -1,36 +1,34 @@
-function makeGraph(concepts) {
-    var myProbs = [],
-        myValues = [],
-        myActivities = [];
-    trace = new Object(),
-        graphDiv.innerHTML = "";
-    if (concepts.length == 1) {
-        for (var i = 0; i < concepts.length; i++) {
-            myConcept = concepts[i];
-            myStudentId = myConcept.student.id;
-            myConceptName = myConcept.name;
-            for (var j = 0; j < myConcept.probObjs.length; j++) {
-                myProbs.push(myConcept.probObjs[j]);
-                myValues.push(myConcept.probObjs[j].value);
-                myActivities.push(myConcept.probObjs[j].action.index + "." + myConcept.probObjs[j].action.activity);
-            }
-            trace.type = "scatter";
-            trace.mode = "lines+markers";
-            trace.color = 'hsl(75,100,100)';
-            trace.x = myActivities;
-            trace.y = myValues;
-            trace.size = 200;
-            trace.width = 200;
-            trace.hovertext = myConcept.name;
-            var data = [trace];
-            var layout = {
-                title: ("Student = " + myStudentId),
-                yaxis: {
-                    range: [0, 1.1]
-                }
-            }
-            Plotly.newPlot("graphDiv", data, layout);
+function makeGraph(studentId) {
+    if (selectedConceptName) {
+        var selectedStudent = studentsObj[studentId];
+        var myConcept = selectedStudent.concepts[selectedConceptName];
+        var myConceptName = myConcept.name;
+        var myProbs = [],
+            myValues = [],
+            myActivities = [];
+        trace = new Object(),
+            graphDiv.innerHTML = "";
+        for (var j = 0; j < myConcept.probObjs.length; j++) {
+            myProbs.push(myConcept.probObjs[j]);
+            myValues.push(myConcept.probObjs[j].value);
+            myActivities.push(myConcept.probObjs[j].action.index + "." + myConcept.probObjs[j].action.activity);
         }
+        trace.type = "scatter";
+        trace.mode = "lines+markers";
+        trace.color = 'hsl(75,100,100)';
+        trace.x = myActivities;
+        trace.y = myValues;
+        trace.size = 200;
+        trace.width = 200;
+        trace.hovertext = myConcept.name;
+        var data = [trace];
+        var layout = {
+            title: ("Student = " + studentId),
+            yaxis: {
+                range: [0, 1.1]
+            }
+        }
+        Plotly.newPlot("graphDiv", data, layout);
     }
 }
 

@@ -13,6 +13,7 @@ var infoPara = document.getElementById("infoPara");
 var graphDiv = document.getElementById("graphDiv");
 
 var conceptDescriptions = [];
+var selectedConceptName;
 
 var teachers = [],
     teacherIds = [],
@@ -70,6 +71,7 @@ function filter() {
     }
     console.log("Concepts added to students.");
     analyzeButton.disabled = "true";
+    showConcepts();
     showTeachers();
 }
 
