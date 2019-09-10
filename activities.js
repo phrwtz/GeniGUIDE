@@ -16,15 +16,18 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         graphDiv.innerHTML = "";
     } else {
         csvDiv.style.display = "inline";
-        //Run over the activities fields for those students and collect the intersection of the names of those activities
+        activitiesPara.innerHTML = "Activities<br><br>";
+        activitiesPara.innerHTML += "<input type='checkbox'  name='activityButton' onchange='toggleSelectAll(\"" + 'activityButton' + "\");'></input> all/none<br>";
         for (var i = 0; i < selectedStudents.length; i++) {
             myStudent = selectedStudents[i];
+            activities = myStudent.activitiesObj;
             activityNames = myStudent.activityNames;
             activityIds = myStudent.activityIds;
-            makeButtons(activities, activityIds, counts, "checkbox", "name", "activityButton", "showEvents()", "Activities", activitiesPara);
-            showEvents();
-            if (selectedConceptName) {
-                makeGraph(activityIds[0]);
+            for (var j = 0; j < activityNames.length; j++) {
+                myActivity = myStudent.activitiesObj[myStudent.activityIds[j]];
+                count = myActivity.eventNames.length;
+                activitiesPara.innerHTML += "<input type ='checkbox' id=" + activityIds[j] + " name='activityButton' + onchange='showEvents()'> </input > " + activityNames[j] + " (" + count + ")<br>";
+                showEvents();
             }
         }
     }
