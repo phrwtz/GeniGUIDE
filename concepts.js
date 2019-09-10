@@ -4,6 +4,7 @@ function showConcepts() {
     var id,
         destination = document.getElementById("concepts");
     var count = 0;
+    var probObjs = [];
     setSelectedObjects();
     if (selectedStudents.length == 1) {
         var selectedStudent = selectedStudents[0];
@@ -13,7 +14,13 @@ function showConcepts() {
         id = conceptIds[i];
         if (selectedStudent) {
             if (selectedStudent.concepts[id]) {
-                count = selectedStudent.concepts[id].probObjs.length;
+                myConcept = selectedStudent.concepts[id];
+                if (showAllProbs) {
+                    probObjs = myConcept.probObjs;
+                } else {
+                    probObjs = myConcept.changedProbObjs;
+                }
+                count = probObjs.length;
             }
         }
         destination.innerHTML += "<input type ='radio' id=" + id + " name='conceptButton' + onchange='setSelectedConceptName(this.id);makeGraph()'> </input > " + id + " (" + count + ")<br>";

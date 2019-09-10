@@ -47,7 +47,11 @@
 
     <h2>Parse Geniventure JSON log files</h2>
     <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
-    <button type="button" id="analyzeButton" style="display:none" onclick="filter()">Analyze</button><br>
+    <button type="button" id="analyzeButton" style="display:none" onclick="filter()">Analyze</button>
+    <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
+    <span id="showChangesSpan">Show changed probs only</span>
+    </span>
+    </button>
 
     <div id="csvDiv" style="display:none">
         <button type="button" id="tableButton" style="display:inline" onclick="toggleTable()">
@@ -200,8 +204,8 @@
                     return function (e) {
                         fileCount++;
                         if (fileCount >= files.length - 1) {
-                            document.getElementById("fileInput").style.display = "none";
                             document.getElementById("analyzeButton").style.display = "block";
+                            document.getElementById("fileInput").disabled = true;
                             document.getElementById("analyzeButton").disabled = false;
                         }
                         var myTeacher = new Object;

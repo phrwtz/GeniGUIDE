@@ -14,6 +14,7 @@ var graphDiv = document.getElementById("graphDiv");
 
 var conceptDescriptions = [];
 var selectedConceptName;
+var showAllProbs = false;
 
 var teachers = [],
     teacherIds = [],
@@ -71,6 +72,7 @@ function filter() {
     }
     console.log("Concepts added to students.");
     analyzeButton.disabled = "true";
+    document.getElementById("toggleChangesButton").style.display = "inline";
     showConcepts();
     showTeachers();
 }
@@ -320,7 +322,10 @@ function createConceptsArray(id) {
                 myConcept.student = myStudent;
                 myConcept.activities = [];
                 myConcept.probObjs = [];
+                myConcept.changedProbObjs = [];
                 myConcept.probObjs.push(myProb);
+                myConcept.changedProbObjs.push(myProb);
+                myConcept.countProbs = 1;
                 myConcept.countChangedProbs = 1;
                 myStudent.concepts[myProb.id] = myConcept;
                 conceptsObj[myConcept.id] = myConcept;
@@ -332,13 +337,15 @@ function createConceptsArray(id) {
             if (!myConcept.activities.includes(myProb.action.activity)) {
                 myConcept.activities.push(myProb.action.activity);
             }
-            //and if this is not the first probability for this concept and the probability for this concept has changed since the last one, we push this prob object onto the probObjs array for this concept and increment the count.
+            //and if this is not the first probability for this concept we push it to myConcept.probObjs. If the probability for this concept has changed since the last one, we push this prob object to myConcept.changedProbObjs and increment the count of changed probs.
             if (myConcept.probObjs.length > 0) {
                 lastProbValue = myConcept.probObjs[myConcept.probObjs.length - 1].value;
                 if (lastProbValue != myProb.value) {
-                    myConcept.probObjs.push(myProb);
+                    myConcept.changedProbObjs.push(myProb);
                     myConcept.countChangedProbs++;
                 }
+                myConcept.probObjs.push(myProb);
+                myConcept.countProbs++;
             }
         }
     }

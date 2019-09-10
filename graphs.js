@@ -4,6 +4,7 @@ function makeGraph() {
         var myStudent = selectedStudents[0];
         var studentId = myStudent.id;
         var myConcept = myStudent.concepts[selectedConceptName];
+        var probObjs = [];
         if (myConcept) {
             var myConceptName = myConcept.name;
             var myProbs = [],
@@ -11,10 +12,15 @@ function makeGraph() {
                 myActivities = [];
             trace = new Object(),
                 graphDiv.innerHTML = "";
-            for (var j = 0; j < myConcept.probObjs.length; j++) {
-                myProbs.push(myConcept.probObjs[j]);
-                myValues.push(myConcept.probObjs[j].value);
-                myActivities.push(myConcept.probObjs[j].action.index + "." + myConcept.probObjs[j].action.activity);
+                if (showAllProbs) {
+                    probObjs = myConcept.probObjs;
+                } else {
+                    probObjs = myConcept.changedProbObjs;
+                }
+            for (var j = 0; j < probObjs.length; j++) {
+                myProbs.push(probObjs[j]);
+                myValues.push(probObjs[j].value);
+                myActivities.push(probObjs[j].action.index + "." + probObjs[j].action.activity);
             }
             trace.type = "scatter";
             trace.mode = "lines+markers";
