@@ -207,6 +207,9 @@ function parseJSON(myTeacher) {
                 } else {
                     myEvent = myActivity.eventsByName[eventName];
                 }
+                if (eventName == "Navigated") {
+                        myActivity.route = myRow.parameters.route;
+                    }
                 myEvent.actions.push(myRow);
                 //            console.log("student = " + myStudent.id + ", activity = " + myActivity.name + ", event = " + myEvent.name + " logging an action. Total actions for this event = " + myEvent.actions.length + ".");
                 myRow.index = myStudent.actions.length;

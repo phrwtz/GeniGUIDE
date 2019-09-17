@@ -1,4 +1,4 @@
-function pruneData(teacher) { //Loop over all the classes for teacher, eliminating those that have fewer then 3 students. (Note: the class ID has to be splice out of the array too.) Do the same for any students with fewer than two activities.
+function pruneData(teacher) { //Loop over all the classes for teacher, eliminating those that have fewer then 3 students. (Note: the class ID has to be spliced out of the array too.) Do the same for any students with fewer than two activities.
     var myClass,
         myClassId,
         myClassIds = [],

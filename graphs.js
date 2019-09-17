@@ -46,8 +46,25 @@ function makeGraph() {
             }
             Plotly.newPlot("graphDiv", data, layout);
             myPlot.on('plotly_click', function (data) {
-                myURL = data.points[0].fullData.hovertext;
-                window.open(myURL, "_blank");
+                var myURL = data.points[0].fullData.hovertext;
+                var xStr = data.points[0].x;
+                var xIndex = parseInt(xStr.match(/(?<=<b>)[\d]+/)[0]);
+                var num = 6;
+           //     window.open(myURL, "_blank");
+                infoPara.innerHTML = "<a href=" + myURL + ">" + myActivityName + "<br>";
+                for (var k = 0; k < num + 1; k++) {
+                    myAction = myStudent.actions[xIndex - num + k];
+                    var t = myAction.time.match(/(?<=T)([\d]+:[\d]+:[\d]+)/);
+                    var myProbValue = -1;
+    //This is ony used for debugging
+                    for (var kk = 0; kk < myAction.probs.length; kk++) {
+                        if (myAction.probs[kk].id == myConcept.name) {
+                            myProbValue = myAction.probs[kk].value;
+                        }
+                    }
+    //... and not displayed
+                    infoPara.innerHTML += myAction.index + ": " + t[0] + ", " + myAction.event + "<br>";
+                }
             });
         } else {
             graphDiv.innerHTML = "";
