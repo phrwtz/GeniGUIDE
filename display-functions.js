@@ -48,6 +48,7 @@ function toggleSelectAll(checkboxName) {
 }
 
 function toggleShowChanges() {
+    infoPara.innerHTML = "";
     var span = document.getElementById("showChangesSpan");
     if (span.innerText == "Show changed probs only") {
         span.innerText = "Show all probs";
