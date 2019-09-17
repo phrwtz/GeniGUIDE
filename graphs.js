@@ -5,6 +5,7 @@ function makeGraph() {
         var studentId = myStudent.id;
         var myConcept = myStudent.concepts[selectedConceptName];
         var probObjs = [];
+        var myPlot = document.getElementById("graphDiv");
         if (myConcept) {
             var myConceptName = myConcept.name;
             var myProbs = [],
@@ -20,7 +21,13 @@ function makeGraph() {
             for (var j = 0; j < probObjs.length; j++) {
                 myProbs.push(probObjs[j]);
                 myValues.push(probObjs[j].value);
-                myActivities.push(probObjs[j].action.index + "." + probObjs[j].action.activity);
+                myAction = probObjs[j].action;
+                myStudent = myAction.student;
+                myIndex = myAction.index;
+                myActivityName = myAction.activity;
+                myActivity = myStudent.activitiesByName[myActivityName];
+                myRoute = myActivity.route;
+                myActivities.push("<b>" + myIndex + ": </b>" + myActivityName);
             }
             trace.type = "scatter";
             trace.mode = "lines+markers";
@@ -29,7 +36,7 @@ function makeGraph() {
             trace.y = myValues;
             trace.size = 200;
             trace.width = 200;
-            trace.hovertext = myConcept.name;
+            trace.hovertext = "http://geniventure.concord.org/#" + myRoute;
             var data = [trace];
             var layout = {
                 title: ("Student = " + studentId + ", concept = " + myConcept.name + ": " + conceptDescription(myConcept.id)),
@@ -38,6 +45,10 @@ function makeGraph() {
                 }
             }
             Plotly.newPlot("graphDiv", data, layout);
+            myPlot.on('plotly_click', function (data) {
+                myURL = data.points[0].fullData.hovertext;
+                window.open(myURL, "_blank");
+            });
         } else {
             graphDiv.innerHTML = "";
         }
