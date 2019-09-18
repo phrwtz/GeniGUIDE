@@ -10,14 +10,15 @@ function makeGraph() {
             var myConceptName = myConcept.name;
             var myProbs = [],
                 myValues = [],
-                myActivities = [];
+                myActivities = [],
+                myURLs = [];
             trace = new Object(),
                 graphDiv.innerHTML = "";
-                if (showAllProbs) {
-                    probObjs = myConcept.probObjs;
-                } else {
-                    probObjs = myConcept.changedProbObjs;
-                }
+            if (showAllProbs) {
+                probObjs = myConcept.probObjs;
+            } else {
+                probObjs = myConcept.changedProbObjs;
+            }
             for (var j = 0; j < probObjs.length; j++) {
                 myProbs.push(probObjs[j]);
                 myValues.push(probObjs[j].value);
@@ -28,41 +29,63 @@ function makeGraph() {
                 myActivity = myStudent.activitiesByName[myActivityName];
                 myRoute = myActivity.route;
                 myActivities.push("<b>" + myIndex + ": </b>" + myActivityName);
+                myURLs.push("http://geniventure.concord.org/#" + myRoute);
             }
-            trace.type = "scatter";
-            trace.mode = "lines+markers";
-            trace.color = 'hsl(75,100,100)';
-            trace.x = myActivities;
-            trace.y = myValues;
-            trace.size = 200;
-            trace.width = 200;
-            trace.hovertext = "http://geniventure.concord.org/#" + myRoute;
+            var trace = {
+                type: 'scatter',
+                mode: 'lines+markers',
+                x: myActivities,
+                y: myValues,
+                line: {
+                    color: 'blue',
+                    width: 3
+                },
+                hovertext: myActivities
+            }
             var data = [trace];
             var layout = {
-                title: ("Student = " + studentId + ", concept = " + myConcept.name + ": " + conceptDescription(myConcept.id)),
+                autosize: false,
+                width: 1500,
+                height: 500,
+                margin: {
+                    l: 30,
+                    r: 20,
+                    b: 30,
+                    t: 30,
+                    pad: 4
+                },
+                xaxis: {
+                    tickmode: 'array',
+                    automargin: true
+                },
                 yaxis: {
+                    showline: true,
+                    linecolor: 'blue',
                     range: [0, 1.1]
-                }
+                },
+                title: ("Student = " + studentId + ", concept = " + myConcept.name + ": " + conceptDescription(myConcept.id))
             }
             Plotly.newPlot("graphDiv", data, layout);
             myPlot.on('plotly_click', function (data) {
-                var myURL = data.points[0].fullData.hovertext;
+                myPointIndex = data.points[0].pointIndex;
+                myURL = myURLs[myPointIndex];
+                myName = myActivities[myPointIndex];
                 var xStr = data.points[0].x;
                 var xIndex = parseInt(xStr.match(/(?<=<b>)[\d]+/)[0]);
                 var num = 6;
-           //     window.open(myURL, "_blank");
-                infoPara.innerHTML = '<a href=' + myURL + '/ target="_blank">' + myActivityName + "<br>";
+                //     window.open(myURL, "_blank");
+                infoPara.innerHTML = '<a href=' + myURL + '/ target="_blank">' + myName + "<br>";
                 for (var k = 0; k < num + 1; k++) {
                     myAction = myStudent.actions[xIndex - num + k];
                     var t = myAction.time.match(/(?<=T)([\d]+:[\d]+:[\d]+)/);
                     var myProbValue = -1;
-    //This is only used for debugging
+                    //This is only used for debugging
                     for (var kk = 0; kk < myAction.probs.length; kk++) {
                         if (myAction.probs[kk].id == myConcept.name) {
                             myProbValue = myAction.probs[kk].value;
                         }
                     }
-    //... and not displayed
+                    //... and not displayed
                     infoPara.innerHTML += myAction.index + ": " + t[0] + ", " + myAction.event + "<br>";
                 }
             });
