@@ -10,7 +10,9 @@ function makeGraph() {
             var myConceptName = myConcept.name;
             var myProbs = [],
                 myValues = [],
+                myReversals = [],
                 myActivities = [],
+                myIndices = [],
                 myURLs = [];
             trace = new Object(),
                 graphDiv.innerHTML = "";
@@ -29,12 +31,21 @@ function makeGraph() {
                 myActivity = myStudent.activitiesByName[myActivityName];
                 myRoute = myActivity.route;
                 myActivities.push("<b>" + myIndex + ": </b>" + myActivityName);
+                myIndices.push(myIndex.toString());
                 myURLs.push("http://geniventure.concord.org/#" + myRoute);
+            }
+            myReversals = countReversals(myValues);
+            if (myReversals == 0) {
+                revStr = "No reversals."
+            } else if (myReversals == 1) {
+                revStr = "1 reversal."
+            } else {
+                revStr = myReversals + " reversals."
             }
             var trace = {
                 type: 'scatter',
                 mode: 'lines+markers',
-                x: myActivities,
+                x: myIndices,
                 y: myValues,
                 line: {
                     color: 'blue',
@@ -63,15 +74,14 @@ function makeGraph() {
                     linecolor: 'blue',
                     range: [0, 1.1]
                 },
-                title: ("Student = " + studentId + ", concept = " + myConcept.name + ": " + conceptDescription(myConcept.id))
+                title: ("Student = " + studentId + ", concept = " + myConcept.name + ": " + conceptDescription(myConcept.id) + "<br>" + revStr)
             }
             Plotly.newPlot("graphDiv", data, layout);
             myPlot.on('plotly_click', function (data) {
                 myPointIndex = data.points[0].pointIndex;
                 myURL = myURLs[myPointIndex];
                 myName = myActivities[myPointIndex];
-                var xStr = data.points[0].x;
-                var xIndex = parseInt(xStr.match(/(?<=<b>)[\d]+/)[0]);
+                var xIndex = data.points[0].x;
                 var num = 6;
                 //     window.open(myURL, "_blank");
                 infoPara.innerHTML = '<a href=' + myURL + '/ target="_blank">' + myName + "<br>";
@@ -93,6 +103,36 @@ function makeGraph() {
             graphDiv.innerHTML = "";
         }
     }
+}
+
+//Count the number of times the graph reverses direction
+function countReversals(values) {
+    var tolerance = .1 //Values that differ by plus or minus this number will be counted as equal.
+    var count = 0,
+        first,
+        second,
+        thisVal,
+        after,
+        fifth;
+    if (values.length > 5) {
+        for (var i = 1; i < values.length - 1; i++) {
+            before = values[i - 1];
+            now = values[i];
+            after = values[i + 1];
+            fifth = values[i + 2];
+            if (!approxEqual(before, now, tolerance) && !approxEqual(now, after, tolerance)) {
+                if (((before < now) && (now > after)) || ((before > now) && (now < after))) {
+                    count++;
+                    console.log("Reversal found at postion " + i + ", before = " + before + ", now  " + now + ", after = " + after);
+                }
+            }
+        }
+    }
+    return count;
+}
+
+function approxEqual(value1, value2, tolerance) {
+    return (Math.abs(value1 - value2) < tolerance);
 }
 
 function reportConceptData() {
