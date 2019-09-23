@@ -106,35 +106,34 @@ function makeGraph() {
 }
 
 //Count the number of times the graph reverses direction
-/*
-Note: this algorithm is too simple. It looks for significant differences between neighboring values in order to find extrema, but this means it won't count shallow but wide valleys or mountains. We need to be more clever, looking ahead and behind to see changes beyond the immediate neighborhood.
-*/
 
 function countReversals(values) {
     var tolerance = .1 //Values that differ by plus or minus this number will be counted as equal.
-    var count = 0,
-        before,
-        now,
-        after;
+    var newIncreasing,
+        oldIncreasing = (values[1] - values[0] > tolerance);
+    count = 0;
     if (values.length > 5) {
-        for (var i = 1; i < values.length - 1; i++) {
-            before = values[i - 1];
-            now = values[i];
-            after = values[i + 1];
-            fifth = values[i + 2];
-            if (!approxEqual(before, now, tolerance) && !approxEqual(now, after, tolerance)) {
-                if (((before < now) && (now > after)) || ((before > now) && (now < after))) {
+        for (var i = 2; i < values.length; i++) {
+            if (values[i] - values[i - 1] > tolerance) {
+                newIncreasing = true;
+                if (newIncreasing != oldIncreasing) {
                     count++;
-                    console.log("Reversal found at postion " + i + ", before = " + before + ", now  " + now + ", after = " + after);
+                    console.log("Reversal found. Values(" + (i - 1) + ") = " + values[i - 1]);
                 }
+                oldIncreasing = newIncreasing;
+            } else if (values[i - 1] - values[i] > tolerance) {
+                newIncreasing = false;
+                if (newIncreasing != oldIncreasing) {
+                    count++;
+                    console.log("Reversal found. Values(" + (i - 1) + ") = " + values[i - 1]);
+                }
+                oldIncreasing = newIncreasing;
+            } else {
+                newIncreasing = oldIncreasing;
             }
         }
     }
     return count;
-}
-
-function approxEqual(value1, value2, tolerance) {
-    return (Math.abs(value1 - value2) < tolerance);
 }
 
 function reportConceptData() {
