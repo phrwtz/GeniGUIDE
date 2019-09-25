@@ -73,6 +73,7 @@ function filter() {
     console.log("Concepts added to students.");
     analyzeButton.disabled = "true";
     document.getElementById("toggleChangesButton").style.display = "inline";
+    document.getElementById("reversalsButton").style.display = "inline";
     showConcepts();
     showTeachers();
 }

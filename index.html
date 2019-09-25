@@ -8,6 +8,7 @@
         th,
         td {
             border: 1px solid black;
+            padding: 10px;
             border-collapse: collapse;
             text-align: center;
         }
@@ -49,8 +50,14 @@
     <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">Analyze</button>
     <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
-    <span id="showChangesSpan">Show changed probs only</span>
-    </span>
+        <span id="showChangesSpan">
+            Show changed probs only
+        </span>
+    </button>
+    <button type="button" id="reversalsButton" style="display:none" onclick="showReversals()">
+        <span id="revsSpan">
+                Show reversals table
+        </span>
     </button>
 
     <div id="csvDiv" style="display:none">
@@ -64,6 +71,26 @@
     </div>
     <p id="infoPara" style="margin-left: 20px"></p>
     <div id="graphDiv" style="display:block">
+    </div>
+
+    <div id="reversalsDiv" style="display:block">
+        <table id="revsTable" style="margin-top: 30px;display:none">
+            <thead id="revsTableHead">
+                <tr id="revsHeaderRow">
+                    <th>
+                        Student
+                    </th>
+                    <th>
+                        Concept
+                    </th>
+                    <th>
+                        Reversals
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="revsTableBody">
+            </tbody>
+        </table>
     </div>
 
     <div id="filter" style="margin-top: 10px;display:block;">

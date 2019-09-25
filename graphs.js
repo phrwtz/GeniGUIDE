@@ -135,26 +135,69 @@ function countReversals(values) {
     return count;
 }
 
-function reportConceptData() {
-    var ci = new Object();
-    ci["LG1.A3"] = "Sex determination.<br>Females have two X chromosomes. Males have one X and one Y.";
-    ci["LG1.C2a"] = "Simple dominance.<br>Only one dominant allele is needed to produce the dominant trait.";
-    ci["LG1.C2b"] = "Recessive traits.<br>For most traits, the absence is recessive.";
-    ci["LG1.C2c"] = "X linkage.<br>Males receive only one copy of the X chromosome and pass on their X chromosome only to their daughters.";
-    ci["LG1.C2d"] = "Polyallelic.<br>Some traits are controled by multiple alleles that can form a ranked series in terms of dominance.";
-    ci["LG1.C3"] = "Incomplete dominance.<br>For some traits both alleles will have some effect with neither being completely dominant.";
-    ci["LG1.P1"] = "Genotype-to-phenotype mapping.<br>Given a genotype, predict the phenotype of an organism.";
-    ci["LG1.P2"] = "Phenotype-to-genotype mapping.<br>Given a phenotype, determine the possible genotypes of an organism.";
-    ci["LG1.C4a"] = "Epistasis.<br>A gene can mask the effect of other genes.";
-    ci["LG2.P1"] = "Gamete selection.<br>Create or select parental gametes to create an individual offspring with a specific phenotype.";
-    ci["LG3.P1"] = "Parent genotypes.<br>Set or select parental genotypes to produce a specific pattern of traits in offspring.";
-    ci["LG3.P3"] = "Patterns in offspring.<br>Use patterns in the phenotypes of a group of offspring to predict the genotypes of the parents.";
-    ci["LG3.P4"] = "Test cross.<br>Breed with a recessive organism to determine an unknown genotype.";
-    ci["LG99.A"] = "Some allele changes don't affect phenotype.";
-    return ci;
+function showReversals() {
+    var revsDiv = document.getElementById("reversalsDiv");
+    var revsTable = document.getElementById("revsTable");
+    var revsTableBody = document.getElementById("revsTableBody");
+    var revsSpan = document.getElementById("revsSpan");
+    var myConceptName,
+        myStudent,
+        myConcept,
+        myReversals;
+    clear(revsTableBody);
+    if (revsSpan.innerText == "Show reversals table") {
+        revsSpan.innerText = "Hide reversals table";
+        revsTable.style.display = "block";
+        for (var i = 0; i < students.length; i++) {
+            myStudent = students[i];
+            if (myStudent.conceptNames) {
+                for (var j = 0; j < myStudent.conceptNames.length; j++) {
+                    myConceptName = myStudent.conceptNames[j];
+                    myConcept = myStudent.concepts[myConceptName];
+                    myReversals = myConcept.reversals;
+                    revRow = document.createElement("tr");
+                    revsTableBody.appendChild(revRow);
+                    studentCell = document.createElement("td");
+                    conceptCell = document.createElement("td");
+                    reversalsCell = document.createElement("td");
+                    revsTableBody.appendChild(studentCell);
+                    revsTableBody.appendChild(conceptCell);
+                    revsTableBody.appendChild(reversalsCell);
+                    studentCell.innerHTML = myStudent.id;
+                    conceptCell.innerHTML = myConceptName;
+                    reversalsCell.innerHTML = myReversals;
+                }
+            } else {
+                console.log("Student " + myStudent.id + " has no concept names!")
+            }
+        }
+    } else {
+        revsSpan.innerText = "Show reversals table";
+        revsTable.style.display = "none";
+
+    }
 }
 
-function conceptDescription(id) {
-    var concept = conceptsObj[id];
-    return conceptDescriptions[concept.name];
-}
+    function reportConceptData() {
+        var ci = new Object();
+        ci["LG1.A3"] = "Sex determination.<br>Females have two X chromosomes. Males have one X and one Y.";
+        ci["LG1.C2a"] = "Simple dominance.<br>Only one dominant allele is needed to produce the dominant trait.";
+        ci["LG1.C2b"] = "Recessive traits.<br>For most traits, the absence is recessive.";
+        ci["LG1.C2c"] = "X linkage.<br>Males receive only one copy of the X chromosome and pass on their X chromosome only to their daughters.";
+        ci["LG1.C2d"] = "Polyallelic.<br>Some traits are controled by multiple alleles that can form a ranked series in terms of dominance.";
+        ci["LG1.C3"] = "Incomplete dominance.<br>For some traits both alleles will have some effect with neither being completely dominant.";
+        ci["LG1.P1"] = "Genotype-to-phenotype mapping.<br>Given a genotype, predict the phenotype of an organism.";
+        ci["LG1.P2"] = "Phenotype-to-genotype mapping.<br>Given a phenotype, determine the possible genotypes of an organism.";
+        ci["LG1.C4a"] = "Epistasis.<br>A gene can mask the effect of other genes.";
+        ci["LG2.P1"] = "Gamete selection.<br>Create or select parental gametes to create an individual offspring with a specific phenotype.";
+        ci["LG3.P1"] = "Parent genotypes.<br>Set or select parental genotypes to produce a specific pattern of traits in offspring.";
+        ci["LG3.P3"] = "Patterns in offspring.<br>Use patterns in the phenotypes of a group of offspring to predict the genotypes of the parents.";
+        ci["LG3.P4"] = "Test cross.<br>Breed with a recessive organism to determine an unknown genotype.";
+        ci["LG99.A"] = "Some allele changes don't affect phenotype.";
+        return ci;
+    }
+
+    function conceptDescription(id) {
+        var concept = conceptsObj[id];
+        return conceptDescriptions[concept.name];
+    }
