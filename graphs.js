@@ -14,8 +14,7 @@ function makeGraph() {
                 myActivities = [],
                 myIndices = [],
                 myURLs = [];
-            trace = new Object(),
-                graphDiv.innerHTML = "";
+            graphDiv.innerHTML = "";
             if (showAllProbs) {
                 probObjs = myConcept.probObjs;
             } else {
@@ -34,7 +33,7 @@ function makeGraph() {
                 myIndices.push(myIndex.toString());
                 myURLs.push("http://geniventure.concord.org/#" + myRoute);
             }
-            myReversals = countReversals(myValues);
+            myReversals = myConcept.reversals;
             if (myReversals == 0) {
                 revStr = '<span style="color:red">No reversals</span>';
             } else if (myReversals == 1) {

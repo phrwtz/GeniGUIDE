@@ -57,14 +57,14 @@ var teachersObj = Object(),
 function filter() {
     var analyzeButton = document.getElementById("analyzeButton");
     for (var i = 0; i < teachersArray.length; i++) {
-        myTeacher = teachersArray[i];
+        var myTeacher = teachersArray[i];
         var t = parseJSON(myTeacher); //Returns "fully dressed" and pruned teacher object
         delete t.data; //Don't need the (huge!) data property any more.
         teachersObj[t.id] = t;
         teacherIds.push(t.id);
         console.log("Data for file " + myTeacher.id + " parsed.");
-        findFutureProbs();
-        console.log("Future probs found.");
+        //     findFutureProbs();
+        //     console.log("Future probs found.");
     }
     conceptDescriptions = reportConceptData();
     for (var j = 0; j < studentIds.length; j++) {
@@ -208,8 +208,8 @@ function parseJSON(myTeacher) {
                     myEvent = myActivity.eventsByName[eventName];
                 }
                 if (eventName == "Navigated") {
-                        myActivity.route = myRow.parameters.route;
-                    }
+                    myActivity.route = myRow.parameters.route;
+                }
                 myEvent.actions.push(myRow);
                 //            console.log("student = " + myStudent.id + ", activity = " + myActivity.name + ", event = " + myEvent.name + " logging an action. Total actions for this event = " + myEvent.actions.length + ".");
                 myRow.index = myStudent.actions.length;
@@ -349,6 +349,11 @@ function createConceptsArray(id) {
                 }
                 myConcept.probObjs.push(myProb);
                 myConcept.countProbs++;
+                var values = [];
+                for (var kk = 0; kk < myConcept.changedProbObjs.length; kk++) {
+                    values.push(myConcept.changedProbObjs[kk].value);
+                }
+                myConcept.reversals = countReversals(values);
             }
         }
     }
