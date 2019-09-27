@@ -130,7 +130,6 @@ function showActions() {
                 myField = myFields[l];
                 actionsPara.innerHTML += (myField + ":" + myParameters[myField] + "<br>");
             }
-            actionsPara.innerHTML += probsList(myAction) + "<br>";
         }
     }
 }

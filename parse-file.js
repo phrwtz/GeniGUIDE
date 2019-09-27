@@ -268,41 +268,7 @@ function getProbs(myRow, myStudent) { //Extracts prob objects from data when the
     return myProbs;
 }
 
-function probsList(myAction) {
-    var probs = myAction.probs,
-        returnStr = "",
-        newProbs = myAction.newProbs;
-    if ((probs.length > 0) && (newProbs.length > 0)) {
-        var conceptStr,
-            oldProbVal,
-            newProbVal,
-            maxLength = Math.max(probs.length, newProbs.length);
-        compareProbs(probs, newProbs);
-        for (var i = 0; i < maxLength; i++) {
-            if ((i < probs.length) && (i < newProbs.length)) {
-                conceptStr = probs[i].id;
-                oldProbVal = probs[i].prob;
-                newProbVal = newProbs[i].prob;
-                if (newProbs[i].changed) {
-                    newProbVal = "<span style=\"color:red\">" + newProbs[i].prob + "</span>";
-                }
-                returnStr += "For concept ID " + conceptStr + " the prior probability estimate is " + oldProbVal + ", the new probability estimate is " + newProbVal + "<br>";
-            } else if ((i < probs.length) && (i >= newProbs.length)) {
-                conceptStr = probs[i].id;
-                oldProbVal = probs[i].prob;
-                returnStr += "For concept ID " + conceptStr + " the prior probability estimate is " + oldProbVal + ",  there is no new probability estimate.<br>";
 
-            } else if ((i >= probs.length) && (i < newProbs.length)) {
-                conceptStr = newProbs[i].id;
-                newProbVal = newProbs[i].prob;
-                returnStr += "For concept ID " + conceptStr + " there is no prior probability estimate. The new probability estimate is " + newProbVal + "<br>";
-            }
-        }
-    } else {
-        returnStr = "";
-    }
-    return returnStr;
-}
 
 //Each student gets a "concepts" object that contains a bunch of concepts for which the student has probability learned values. Concepts are objects that have a name (e.g., "LG3.P1") and a unique id (so that they can be identified across students) by which they are designated. They contain an array of all their changed probability values and another for all the activities in which those changed probabilties appear. They also have a student property identifying the student to whom they apply.
 
