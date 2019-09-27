@@ -16,7 +16,7 @@ function makeButtons(objects, objectIds, counts, type, nameField, name, onchange
         destination.innerHTML = "";
     } else {
         destination.innerHTML = "<b>" + title + "</b><br><br>";
-  //      destination.innerHTML += "<input type='checkbox' + name = " + name + " onchange='toggleSelectAll(\"" + name + "\");'></input> all/none<br>";
+        //      destination.innerHTML += "<input type='checkbox' + name = " + name + " onchange='toggleSelectAll(\"" + name + "\");'></input> all/none<br>";
         for (var m = 0; m < objects.length; m++) {
             object = objects[m];
             id = objectIds[m];
@@ -162,24 +162,20 @@ function makeProbTable() {
     var ss = [];
     setSelectedObjects();
     ss = selectedStudents;
+    //For the time being there's only one selected student but just in case...
     for (var i = 0; i < ss.length; i++) {
         myStudent = ss[i];
-        var actNames = myStudent.activityNames;
-        if (actNames.length > 0) {
-            actNames.sort(function (a, b) {
-                var acts = myStudent.activitiesByName;
-                return acts[a].startTime - acts[b].startTime;
-            });
-            for (var j = 0; j < actNames.length; j++) {
-                myActivityName = actNames[j];
-                myActivity = myStudent.activitiesByName[myActivityName];
-                myEvent = myActivity.eventsByName["ITS-Data-Updated"];
-                if (myEvent) { //Some activities – e.g., the tutorial – don't have events
-                    myActions = myEvent.actions;
-                    for (var k = 0; k < myActions.length; k++) {
-                        myAction = myActions[k];
-                        addCSVRow(myStudent, myActivity, myEvent, myAction);
-                    }
+        var actions = myStudent.actions;
+        actions.sort(function (a, b) {
+            return a.unixTime - b.unixTime;
+        });
+        for (var j = 0; j < actions.length; j++) {
+            myAction = actions[j];
+            myActivity = myAction.activity;
+            myEvent = myAction.event;
+            if (myEvent) {
+                if (myEvent == "ITS Data Updated") {
+                    addCSVRow(myStudent, myActivity, myEvent, myAction);
                 }
             }
         }
@@ -302,10 +298,12 @@ function addCSVRow(myStudent, myActivity, myEvent, myAction) {
     studentCell.innerHTML = myStudent.id;
     dateCell.innerHTML = myAction.time.split("T")[0];
     timeCell.innerHTML = myAction.time.match(/(?<=T)([^Z]+)/)[0];
-    challengeCell.innerHTML = myActivity.name;
+    challengeCell.innerHTML = myActivity;
     indexCell.innerHTML = myAction.index;
     var priorAction = myStudent.actions[index - 1];
-    priorActionCell.innerHTML = priorAction.event;
+    if (priorAction) {
+        priorActionCell.innerHTML = priorAction.event;
+    }
     if (myAction.probs.length > 0) {
         for (var j = 0; j < myAction.probs.length; j++) {
             var myProb = myAction.probs[j];
