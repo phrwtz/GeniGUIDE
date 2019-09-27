@@ -22,7 +22,7 @@ if (selectedClasses.length == 0) {
             counts.push(myCount);
         }
     }
-    makeButtons(theseStudents, theseStudentIds, counts, "radio", "id", "studentButton", "showConcepts();makeGraph(this.id);showActivities()", "Student IDs", studentsPara);
+    makeButtons(theseStudents, theseStudentIds, counts, "radio", "id", "studentButton", "showConcepts();makeGraph(this.id);makeProbTable();showActivities()", "Student IDs", studentsPara);
 }
     showActivities();
 }

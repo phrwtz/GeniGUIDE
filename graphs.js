@@ -117,14 +117,14 @@ function countReversals(values) {
                 newIncreasing = true;
                 if (newIncreasing != oldIncreasing) {
                     count++;
-                    console.log("Reversal found. Values(" + (i - 1) + ") = " + values[i - 1]);
+       //             console.log("Reversal found. Values(" + (i - 1) + ") = " + values[i - 1]);
                 }
                 oldIncreasing = newIncreasing;
             } else if (values[i - 1] - values[i] > tolerance) {
                 newIncreasing = false;
                 if (newIncreasing != oldIncreasing) {
                     count++;
-                    console.log("Reversal found. Values(" + (i - 1) + ") = " + values[i - 1]);
+            //        console.log("Reversal found. Values(" + (i - 1) + ") = " + values[i - 1]);
                 }
                 oldIncreasing = newIncreasing;
             } else {
