@@ -5,6 +5,8 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
     var activityNames = [],
         activityIds = [],
         activities = [],
+        styledActivityName,
+        color,
         counts = [];
     setSelectedObjects();
     if (selectedStudents.length == 0) {
@@ -24,9 +26,20 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
             activityNames = myStudent.activityNames;
             activityIds = myStudent.activityIds;
             for (var j = 0; j < activityNames.length; j++) {
+                color = "black";
                 myActivity = myStudent.activitiesObj[myStudent.activityIds[j]];
+                if (myActivity.hintReceived) {
+                    if (myActivity.remediationRequested) {
+                        color = "#990099";
+                    } else {
+                        color = "red";
+                    }
+                } else if (myActivity.remediationRequested) {
+                    color = "blue";
+                }
+                styledActivityName = '<span style=\"color:' + color + '\">' + activityNames[j] + '</span>';
                 count = myActivity.eventNames.length;
-                activitiesPara.innerHTML += "<input type ='checkbox' id=" + activityIds[j] + " name='activityButton' + onchange='showEvents()'> </input > " + activityNames[j] + " (" + count + ")<br>";
+                activitiesPara.innerHTML += "<input type ='checkbox' id=" + activityIds[j] + " name='activityButton' + onchange='showEvents()'> </input > " + styledActivityName + " (" + count + ")<br>";
                 showEvents();
             }
         }

@@ -10,7 +10,7 @@ function makeGraph() {
         var data = [];
         var probObjs = [];
         var myPlot = document.getElementById("graphDiv");
-        var colors = ['red', 'deepskyblue', 'green', 'aqua', 'deeppink', 'magenta', 'turquoise'];
+        var colors = ['red', 'deepskyblue', 'green', 'aqua', 'teal', 'magenta', 'turquoise', 'maroon', 'fuchsia', 'lime', 'blue', 'deeppink', 'darkorange'];
 
         //Need to map colors onto activity names and provide a legend
 
@@ -82,7 +82,7 @@ function makeGraph() {
             width: 1500,
             height: 500,
             margin: {
-                l: 30,
+                l: 5,
                 r: 20,
                 b: 30,
                 t: 30,
@@ -104,10 +104,11 @@ function makeGraph() {
             myPointIndex = data.points[0].pointIndex;
             myURL = myURLs[myPointIndex];
             myName = myActivityNames[myPointIndex];
+            myMission = myURL.split("/")[4] + "." + myURL.split("/")[5] + "." + myURL.split("/")[6];
             var xIndex = data.points[0].x;
             var num = 6;
             //     window.open(myURL, "_blank");
-            infoPara.innerHTML = '<a href=' + myURL + '/ target="_blank">' + myName + "<br>";
+            infoPara.innerHTML = '<a href=' + myURL + '/ target="_blank">' + myName + " (" + myMission + ")<br>";
             for (var k = 0; k < num + 1; k++) {
                 myAction = myStudent.actions[xIndex - num + k];
                 var t = myAction.time.match(/(?<=T)([\d]+:[\d]+:[\d]+)/);
@@ -224,4 +225,8 @@ function reportConceptData() {
 function conceptDescription(id) {
     var concept = conceptsObj[id];
     return conceptDescriptions[concept.name];
+}
+
+function routeToIndex(route) {
+     
 }

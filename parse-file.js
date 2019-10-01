@@ -193,8 +193,8 @@ function parseJSON(myTeacher) {
                     myActivity = myStudent.activitiesByName[activityName];
                     if (!myActivity.eventsByName[eventName]) {
                         myEvent = new Object();
-                        myEvent.actionNames = [];
                         myEvent.actions = [];
+                        myEvent.actionNames = [];
                         myEvent.id = eventId;
                         myEvent.name = eventName;
                         eventsObj[eventName] = myEvent;
