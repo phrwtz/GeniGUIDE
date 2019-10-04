@@ -148,62 +148,6 @@ function findActions(activity, event) {
     return [actionsFound.length, eventsFound.length];
 }
 
-function findHints() {
-    var actionsWithHints = [],
-        studentsWithHints = [],
-        vDom = "allele-targetMatch-visible-simpleDom",
-        hDom = "allele-targetMatch-hidden-simpleDom",
-        vDom2 = "allele-targetMatch-visible-simpleDom2",
-        hDom2 = "allele-targetMatch-hidden-simpleDom2",
-        hint = "Guide-hint-received",
-        act;
-    for (var i = 0, myRow; myRow = rowObjs[i]; i++) {
-        act = myRow.activity;
-        if ((act == vDom) || (act == vDom2) || (act == hDom) || (act == hDom2)) {
-            if (myRow.event == hint) {
-                actionsWithHints.push(myRow);
-                if (!studentsWithHints.includes(myRow.username)) {
-                    studentsWithHints.push(myRow.username);
-                }
-            }
-        }
-    }
-    return [actionsWithHints, studentsWithHints];
-}
-//For all students, searches the simple dom activities for "hint" events. Sets the "hasHints" property of student and activity to be the count of number of hint events.
-function setHints() {
-    myRow,
-    myStudent,
-    myActivity,
-    myEvent,
-    myAction;
-    for (var j = 0; j < students.length; j++) {
-        myStudent = students[j];
-        for (var jj = 0; jj < myStudent.activities.length; jj++) {
-            myActivity = myStudent.activities[jj];
-            if (myActivity.name.match("targetMatch")) {
-                for (var k = 0; myActivity.events.length; k++) {
-                    myEvent = myActivity.events[k];
-                    if ((myEvent) && (myEvent.id == "Guide-hint-received")) {
-                        myStudent.hints++;
-                        myActivity.hints++;
-                    }
-                }
-            }
-        }
-    }
-}
-
-function getStudentsWithHints() {
-    actionsPara.innerHTML = "Students with hints";
-    for (var i = 0; i < students.length; i++) {
-        if (students[i].hintReceived) {
-            actionsPara.innerHTML += students[i].id + ", " +
-                students[i].hints + "<br>";
-        }
-    }
-}
-
 function findAlleleDifferences(str1, str2) {
     var arr1 = str1.split(","),
         arr2 = str2.split(","),

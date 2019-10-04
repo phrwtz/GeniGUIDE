@@ -58,6 +58,7 @@ function filter() {
     var analyzeButton = document.getElementById("analyzeButton");
     for (var i = 0; i < teachersArray.length; i++) {
         var myTeacher = teachersArray[i];
+        myTeacher.name = teachersArray[i].id;
         var t = parseJSON(myTeacher); //Returns "fully dressed" and pruned teacher object
         delete t.data; //Don't need the (huge!) data property any more.
         teachersObj[t.id] = t;
@@ -76,6 +77,7 @@ function filter() {
     document.getElementById("reversalsButton").style.display = "inline";
     showConcepts();
     showTeachers();
+    summarizeHints(students);
 }
 
 
@@ -97,6 +99,9 @@ function parseJSON(myTeacher) {
         return (new Date(a.time).getTime() - new Date(new Date(b.time).getTime()));
     });
     myTeacher.classesObj = new Object();
+    myTeacher.studentsObj = new Object();
+    myTeacher.studentIds = [];
+    teachers.push(myTeacher);
     myTeacher.classIds = [];
     for (var j = 0; j < rowObjs.length; j++) {
         myRow = rowObjs[j];
@@ -140,8 +145,10 @@ function parseJSON(myTeacher) {
                 myStudent.hintReceived = false;
                 myStudent.remediationRequested = false;
                 myClass.studentsObj[studentId] = myStudent;
-                myClass.studentIds.push(studentId);
-                studentsObj[studentId] = myStudent;
+                myTeacher.studentsObj[studentId] = myStudent;
+                myTeacher.studentIds.push(myStudent.id);
+                myClass.studentIds.push(myStudent.id);
+                studentsObj[myStudent.id] = myStudent;
                 studentIds.push(myStudent.id);
                 students.push(myStudent);
             } else {
@@ -219,6 +226,7 @@ function parseJSON(myTeacher) {
                         myActivity.hintReceived = true;
                         myStudent.hintReceived = true;
                         myClass.hintReceived = true;
+                        myStudent.hints.push(parseHint(myRow));
                     } else if (myEvent.name == "Guide-remediation-requested") {
                         myActivity.remediationRequested = true;
                         myStudent.remediationRequested = true;

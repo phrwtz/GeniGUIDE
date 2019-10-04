@@ -4,17 +4,24 @@
 <head>
     <title>Geniventure data analysis</title>
     <style>
-        table,
+        table {
+            padding: 10px;
+            border-collapse: collapse;
+            text-align: center;
+            margin-left: 20px;
+        }
+
         th,
         td {
             border: 1px solid black;
             padding: 10px;
-            border-collapse: collapse;
             text-align: center;
         }
 
         th {
-            background-color: lightcoral;
+            background-color: blanchedalmond;
+            style="border-bottom-width:3px"
+            style="border-top-width:3px"
         }
 
         button {
@@ -56,7 +63,7 @@
     </button>
     <button type="button" id="reversalsButton" style="display:none" onclick="showReversals()">
         <span id="revsSpan">
-                Show reversals table
+            Show reversals table
         </span>
     </button>
 
@@ -202,18 +209,78 @@
         </table>
     </div>
 
-    <div id="actionDiv" style="margin-top: 30px">
-        <table id="hintsTable" width=100% style="float:left;display:none;margin:20px">
-            <tr style=background-color:palegreen>
-                <th>Class ID</th>
-                <th>Student ID</th>
-                <th>Time</th>
-                <th>Challenge</th>
-                <th>Hint level</th>
-                <th>Trait</th>
-                <th>Concept ID</th>
-                <th>Score</th>
+    <div id="actionDiv" width="100%" style="margin-top: 30px">
+        <table id="hintTable" width=100% style="float:left;display:block">
+            <thead>
+                <tr>
+                    <th colspan=38 style="border-width:3px">Hints Table</th>
+                </tr>
+                <tr>
+                    <th rowSpan=4 id="teacher" style="border-width:3px">Teacher</th>
+                    <th colspan=18 id="LG1.C2a" style="border-width:3px">Concept LG1.C2a</th>
+                    <th colspan=18 id="LG1.C2b" style="border-width:3px">Concept LG1.C2b</th>
+                </tr>
+
+                <th colspan=9 style="border-width:3px; background-color:#ffffb3">Visible Simple Dominance</th>
+                <th colspan=9 style="border-width:3px; background-color:#ffe6ff">Hidden Simple Dominance</th>
+                <th colspan=9 style="border-width:3px; background-color:#ffffb3">Visible Simple Dominance</th>
+                <th colspan=9 style="border-width:3px; background-color:#ffe6ff"">Hidden Simple Dominance</th>
             </tr>
+            <tr>
+                <th colspan=3 style=" border-width:2px; background-color:#ffffb3">Wings</th>
+                <th colspan=3 style="border-width:2px; background-color:#ffffb3">Arms</th>
+                <th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffffb3">Legs</th>
+                <th colspan=3 style="border-width:2px; background-color:#ffe6ff"">Wings</th>
+                <th colspan=3 style=" border-width:2px; background-color:#ffe6ff"">Arms</th>
+                <th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffe6ff"">Legs</th>
+                <th colspan=3 style=" border-width:2px; background-color:#ffffb3">Wings</th>
+                <th colspan=3 style="border-width:2px; background-color:#ffffb3">Arms</th>
+                <th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffffb3">Legs</th>
+                <th colspan=3 style="border-width:2px; background-color:#ffe6ff" ; background-color:#ffe6ff";
+                    background-color:#ffe6ff"">Wings</th>
+                <th colspan=3 style="border-width:2px; background-color:#ffe6ff" ; background-color:#ffe6ff"">Arms</th>
+                <th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffe6ff"">Legs</th>
+            </tr>
+            <tr>
+                <th style=" border-bottom-width:3px; background-color:#ffffb3">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+                <th style="border-bottom-width:3px; background-color:#ffe6ff"">1</th>
+                <th style=" border-bottom-width:3px; background-color:#ffe6ff"">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff"">3+</th>
+                <th style=" border-bottom-width:3px; background-color:#ffe6ff"">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffe6ff"">2</th>
+                <th style=" border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff"">3+</th>
+                <th style="border-bottom-width:3px; background-color:#ffe6ff"">1</th>
+                <th style=" border-bottom-width:3px; background-color:#ffe6ff"">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff"">3+</th>
+                <th style=" border-bottom-width:3px; background-color:#ffffb3">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+                <th style="border-bottom-width:3px; background-color:#ffe6ff">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffe6ff">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff">3+</th>
+                <th style="border-bottom-width:3px; background-color:#ffe6ff">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffe6ff">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff">3+</th>
+                <th style="border-bottom-width:3px; background-color:#ffe6ff">1</th>
+                <th style="border-bottom-width:3px; background-color:#ffe6ff">2</th>
+                <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff">3+</th>
+                </tr>
+            </thead>
+            <tbody id="hintBody"></tbody>
     </div>
 
     <script>
@@ -262,6 +329,8 @@
     <script src="students.js"></script>
     <script src="activities.js"></script>
     <script src="events.js"></script>
+    <script src="actions.js"></script>
+    <script src="summaries.js"></script>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js">
     </script>
