@@ -18,7 +18,7 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         graphDiv.innerHTML = "";
     } else {
         csvDiv.style.display = "inline";
-        activitiesPara.innerHTML = "Activities<br><br>";
+        activitiesPara.innerHTML = "<b>Activities</b><br><br>";
         activitiesPara.innerHTML += "<input type='checkbox'  name='activityButton' onchange='toggleSelectAll(\"" + 'activityButton' + "\");'></input> all/none<br>";
         for (var i = 0; i < selectedStudents.length; i++) {
             myStudent = selectedStudents[i];

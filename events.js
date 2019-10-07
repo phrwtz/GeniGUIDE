@@ -31,22 +31,18 @@ function showEvents() { //Sets up the events checkboxes. Span contains the numbe
         for (var j = 1; j < eventNamesByActivity.length; j++) { //start with the second element
             unionEventNames = union(unionEventNames, eventNamesByActivity[j]);
         }
+        eventsPara.innerHTML = "<b>Events</b><br><br>";
         for (var k = 0; k < unionEventNames.length; k++) {
             myEventName = unionEventNames[k];
-            unionEvents = [];
             counts[k] = 0;
-            for (l = 0; l < selectedActivities.length; l++) {
-                let myActivity = selectedActivities[l];
+            for (var l = 0; l < selectedActivities.length; l++) {
+                myActivity = selectedActivities[l];
                 if (myActivity.eventsByName[myEventName]) {
-                    let myEvent = myActivity.eventsByName[myEventName];
-                    unionEvents.push(myEvent);
-                    unionEventIds.push(myEvent.id)
-                    counts[k] += unionEvents[k].actions.length;
+                    myActions = myActivity.eventsByName[myEventName].actions;
+                    counts[k] += myActions.length;
                 }
             }
+            eventsPara.innerHTML += "<input type = 'checkbox' id = " + myEventName + " name = 'eventButton' onchange= 'showActions()'></input> " + myEventName + " (" + counts[k] + ")<br>";
         }
-
-        makeButtons(unionEvents, unionEventNames, counts, "checkbox", "name", "eventButton", "showActions()", "Events", eventsPara);
     }
-    showActions();
 }

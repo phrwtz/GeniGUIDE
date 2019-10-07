@@ -76,58 +76,57 @@ function makeGraph() {
                 hovertext: myActivityNames
             }
             data = [trace];
-        }
-        var layout = {
-            autosize: false,
-            width: 1500,
-            height: 500,
-            margin: {
-                l: 5,
-                r: 20,
-                b: 30,
-                t: 30,
-                pad: 4
-            },
-            xaxis: {
-                tickmode: 'array',
-                automargin: true
-            },
-            yaxis: {
-                showline: true,
-                linecolor: 'blue',
-                range: [0, 1.1]
-            },
-            title: ("Student = " + studentId + ", concept = " + myConcept.name + ": " + conceptDescription(myConcept.id) + "<br>" + revStr)
-        }
-        Plotly.newPlot("graphDiv", data, layout);
-        myPlot.on('plotly_click', function (data) {
-            myPointIndex = data.points[0].pointIndex;
-            myURL = myURLs[myPointIndex];
-            myName = myActivityNames[myPointIndex];
-            myMission = myURL.split("/")[4] + "." + myURL.split("/")[5] + "." + myURL.split("/")[6];
-            var xIndex = data.points[0].x;
-            var num = 6;
-            //     window.open(myURL, "_blank");
-            infoPara.innerHTML = '<a href=' + myURL + '/ target="_blank">' + myName + " (" + myMission + ")<br>";
-            for (var k = 0; k < num + 1; k++) {
-                myAction = myStudent.actions[xIndex - num + k];
-                var t = myAction.time.match(/(?<=T)([\d]+:[\d]+:[\d]+)/);
-                var myProbValue = -1;
-                //This is only used for debugging
-                for (var kk = 0; kk < myAction.probs.length; kk++) {
-                    if (myAction.probs[kk].id == myConcept.name) {
-                        myProbValue = myAction.probs[kk].value;
-                    }
-                }
-                //... and not displayed
-                infoPara.innerHTML += myAction.index + ": " + t[0] + ", " + myAction.event + "<br>";
+            var layout = {
+                autosize: false,
+                width: 1500,
+                height: 500,
+                margin: {
+                    l: 5,
+                    r: 20,
+                    b: 30,
+                    t: 30,
+                    pad: 4
+                },
+                xaxis: {
+                    tickmode: 'array',
+                    automargin: true
+                },
+                yaxis: {
+                    showline: true,
+                    linecolor: 'blue',
+                    range: [0, 1.1]
+                },
+                title: ("Student = " + studentId + ", concept = " + myConcept.name + ": " + conceptDescription(myConcept.id) + "<br>" + revStr)
             }
-        });
-    } else {
-        graphDiv.innerHTML = "";
+            Plotly.newPlot("graphDiv", data, layout);
+            myPlot.on('plotly_click', function (data) {
+                myPointIndex = data.points[0].pointIndex;
+                myURL = myURLs[myPointIndex];
+                myName = myActivityNames[myPointIndex];
+                myMission = myURL.split("/")[4] + "." + myURL.split("/")[5] + "." + myURL.split("/")[6];
+                var xIndex = data.points[0].x;
+                var num = 6;
+                //     window.open(myURL, "_blank");
+                infoPara.innerHTML = '<a href=' + myURL + '/ target="_blank">' + myName + " (" + myMission + ")<br>";
+                for (var k = 0; k < num + 1; k++) {
+                    myAction = myStudent.actions[xIndex - num + k];
+                    var t = myAction.time.match(/(?<=T)([\d]+:[\d]+:[\d]+)/);
+                    var myProbValue = -1;
+                    //This is only used for debugging
+                    for (var kk = 0; kk < myAction.probs.length; kk++) {
+                        if (myAction.probs[kk].id == myConcept.name) {
+                            myProbValue = myAction.probs[kk].value;
+                        }
+                    }
+                    //... and not displayed
+                    infoPara.innerHTML += myAction.index + ": " + t[0] + ", " + myAction.event + "<br>";
+                }
+            });
+        } else {
+            graphDiv.innerHTML = "";
+        }
     }
 }
-
 
 //Count the number of times the graph reverses direction
 
@@ -228,5 +227,5 @@ function conceptDescription(id) {
 }
 
 function routeToIndex(route) {
-     
+
 }
