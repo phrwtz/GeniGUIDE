@@ -2,6 +2,8 @@ function showEvents() { //Sets up the events checkboxes. Span contains the numbe
     var unionEventNames = [],
         unionEventIds = [],
         unionEvents = [],
+        eventColor,
+        styledEventName,
         eventNamesByActivity = [],
         myStudent,
         counts = [];
@@ -34,6 +36,15 @@ function showEvents() { //Sets up the events checkboxes. Span contains the numbe
         eventsPara.innerHTML = "<b>Events</b><br><br>";
         for (var k = 0; k < unionEventNames.length; k++) {
             myEventName = unionEventNames[k];
+            if (myEventName === "Guide-hint-received") {
+                eventColor = "red";
+            } else if (myEventName === "Guide-remediation-requested") {
+                eventColor = "blue";
+            }
+            else {
+                eventColor = "black";
+            }
+            styledEventName = '<span style=\"color:' + eventColor + '\">' + myEventName + '</span>';
             counts[k] = 0;
             for (var l = 0; l < selectedActivities.length; l++) {
                 myActivity = selectedActivities[l];
@@ -42,7 +53,7 @@ function showEvents() { //Sets up the events checkboxes. Span contains the numbe
                     counts[k] += myActions.length;
                 }
             }
-            eventsPara.innerHTML += "<input type = 'checkbox' id = " + myEventName + " name = 'eventButton' onchange= 'showActions()'></input> " + myEventName + " (" + counts[k] + ")<br>";
+            eventsPara.innerHTML += "<input type = 'checkbox' id = " + myEventName + " name = 'eventButton' onchange= 'showActions()'></input> " + styledEventName + " (" + counts[k] + ")<br>";
         }
     }
 }

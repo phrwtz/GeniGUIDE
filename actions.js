@@ -34,7 +34,7 @@ function showActions() {
                     myParameters = myAction.parameters;
                     myFields = Object.getOwnPropertyNames(myParameters);
                 }
-                actionsPara.innerHTML += ("<br><b>Action " + myAction.index + ", " myActivity.name + ", " + myAction.event + " at " + myAction.time + "</b><br>");
+                actionsPara.innerHTML += ("<br><b>Action " + myAction.index + ", " + myActivity.name + ", " + myAction.event + " at " + myAction.time + "</b><br>");
                 //      if (myAction.description) {
                 //        actionsPara.innerHTML += myAction.description;
                 //  } else {
