@@ -42,6 +42,7 @@ function describe(action) {
         conceptId,
         score,
         trait,
+        practice,
         message,
         tab4 = "&#9;",
         description = "",
@@ -96,8 +97,12 @@ function describe(action) {
         description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + ". Submission is " + correctStr + ".<br>";
     } else if (action.event === "Sex changed") {
         (action.parameters.newSex == "1" ? description = "Changed sex from male to female." : description = "Changed sex from female to male.")
-    } else if (Object.keys(action.parameters).length != 0) {
-        console.log("stop");
+    } else if (action.event === "ITS Data Updated") {
+        description = action.parameters.studentModel;
+    } else if (action.event === "Guide remediation requested") {
+        trait = action.parameters.attribute;
+        practice = action.parameters.practiceCriteria;
+        description = practice + " remediation has been called for on trait " + trait + ".<br>";
     }
     return description;
 }
