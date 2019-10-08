@@ -30,7 +30,7 @@ function showActions() {
             for (var k = 0; k < acts.length; k++) {
                 myAction = acts[k];
                 description = describe(myAction);
-                actionsPara.innerHTML += ("<br><b>Action " + myAction.index + ", " + myActivity.name + ", " + myAction.event + " at " + myAction.time + "</b><br>" + description);
+                actionsPara.innerHTML += ("<br><b>Action " + myAction.index + ", " + myAction.event + " at " + myAction.time + "</b><br>" + "Challenge is " + myActivity.name + "<br>" + description + "<br>");
             }
         }
     }
@@ -44,7 +44,16 @@ function describe(action) {
         trait,
         message,
         tab4 = "&#9;",
-        description = "";
+        description = "",
+        targetGenotype,
+        initialGenotype,
+        initialSex,
+        targetSex,
+        initialSexInteger,
+        targetSexInteger,
+        targetPhenotype,
+        tg,
+        ig;
     if (action.event === "Guide hint received") {
         data = action.parameters.data;
         conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
@@ -64,11 +73,26 @@ function describe(action) {
         mission = parseInt(action.parameters.mission) + 1;
         targetGenotype = action.parameters.targetDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
         initialGenotype = action.parameters.initialDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
+        //Get rid of that pesky comma and quotation mark at the end
+        tg = targetGenotype.slice(0, targetGenotype.length - 2);
+        ig = initialGenotype.slice(0, initialGenotype.length - 2);
         targetSexInteger = action.parameters.targetDrake.match(/(?<="sex"=>)([\d])/)[1];
         initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
         (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
         (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
-        description = "Level " + level + ", mission " + mission + ".<br>Target genotype = " + targetGenotype + "<br>Initial genotype = "+ initialGenotype + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>";
+        description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>";
+    } else if ("Drake submitted") {
+        target = action.parameters.target;
+        selected = action.parameters.selected;
+        targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
+        (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
+        selectedSexInteger = selected.match(/(?<="sex"=>)([\d])/)[1];
+        (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
+        targetPhenotype = target.match(/(?<="phenotype"=>{")([^}]+)/)[1];
+        selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
+        sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
+        correct = action.parameters.correct;
+        description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + ". Submission is " + correct + "<br>.";
     }
-    return description.fontsize(4);
+    return description;
 }
