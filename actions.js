@@ -24,14 +24,14 @@ function showActions() {
                     }
                 }
             }
-            acts.sort(function (a, b) {
-                return a.index - b.index;
-            });
-            for (var k = 0; k < acts.length; k++) {
-                myAction = acts[k];
-                description = describe(myAction);
-                actionsPara.innerHTML += ("<br><b>Action " + myAction.index + ", " + myAction.event + " at " + myAction.time + "</b><br>" + "Challenge is " + myActivity.name + "<br>" + description + "<br>");
-            }
+        }
+        acts.sort(function (a, b) {
+            return a.index - b.index;
+        });
+        for (var k = 0; k < acts.length; k++) {
+            myAction = acts[k];
+            description = describe(myAction);
+            actionsPara.innerHTML += ("<br><b>Action " + myAction.index + ", " + myAction.event + " at " + myAction.time + "</b><br>" + "Challenge is " + myActivity.name + "<br>" + description + "<br>");
         }
     }
 }
@@ -81,7 +81,7 @@ function describe(action) {
         (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
         (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
         description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>";
-    } else if ("Drake submitted") {
+    } else if (action.event === "Drake submitted") {
         target = action.parameters.target;
         selected = action.parameters.selected;
         targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
@@ -92,7 +92,12 @@ function describe(action) {
         selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
         sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
         correct = action.parameters.correct;
-        description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + ". Submission is " + correct + "<br>.";
+        (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>")
+        description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + ". Submission is " + correctStr + ".<br>";
+    } else if (action.event === "Sex changed") {
+        (action.parameters.newSex == "1" ? description = "Changed sex from male to female." : description = "Changed sex from female to male.")
+    } else if (Object.keys(action.parameters).length != 0) {
+        console.log("stop");
     }
     return description;
 }
