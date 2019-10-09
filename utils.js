@@ -574,7 +574,7 @@ function intersection(array1, array2) {
         if (searchElement < compareElement) {
             n2++;
 
-            //If the search element is bigger than the compare element then (because the arrays are sorted) the compare element is not matched. The search element becomes the new compare element. n1 is incremented.
+            //If the search element is bigger than the compare element then (because the arrays are sorted) the compare element is not matched. The compare element is added to the array. The search element becomes the new compare element. n1 is incremented.
 
         } else if (searchElement > compareElement) {
             n1++;
@@ -600,13 +600,13 @@ function union(array1, array2) {
         compareElement = array1[n1];
         searchElement = array2[n2];
 
-        //If the search element is smaller than the compare element then the search element is not matched and will not be matched (since the arrays are sorted). We push the search element, increment the search array and move on.
+        //If the search element is smaller than the compare element then the search element is not matched and will not be matched (since the arrays are sorted). We push the search element onto the array, increment the search array, and move on.
 
         if (searchElement < compareElement) {
             returnArray.push(searchElement);
             n2++;
 
-            //If the search element is bigger than the compare element is not matched and will not be matched (since the arrays are sorted). We push the compare element, increment the compare array and move on.
+            //If the search element is bigger than the compare element is not matched and will not be matched (since the arrays are sorted). We push the compare element onto the array, increment the compare array and move on.
 
         } else if (searchElement > compareElement) {
             returnArray.push(compareElement);
@@ -617,6 +617,16 @@ function union(array1, array2) {
             returnArray.push(compareElement);
             n1++;
             n2++;
+        }
+    }
+    //If the arrays are of different lengths then we need to push all the unexamined elements in the longer array onto the return array.
+    if (n1 < array1.length) {
+        for (var n = n1; n < array1.length; n++) {
+            returnArray.push(array1[n]);
+        }
+    } else if (n2 < array2.length) {
+        for (var n = n2; n < array2.length; n++) {
+            returnArray.push(array2[n]);
         }
     }
     return returnArray;
