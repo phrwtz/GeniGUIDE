@@ -31,7 +31,7 @@ function showActions() {
         for (var k = 0; k < acts.length; k++) {
             myAction = acts[k];
             description = describe(myAction);
-            actionsPara.innerHTML += ("<br><b>Action " + myAction.index + ", " + myAction.event + " at " + myAction.time + "</b><br>" + "Challenge is " + myActivity.name + "<br>" + description + "<br>");
+            actionsPara.innerHTML += ("<br><b>Action " + myAction.index + ", " + myAction.event + " at " + myAction.time + "</b><br>" + "Challenge is " + myAction.activity + "<br>" + description + "<br>");
         }
     }
 }
