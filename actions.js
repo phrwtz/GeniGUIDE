@@ -71,6 +71,7 @@ function describe(action) {
         description = "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>.<br>";
     } else if (action.event === "Navigated") {
         level = parseInt(action.parameters.level) + 1;
+        minimumMoves = parseInt(action.parameters.goalMoves);
         mission = parseInt(action.parameters.mission) + 1;
         targetGenotype = action.parameters.targetDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
         initialGenotype = action.parameters.initialDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
@@ -81,7 +82,7 @@ function describe(action) {
         initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
         (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
         (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
-        description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>";
+        description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + minimumMoves + ".<br>";
     } else if (action.event === "Drake submitted") {
         target = action.parameters.target;
         selected = action.parameters.selected;

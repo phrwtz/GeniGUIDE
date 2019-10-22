@@ -14,7 +14,7 @@ function summarizeHints(students) {
         levelStr,
         cellId,
         concepta = "LG1.C2a",
-        conceptb = "LG99.A",
+        conceptb = "LG1.C2b",
         aSpan = document.getElementById("conceptaSpan"),
         bSpan = document.getElementById("conceptbSpan");
     aSpan.innerText = concepta;
