@@ -76,7 +76,31 @@
 
         <button type="button" id="csvButton" style="display:inline" onclick="downloadFile()">Download CSV file</button>
     </div>
-    <p id="infoPara" style="margin-left: 20px"></p>
+    <p id="infoPara" style="margin-left: 20px">
+        <table id="challengeTable" style="display:block" width="100%">
+            <thead>
+                <tr>
+                    <th colspan=4>
+                        Challenges Across Students
+                    </th>
+                </tr>
+                <th>
+                    Challenge Name
+                </th>
+                <th>
+                    Total Students
+                </th>
+                <th>
+                    Average Number of Tries
+                </th>
+                <th>
+                    Average Best Crystal
+                </th>
+            </thead>
+            <tbody id="challengeBody">
+            </tbody>
+        </table>
+    </p>
     <div id="graphDiv" style="display:block">
     </div>
     <div id="actionDiv" width="100%" style="margin-top: 30px">
@@ -87,10 +111,9 @@
                     >Hints Table</th>
                 </tr>
                 <tr>
-                    <th rowSpan=4 id="teacher" style="border-width:3px">Teacher</th>
+                    <th rowSpan=4 id=" teacher" style="border-width:3px">Teacher</th>
                     <th colspan=18 id="LG1.C2a" style="border-width:3px">
-                        Concept <span id=
-                        "conceptaSpan">TBA</span></th>
+                        Concept <span id="conceptaSpan">TBA</span></th>
                     <th colspan=18 id="LG1.C2b" style="border-width:3px">
                         Concept <span id="conceptbSpan">TBA</span>
                     </th>
