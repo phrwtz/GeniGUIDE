@@ -143,6 +143,7 @@ function getCrystalColor(thisTry, thisAction) {
                 return 2;
         }
     }
+    console.log("Something wrong with crystal color. This try = " + thisTry + ", this action = " + thisAction);
 }
 
 //Report on all the challenges <thisStudent> did. Number of tries, highest crystal achieved.
@@ -190,61 +191,232 @@ function makeProfile(studentId) {
         infoPara.innerHTML += (thisActivity + ": " + tries.length + " tries. Best crystal: " + maxColor + ".<br>");
     }
 }
-
-
-//A "try" is defined as a sequence of actions starting with a "navigated" event signalling entry into <thisActivity> followed by an "Entered challenge from room" event and ending with either another "navigated" event (signalling getting a new target drake and a new initial drake without submitting a drake) or a "drake submitted" event, which enables us to tag the try with the type of crystal (or none) received. A successful submission triggers a "challenge completed" event and may be followed by a "challenge retried" event, itself followed by a navigation event and a new try for the same challenge.
-function findTries(studentId, thisActivity) {
+//Returns an array. The first element is itself an array of tries; the second element is the number of remdiations
+function checkout(studentId, thisActivity) {
     var thisStudent = findStudent(studentId),
         tries = [],
-        successes = [],
-        failures = [],
+        remediations = 0, //Counts remediations for this activity
         thisAction,
-        movesForThisDrake,
+        movesForThisDrake = 0,
         inRemediation = false,
         ev;
     for (var i = 0; i < thisStudent.actions.length; i++) {
         thisAction = thisStudent.actions[i];
         ev = thisAction.event;
         if (thisAction.activity == thisActivity) {
-            if (!inRemediation) {
-                if (ev == "Navigated") {
+            switch (ev) {
+                //Navigated events set up the minimal moves parameter but must be followed by an Entered challenge from room event for a new try (and a new drake) to be identified.
+                case 'Navigated':
                     minimumMoves = parseInt(thisAction.parameters.goalMoves);
-                    movesForThisDrake = 0,
-                        thisTry = new Object();
+                    break;
+                    //An "Entered challege from room" event creates a new try with a new drake. The inRemdiation flag is set to false and the movesForThiDrake counter is reset.
+                case ('Entered challenge from room'):
+                    thisTry = new Object();
+                    inRemediation = false;
                     thisTry.moves = 0;
-                    thisTry.hints = 0;
-                    thisTry.remediations = 0;
-                } else if ((ev == "Allele changed") || (ev == "Sex changed")) {
-                    thisTry.moves++;
-                    movesForThisDrake++;
-                } else if (ev == 'Guide hint received') {
-                    thisTry.hints++
-                } else if (ev == 'Started remediation') {
-                    thisTry.remediations++;
-                    inRemediation = true;
-                }
-                //Drake submitted event always ends a try. The drake is either "correct" or "incorrect" (in which case the crystalColor is set to "none"). An incorrect submission necessarily leads to additional moves on the same drake. A correct submission leads to a "Challenge completed" event which then gives the player a choice: "Try Again" or "Continue." "Try Again" produces a "Challenge retried" event, followed by a Navigated (to the same challenge but a different drake). We create a new try but keep the same challenge. "Continue" leads to a Navigated event that points to a different challenge. We create a new try but assign it to a different challenge (if the challenge is among the set we are examining).
-                else if (ev == 'Drake submitted') {
-                    thisTry.excessMoves = (movesForThisDrake - minimumMoves);
-                    thisTry.crystalColor = getCrystalColor(thisTry, thisAction);
-                    if (thisTry.crystalColor == 0) {
+                    thisTry.level1Hints = 0;
+                    thisTry.level2Hints = 0;
+                    thisTry.level3Hints = 0;
+                    movesForThisDrake = 0;
+                    break;
+                    //Allele and sex changes get added as moves to thisTry and to moves for this drake, unless we're in remediation.
+                case ('Allele changed'):
+                    if (!inRemediation) {
                         thisTry.moves++;
                         movesForThisDrake++;
                     }
-                    tries.push(thisTry);
-                    thisTry = new Object();
-                    thisTry.moves = 0;
-                    thisTry.hints = 0;
-                    thisTry.remediations = 0;
-                }
-            }
-            if (ev == 'Ended remediation') {
-                inRemediation = false;
+                    break;
+                case ('Sex changed'):
+                    if (!inRemediation) {
+                        thisTry.moves++;
+                        movesForThisDrake++;
+                    }
+                    break;
+                    //Hints don't interrupt tries so they just get added to the try in progress. They do happen during remediation, though, so we have to check for that.
+                case ('Guide hint received'):
+                    if (!inRemediation) {
+                        data = thisAction.parameters.data;
+                        level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
+                        switch (level) {
+                            case 1:
+                                thisTry.level1Hints++;
+                                break;
+                            case 2:
+                                thisTry.level2Hints++;
+                                break;
+                            case 3:
+                                thisTry.level3Hints++;
+                                break;
+                        }
+                    }
+                    break;
+                    //Going into a remediation stops counting of moves and drake submissions until the remediation is ended. Most of the time the current try does not end but simply continues once the remediation ends. If a Navigated event is encountered a new try is initiated and the old try (which did not result in a drake submission) is discarded. The remediations counter for this challenge gets incremented.
+                case ('Started remediation'):
+                    remediations++;
+                    inRemediation = true;
+                    break;
+                    //Drake submitted events end a try if one is in progress (i.e., if we're not in remediation). An incorrect submission increments the movesForThisDrake counter. The crystal color is calculated from the number of moves (zero for incorrect submissions, 1 for black, 2 for red, 3 for yellow, and 4 for blue). An incorrect submission normally leads to a new try with the same drake unless the student breaks out of the loop. We create a new try (initially with zero move) but don't reset the movesForThisDrake counter. If the student interferes with the normal control flow either the activity will change or a "Navigated" event will signal the arrival of a new drake. A correct submission gives the player a choice: "Try Again" or "Continue." "Try Again" produces a "Navigated" event (same activity but different drake). The "Continue" choice leads to a different challenge and won't be counted by this function.
+                case ('Drake submitted'):
+                    if (!inRemediation) {
+                        thisTry.excessMoves = (movesForThisDrake - minimumMoves);
+                        thisTry.crystalColor = getCrystalColor(thisTry, thisAction);
+                        //If this submission was incorrect we stick with the same drake and increment  movesForThisDrake.
+                        if (thisTry.crystalColor == 0) {
+                            movesForThisDrake++;
+                        } else {
+                            //If the submission was correct we reset movesForThisDrake.
+                            movesForThisDrake = 0;
+                        }
+                        //In either case we push thisTry to the array and initialize a new one.
+                        tries.push(thisTry);
+                        thisTry = new Object();
+                        thisTry.moves = 0;
+                        thisTry.level1Hints = 0;
+                        thisTry.level2Hints = 0;
+                        thisTry.level3Hints = 0;
+                    }
+                    break;
+                    //Ended remediation events just reset the inRemediation flag. If they're not followed by a Navigation event, which is the expected case, then we're still in the same try.
+                case ('Ended remediation'):
+                    inRemediation = false;
+                    break;
             }
         }
     }
-    return tries;
+    return [tries, remediations];
 }
+//For each challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.
+function getAverageOverStudents() {
+    var activitiesArray = ["allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2",
+        "allele-targetMatch-visible-armorHorns",
+        "allele-targetMatch-visible-armorHorns2",
+        "allele-targetMatch-visible-armorHorns3",
+        "allele-targetMatch-hidden-armorHorns",
+        "allele-targetMatch-hidden-armorHorns2",
+        "allele-targetMatch-hidden-armorHorns3",
+        "allele-targetMatch-visible-simpleColors",
+        "allele-targetMatch-visible-simpleColors2",
+        "allele-targetMatch-visible-simpleColors3",
+        "allele-targetMatch-visible-simpleColors4",
+        "allele-targetMatch-visible-simpleColors5",
+        "allele-targetMatch-hidden-simpleColors",
+        "allele-targetMatch-hidden-simpleColors2",
+        "allele-targetMatch-hidden-simpleColors3",
+        "allele-targetMatch-visible-harderTraits",
+        "allele-targetMatch-visible-harderTraits2",
+        "allele-targetMatch-hidden-harderTraits",
+        "allele-targetMatch-hidden-harderTraits2"
+    ];
+    var challengeResultsArray = [];
+    var numStudents = 0,
+        chalArray = [],
+        totalTries = 0,
+        tries,
+        totalMoves = 0,
+        level1Hints = 0,
+        level2Hints = 0,
+        level3Hints = 0,
+        totalRemediations,
+        totalNumericalCrystals = 0,
+        thisActivity;
+    for (let j = 0; j < activitiesArray.length; j++) {
+        thisActivity = activitiesArray[j];
+        numStudents = 0;
+        totalTries = 0;
+        totalNumericalCrystals = 0;
+        totalMoves = 0;
+        level1Hints = 0;
+        level2Hints = 0;
+        level3Hints = 0;
+        totalRemediations = 0;
+        for (let i = 0; i < students.length; i++) {
+            thisStudent = students[i];
+            chalArray = checkout(thisStudent.id, thisActivity);
+            tries = chalArray[0];
+            totalRemediations += chalArray[1];
+            if (tries.length > 0) {
+                numStudents++;
+                var colorIndexArray = [];
+                for (let j = 0; j < tries.length; j++) {
+                    thisTry = tries[j];
+                    totalMoves += thisTry.moves;
+                    level1Hints += thisTry.level1Hints;
+                    level2Hints += thisTry.level2Hints;
+                    level3Hints += thisTry.level3Hints;
+                    colorIndexArray.push(thisTry.crystalColor);
+                }
+                maxColorIndex = colorIndexArray.reduce(function (a, b) {
+                    return Math.max(a, b);
+                });
+                totalTries += tries.length;
+                if (isNaN(maxColorIndex)) {
+     //               console.log("stop");
+                }
+                totalNumericalCrystals += maxColorIndex;
+            }
+        } //new student
+        challengeResults = new Object();
+        challengeResults.name = thisActivity;
+        if (challengeResults.name === "allele-targetMatch-hidden-harderTraits2") {
+    //        console.log("This is the activity");
+        }
+        challengeResults.totalStudents = numStudents;
+        challengeResults.totalTries = totalTries;
+        challengeResults.averageTries = Math.round(100 * totalTries / numStudents) / 100;
+        challengeResults.averageMoves = Math.round(100 * totalMoves / totalTries) / 100;
+        challengeResults.level1Hints = Math.round(1000 * level1Hints / totalTries) / 1000;
+        challengeResults.level2Hints = Math.round(1000 * level2Hints / totalTries) / 1000;
+        challengeResults.level3Hints = Math.round(1000 * level3Hints / totalTries) / 1000;
+        challengeResults.totalRemediations = totalRemediations;
+        challengeResults.totalNumericalCrystals = totalNumericalCrystals;
+        challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
+        challengeResultsArray.push(challengeResults);
+    }
+    //newActivity;
+    makeChallengeResultsTable(challengeResultsArray);
+}
+
+function makeChallengeResultsTable(challengeResultsArray) {
+    var chalBody = document.getElementById("challengeBody"),
+        challengeResult,
+        chalRow,
+        chalCell;
+    clear(chalBody);
+    for (let i = 0; i < challengeResultsArray.length; i++) {
+        challengeResult = challengeResultsArray[i];
+        chalRow = document.createElement("tr");
+        chalCell1 = document.createElement("td");
+        chalCell2 = document.createElement("td");
+        chalCell3 = document.createElement("td");
+        chalCell4 = document.createElement("td");
+        chalCell5 = document.createElement("td");
+        chalCell6 = document.createElement("td");
+        chalCell7 = document.createElement("td");
+        chalCell8 = document.createElement("td");
+        chalCell9 = document.createElement("td");
+
+        chalCell1.innerHTML = challengeResult.name;
+        chalCell2.innerHTML = challengeResult.totalStudents;
+        chalCell3.innerHTML = challengeResult.averageTries;
+        chalCell4.innerHTML = challengeResult.averageMoves;
+        chalCell5.innerHTML = challengeResult.averageNumericalCrystal;
+        chalCell6.innerHTML = challengeResult.level1Hints;
+        chalCell7.innerHTML = challengeResult.level2Hints;
+        chalCell8.innerHTML = challengeResult.level3Hints;
+        chalCell9.innerHTML = challengeResult.totalRemediations;
+        chalRow.appendChild(chalCell1);
+        chalRow.appendChild(chalCell2);
+        chalRow.appendChild(chalCell3);
+        chalRow.appendChild(chalCell4);
+        chalRow.appendChild(chalCell5);
+        chalRow.appendChild(chalCell6);
+        chalRow.appendChild(chalCell7);
+        chalRow.appendChild(chalCell8);
+        chalRow.appendChild(chalCell9);
+        chalBody.appendChild(chalRow);
+    }
+}
+
 
 function getColorFromIndex(colorIndex) {
     switch (colorIndex) {
@@ -283,95 +455,4 @@ function findActionsByActivity(studentId, activityName) {
         }
     }
     return returnArr;
-}
-
-//For each challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.
-function getAverageOverStudents() {
-    var activitiesArray = ["allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2",
-        "allele-targetMatch-visible-armorHorns",
-        "allele-targetMatch-visible-armorHorns2",
-        "allele-targetMatch-visible-armorHorns3",
-        "allele-targetMatch-hidden-armorHorns",
-        "allele-targetMatch-hidden-armorHorns2",
-        "allele-targetMatch-hidden-armorHorns3",
-        "allele-targetMatch-visible-simpleColors",
-        "allele-targetMatch-visible-simpleColors2",
-        "allele-targetMatch-visible-simpleColors3",
-        "allele-targetMatch-visible-simpleColors4",
-        "allele-targetMatch-visible-simpleColors5",
-        "allele-targetMatch-hidden-simpleColors",
-        "allele-targetMatch-hidden-simpleColors2",
-        "allele-targetMatch-hidden-simpleColors3",
-        "allele-targetMatch-visible-harderTraits",
-        "allele-targetMatch-visible-harderTraits2",
-        "allele-targetMatch-hidden-harderTraits",
-        "allele-targetMatch-hidden-harderTraits2"
-    ];
-    var challengeResultsArray = [];
-    var numStudents = 0,
-        totalTries = 0,
-        tries,
-        averageTries,
-        totalNumericalCrystals = 0,
-        averageNumericalCrystal,
-        thisActivity;
-    for (let j = 0; j < activitiesArray.length; j++) {
-        thisActivity = activitiesArray[j];
-        for (let i = 0; i < students.length; i++) {
-            thisStudent = students[i];
-            tries = findTries(thisStudent.id, thisActivity);
-            if (tries.length > 0) {
-                numStudents++;
-                var colorIndexArray = [];
-                for (let j = 0; j < tries.length; j++) {
-                    thisTry = tries[j];
-                    colorIndexArray.push(thisTry.crystalColor);
-                    if (colorIndexArray.isNaN) {
-                        console.log("Oops!");
-                    }
-                }
-                maxColorIndex = colorIndexArray.reduce(function (a, b) {
-                    return Math.max(a, b);
-                });
-                totalTries += tries.length;
-                totalNumericalCrystals += maxColorIndex;
-            }
-        } //new student
-        challengeResults = new Object();
-        challengeResults.name = thisActivity;
-        challengeResults.totalStudents = numStudents;
-        challengeResults.totalTries = totalTries;
-        challengeResults.totalNumericalCrystals = totalNumericalCrystals;
-        challengeResults.averageTries = Math.round(100 * totalTries / numStudents) / 100;
-        challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
-        challengeResultsArray.push(challengeResults);
-        numStudents = 0;
-        totalTries = 0;
-        totalNumericalCrystals = 0;
-    } //newActivity;
-    makeChallengeResultsTable(challengeResultsArray);
-}
-
-function makeChallengeResultsTable(challengeResultsArray) {
-    var chalBody = document.getElementById("challengeBody"),
-        challengeResult,
-        chalRow,
-        chalCell;
-    for (let i = 0; i < challengeResultsArray.length; i++) {
-        challengeResult = challengeResultsArray[i];
-        chalRow = document.createElement("tr"),
-        chalCell1 = document.createElement("td");
-        chalCell2 = document.createElement("td");
-        chalCell3 = document.createElement("td");
-        chalCell4 = document.createElement("td");
-        chalCell1.innerHTML = challengeResult.name;
-        chalCell2.innerHTML = challengeResult.totalStudents;
-        chalCell3.innerHTML = challengeResult.averageTries;
-        chalCell4.innerHTML = challengeResult.averageNumericalCrystal;
-        chalRow.appendChild(chalCell1);
-        chalRow.appendChild(chalCell2);
-        chalRow.appendChild(chalCell3);
-        chalRow.appendChild(chalCell4);
-        chalBody.appendChild(chalRow);
-    }
 }
