@@ -1,5 +1,7 @@
 function showActivities() { //Sets up the activites checkboxes, which are labeled with the names the activities engaged by the selected student. Span fields contain the number of events executed within each activity; onchange runs "showEvents"
     var tableButton = document.getElementById("tableButton"),
+        chgButton = document.getElementById("toggleChangesButton"),
+        revButton = document.getElementById("reversalsButton"),
         csvDiv = document.getElementById("csvDiv"),
         probTable = document.getElementById("probTable");
     var activityNames = [],
@@ -10,6 +12,8 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         counts = [];
     setSelectedObjects();
     if (selectedStudents.length == 0) {
+        chgButton.style.display = "none";
+        revButton.style.display = "none";
         activitiesPara.innerHTML = "";
         eventsPara.innerHTML = "";
         actionsPara.innerHTML = "";
@@ -17,6 +21,10 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
         probTable.style.display = "none";
         graphDiv.innerHTML = "";
     } else {
+        if (selectedConcepts.length == 1) {
+            chgButton.style.display = "inline";
+            revButton.style.display = "inline";
+        }
         csvDiv.style.display = "inline";
         activitiesPara.innerHTML = "<b>Activities</b><br><br>"
         for (var i = 0; i < selectedStudents.length; i++) {

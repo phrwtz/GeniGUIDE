@@ -290,6 +290,16 @@ function checkout(studentId, thisActivity) {
 }
 //For each challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.
 function getAverageOverStudents() {
+    var chalSpan = document.getElementById("chalSpan");
+    var chalBody = document.getElementById("challengeBody"),
+    chalTable = document.getElementById("challengeTable")
+    if (chalSpan.innerText == "Show challenge averages") {
+        chalSpan.innerText = "Hide challenge averages";
+        chalTable.style.display = "block";
+    } else {
+        chalSpan.innerHTML = "Show challenge averages";
+        chalTable.style.display = "none";
+    }
     var activitiesArray = ["allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2",
         "allele-targetMatch-visible-armorHorns",
         "allele-targetMatch-visible-armorHorns2",

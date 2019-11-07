@@ -1,5 +1,4 @@
 function makeGraph() {
-    setSelectedObjects();
     if ((selectedStudents.length > 0) && (selectedConceptName)) {
         var myStudent = selectedStudents[0];
         var studentId = myStudent.id;
