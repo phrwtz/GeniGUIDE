@@ -143,7 +143,7 @@ function getCrystalColor(thisTry, thisAction) {
                 return 2;
         }
     }
-    console.log("Something wrong with crystal color. This try = " + thisTry + ", this action = " + thisAction);
+    console.log("Something wrong with crystal color. Teacher = " + thisAction.student.teacher.id + ", student = " + thisAction.student.id + ", action index + " + thisAction.index + ", " + thisTry.moves + " moves, " + thisTry.excessMoves + " excess moves.");
 }
 
 //Report on all the challenges <thisStudent> did. Number of tries, highest crystal achieved.
@@ -260,23 +260,26 @@ function checkout(studentId, thisActivity) {
                     if (!inRemediation) {
                         thisTry.excessMoves = (movesForThisDrake - minimumMoves);
                         thisTry.crystalColor = getCrystalColor(thisTry, thisAction);
-                        //If this submission was incorrect we stick with the same drake and increment  movesForThisDrake.
-                        if (thisTry.crystalColor == 0) {
-                            movesForThisDrake++;
-                        } else {
-                            //If the submission was correct we reset movesForThisDrake.
-                            movesForThisDrake = 0;
+                        //Check that crystalColor is defined. If it isn't, don't log this try and wait for another Navigated plus Entered room pair to start a new try.
+                        if (thisTry.crystalColor) {
+                            //If this submission was incorrect we stick with the same drake and increment  movesForThisDrake.
+                            if (thisTry.crystalColor == 0) {
+                                movesForThisDrake++;
+                            } else {
+                                //If the submission was correct we reset movesForThisDrake.
+                                movesForThisDrake = 0;
+                            }
+                            //In either case we push thisTry to the array and initialize a new one.
+                            tries.push(thisTry);
+                            thisTry = new Object();
+                            thisTry.moves = 0;
+                            thisTry.level1Hints = 0;
+                            thisTry.level2Hints = 0;
+                            thisTry.level3Hints = 0;
                         }
-                        //In either case we push thisTry to the array and initialize a new one.
-                        tries.push(thisTry);
-                        thisTry = new Object();
-                        thisTry.moves = 0;
-                        thisTry.level1Hints = 0;
-                        thisTry.level2Hints = 0;
-                        thisTry.level3Hints = 0;
                     }
                     break;
-                    //Ended remediation events just reset the inRemediation flag. If they're not followed by a Navigation event, which is the expected case, then we're still in the same try.
+                    //For Ended remediation events just reset the inRemediation flag. If they're not followed by a Navigation event, which is the expected case, then we're still in the same try.
                 case ('Ended remediation'):
                     inRemediation = false;
                     break;

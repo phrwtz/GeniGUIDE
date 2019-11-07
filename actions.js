@@ -68,7 +68,7 @@ function describe(action) {
         side = action.parameters.side;
         previousAllele = action.parameters.previousAllele;
         newAllele = action.parameters.newAllele;
-        description = "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>.<br>";
+        description = "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>";
     } else if (action.event === "Navigated") {
         level = parseInt(action.parameters.level) + 1;
         minimumMoves = parseInt(action.parameters.goalMoves);
