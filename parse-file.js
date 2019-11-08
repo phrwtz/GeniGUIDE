@@ -76,6 +76,7 @@ function filter() {
     document.getElementById("toggleChangesButton").style.display = "inline";
     document.getElementById("reversalsButton").style.display = "inline";
     document.getElementById("chalButton").style.display = "inline";
+    document.getElementById("singleStudentChalButton").style.display = "inline";
     showConcepts();
     showTeachers();
     summarizeHints(students);

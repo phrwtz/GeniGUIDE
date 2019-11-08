@@ -271,6 +271,7 @@ function addCSVRow(myStudent, myActivity, myEvent, myAction) {
     }
 }
 
+
 function tableToCSV(headerRow, body) { //Converts an HTML table to a csv file
     var returnCSV = "";
     var bodyRow;
@@ -280,8 +281,7 @@ function tableToCSV(headerRow, body) { //Converts an HTML table to a csv file
     for (var i = 0; i < headerRow.children.length; i++) {
         headerCell = headerRow.children[i];
         text = headerCell.innerText;
-        contents = text.match(/[^"^\s]+/)[0];
-        returnCSV += contents;
+        returnCSV += text;
         if (i != headerRow.children.length - 1) {
             returnCSV += ",";
         } else {

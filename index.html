@@ -3,6 +3,11 @@
 
 <head>
     <title>Geniventure data analysis</title>
+
+
+</head>
+
+<body>
     <style>
         table {
             padding: 10px;
@@ -28,13 +33,7 @@
             background-color: lightcyan;
             margin: 10px;
         }
-    </style>
-</head>
 
-
-<body>
-
-    <style>
         td {
             vertical-align: text-top;
         }
@@ -70,6 +69,13 @@
             Show challenge averages
         </span>
     </button>
+    <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download challenge file
+    </button>
+    <button type="button" id="singleStudentChalButton" style="display:none" onClick="checkoutSelectedStudent()"> <span
+            id="singleSpan">
+            Show selected student profile
+        </span>
+    </button>
 
     <div id="csvDiv" style="display:none">
         <button type="button" id="tableButton" style="display:inline" onclick="toggleTable()">
@@ -83,38 +89,35 @@
     <p id="infoPara" style="margin-left: 20px">
         <table id="challengeTable" style="display:block" width="100%">
             <thead>
-                <tr>
-                    <th colspan=9>
-                        Challenges Across Students
+                <tr id="chalHeaderRow">
+                    <th>
+                        Challenge
+                    </th>
+                    <th>
+                        Students
+                    </th>
+                    <th>
+                        Tries/Student
+                    </th>
+                    <th>
+                        Excess Moves/Success
+                    </th>
+                    <th>
+                        Best Crystal/Try
+                    </th>
+                    <th>
+                        Level 1 Hints/Try
+                    </th>
+                    <th>
+                        Level 2 Hints/Try
+                    </th>
+                    <th>
+                        Level 3+ Hints/Try
+                    </th>
+                    <th>
+                        Total Remediations
                     </th>
                 </tr>
-                <th>
-                    Challenge
-                </th>
-                <th>
-                    Students
-                </th>
-                <th>
-                    Tries/Student
-                </th>
-                <th>
-                    Moves/Try
-                </th>
-                <th>
-                    Best Crystal/Try
-                </th>
-                <th>
-                    Level 1 Hints/Try
-                </th>
-                <th>
-                    Level 2 Hints/Try
-                </th>
-                <th>
-                    Level 3+ Hints/Try
-                </th>
-                <th>
-                    Total Remediations
-                </th>
             </thead>
             <tbody id="challengeBody">
             </tbody>
@@ -126,8 +129,7 @@
         <table id="hintTable" width=100% style="margin-left:50px;display:none">
             <thead>
                 <tr>
-                    <th colspan=38 style="border-width:3px;background-color:#e9d0af;display:none;"
-                    >Hints Table</th>
+                    <th colspan=38 style="border-width:3px;background-color:#e9d0af;display:none;">Hints Table</th>
                 </tr>
                 <tr>
                     <th rowSpan=4 id=" teacher" style="border-width:3px">Teacher</th>
@@ -379,10 +381,10 @@
     <script src="events.js"></script>
     <script src="actions.js"></script>
     <script src="summaries.js"></script>
-
+    <script src="biologica.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js">
     </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 </body>
 
 </html>
