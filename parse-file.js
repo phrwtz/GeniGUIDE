@@ -1,6 +1,7 @@
 // Global variables
 var teachersArray = []; //filled by openFiles function when files are read.
 var teacherIds = [];
+var ppStudents; //An array of student objects with ids and pre and post scores (obtained from Danielle's file). Note: not all students are contained in this array).
 var teachersPara = document.getElementById("teachers");
 var classesPara = document.getElementById("classes");
 var studentsPara = document.getElementById("students");

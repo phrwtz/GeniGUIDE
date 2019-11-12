@@ -3,8 +3,6 @@
 
 <head>
     <title>Geniventure data analysis</title>
-
-
 </head>
 
 <body>
@@ -53,7 +51,10 @@
     </style>
 
     <h2>Parse Geniventure JSON log files</h2>
+    Input JSON files
     <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
+    Input CSV file
+    <input type="file" id="csvInput" onchange="openCSVFile(event)"> <br><br>
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">Analyze</button>
     <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
         <span id="showChangesSpan">
@@ -69,7 +70,8 @@
             Show challenge averages
         </span>
     </button>
-    <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download challenge file
+    <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
+        challenge file
     </button>
     <button type="button" id="singleStudentChalButton" style="display:none" onClick="checkoutSelectedStudent()"> <span
             id="singleSpan">
@@ -331,8 +333,6 @@
         </table>
     </div>
 
-
-
     <script>
         var fileCount = 0;
 
@@ -363,6 +363,33 @@
                 reader.readAsText(f);
             }
         }
+
+        function openCSVFile(evt) {
+            var file = evt.target.files[0];
+            var reader = new FileReader();
+            reader.onerror = function (err) {
+                console.log(err);
+            }
+            reader.onloadend = function (file) {
+                return function (e) {
+                    let csvStr = e.target.result;
+                    let csvArr = Papa.parse(csvStr);
+                    let data = csvArr.data;
+                    let ppStudents = [];
+                    for (let i = 1; i < data.length; i++) {
+                        dataRow = data[i];
+                        ppStudent = new Object;
+                        ppStudent.id = dataRow[2];
+                        ppStudent.preScore = dataRow[13];
+                        ppStudent.postScore = dataRow[44];
+                        console.log("Student " + ppStudent.id + " had a pre-test score of " + ppStudent.preScore + " and a post-test score of " + ppStudent.postScore + ".")
+                        ppStudents.push(ppStudent);
+                    }
+
+                }
+            }(file);
+            reader.readAsText(file);
+        }
     </script>
 
     <script src="parse-file.js"></script>
@@ -382,6 +409,8 @@
     <script src="actions.js"></script>
     <script src="summaries.js"></script>
     <script src="biologica.js"></script>
+    <script src="jquery-3.1.1.js"></script>
+    <script src="jquery.csv.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js">
     </script>
