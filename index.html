@@ -56,6 +56,23 @@
     Input CSV file
     <input type="file" id="csvInput" onchange="openCSVFile(event)"> <br><br>
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">Analyze</button>
+    <select>
+        <option>
+            All students <span id = "all">()</span>
+        </option>
+        <option>
+            Lower to lower <span id = "lower-to-lower">()</span>
+        </option>
+        <option>
+            Lower to upper <span id = "lower-to-upper">()</span>
+        </option>
+        <option>
+            Upper to upper <span id = "upper-to-upper">()</span>
+        </option>
+        <option>
+            Upper to lower <span id = "upper-to-lower">()</span>
+        </option>
+    </select>
     <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
         <span id="showChangesSpan">
             Show changed probs only
@@ -375,20 +392,27 @@
                     let csvStr = e.target.result;
                     let csvArr = Papa.parse(csvStr);
                     let data = csvArr.data;
-                    let ppStudents = [];
                     for (let i = 1; i < data.length; i++) {
                         dataRow = data[i];
                         ppStudent = new Object;
-                        ppStudent.id = dataRow[2];
+                        ppStudent.id = dataRow[1];
                         ppStudent.preScore = dataRow[13];
                         ppStudent.postScore = dataRow[44];
-                        console.log("Student " + ppStudent.id + " had a pre-test score of " + ppStudent.preScore + " and a post-test score of " + ppStudent.postScore + ".")
                         ppStudents.push(ppStudent);
                     }
-
+                    for (let k = 0; k < ppStudents.length; k++) {
+                        let thisPpStudent = ppStudents[k];
+                        let thisStudent = studentsObj[thisPpStudent.id];
+                        if (thisStudent) {
+                            thisStudent.preScore = thisPpStudent.preScore;
+                            thisStudent.postScore = thisPpStudent.postScore;
+                            console.log("Student " + thisStudent.id + " had a pre-test score of " + thisPpStudent
+                                .preScore + " and a post-test score of " + thisPpStudent.postScore + ".")
+                        }
+                    }
                 }
             }(file);
-            reader.readAsText(file);
+        reader.readAsText(file);
         }
     </script>
 
