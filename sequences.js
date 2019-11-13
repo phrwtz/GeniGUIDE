@@ -228,7 +228,7 @@ function checkout(studentId, thisActivity) {
 }
 
 //For each challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.
-function getAverageOverStudents() {
+function getAverageOverStudents(filterBy) {
     var chalSpan = document.getElementById("chalSpan"),
         chalBody = document.getElementById("challengeBody"),
         chalTable = document.getElementById("challengeTable"),
@@ -244,6 +244,7 @@ function getAverageOverStudents() {
     }
 
     var challengeResultsArray = [];
+    var filteredStudents = [];
     var numStudents = 0,
         chalArray = [],
         totalTries = 0,

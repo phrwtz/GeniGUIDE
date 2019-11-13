@@ -51,26 +51,41 @@
     </style>
 
     <h2>Parse Geniventure JSON log files</h2>
-    Input JSON files
-    <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
-    Input CSV file
-    <input type="file" id="csvInput" onchange="openCSVFile(event)"> <br><br>
-    <button type="button" id="analyzeButton" style="display:none" onclick="filter()">Analyze</button>
-    <select>
-        <option>
-            All students <span id = "all">()</span>
+    <div id="JSONfiles" style="display:block">
+        Input JSON files
+        <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
+    </div>
+    <button type="button" id="analyzeButton" style="display:none" onclick="filter()">
+        Analyze
+    </button>
+    <div id="CSVfile" style="display:none">
+        Input CSV file
+        <input type="file" id="csvInput" onchange="openCSVFile(event)"> <br><br>
+    </div>
+    <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
+        challenge file
+    </button>
+    <button type="button" id="singleStudentChalButton" style="display:none" onClick="checkoutSelectedStudent()"> <span
+            id="singleSpan">
+            Show selected student profile
+        </span>
+    </button>
+    <select id="chalFilter" style="display:none" onchange="getAverageOverStudents(this.value)">
+        <option>Filter</option>
+        <option value="all">
+            All students <span id="allSpan"></span>
         </option>
-        <option>
-            Lower to lower <span id = "lower-to-lower">()</span>
+        <option value="lower-to-lower">
+            Lower to lower <span id="lower-to-lower"></span>
         </option>
-        <option>
-            Lower to upper <span id = "lower-to-upper">()</span>
+        <option value="lower-to-upper">
+            Lower to upper <span id="lower-to-upper"></span>
         </option>
-        <option>
-            Upper to upper <span id = "upper-to-upper">()</span>
+        <option value="upper-to-upper">
+            Upper to upper <span id="upper-to-upper"></span>
         </option>
-        <option>
-            Upper to lower <span id = "upper-to-lower">()</span>
+        <option value="upper-to-lower">
+            Upper to lower <span id="upper-to-lower">()</span>
         </option>
     </select>
     <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
@@ -81,18 +96,6 @@
     <button type="button" id="reversalsButton" style="display:none" onclick="showReversals()">
         <span id="revsSpan">
             Show reversals table
-        </span>
-    </button>
-    <button type="button" id="chalButton" style="display:none" onClick="getAverageOverStudents()"> <span id="chalSpan">
-            Show challenge averages
-        </span>
-    </button>
-    <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
-        challenge file
-    </button>
-    <button type="button" id="singleStudentChalButton" style="display:none" onClick="checkoutSelectedStudent()"> <span
-            id="singleSpan">
-            Show selected student profile
         </span>
     </button>
 
@@ -365,8 +368,11 @@
                     return function (e) {
                         fileCount++;
                         if (fileCount >= files.length - 1) {
-                            document.getElementById("analyzeButton").style.display = "block";
-                            document.getElementById("fileInput").disabled = true;
+                            document.getElementById("JSONfiles").style.display = "none";
+                            document.getElementById("analyzeButton")
+                                .style.display = "block";
+                            document.getElementById("fileInput").disabled =
+                                true;
                             document.getElementById("analyzeButton").disabled = false;
                         }
                         var myTeacher = new Object;
@@ -406,13 +412,16 @@
                         if (thisStudent) {
                             thisStudent.preScore = thisPpStudent.preScore;
                             thisStudent.postScore = thisPpStudent.postScore;
-                            console.log("Student " + thisStudent.id + " had a pre-test score of " + thisPpStudent
-                                .preScore + " and a post-test score of " + thisPpStudent.postScore + ".")
+                            console.log("Student " + thisStudent.id + " had a pre-test score of " +
+                                thisPpStudent
+                                .preScore + " and a post-test score of " + thisPpStudent.postScore + "."
+                            )
                         }
                     }
+                    document.getElementById("chalFilter").style.display = "block";
                 }
             }(file);
-        reader.readAsText(file);
+            reader.readAsText(file);
         }
     </script>
 

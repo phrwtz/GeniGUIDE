@@ -1,7 +1,7 @@
 // Global variables
 var teachersArray = []; //filled by openFiles function when files are read.
 var teacherIds = [];
-var ppStudents; //An array of student objects with ids and pre and post scores (obtained from Danielle's file). Note: not all students are contained in this array).
+var ppStudents = []; //An array of student objects with ids and pre and post scores (obtained from Danielle's file). Note: not all students are contained in this array).
 var teachersPara = document.getElementById("teachers");
 var classesPara = document.getElementById("classes");
 var studentsPara = document.getElementById("students");
@@ -74,9 +74,9 @@ function filter() {
     }
     console.log("Concepts added to students.");
     analyzeButton.disabled = "true";
+    document.getElementById("CSVfile").style.display = "block";
     document.getElementById("toggleChangesButton").style.display = "inline";
     document.getElementById("reversalsButton").style.display = "inline";
-    document.getElementById("chalButton").style.display = "inline";
     document.getElementById("singleStudentChalButton").style.display = "inline";
     showConcepts();
     showTeachers();
