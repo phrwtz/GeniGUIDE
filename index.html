@@ -70,23 +70,26 @@
             Show selected student profile
         </span>
     </button>
-    <select id="chalFilter" style="display:none" onchange="getAverageOverStudents(this.value)">
-        <option>Filter</option>
-        <option value="all">
-            All students <span id="allSpan"></span>
+    <select id="chalFilter" style="display:none" onchange="filterStudents(this.value)">
+        <option value=null>
+            Filter
+        </option>
+        <option id="allOption" value="all">
+            All students
         </option>
         <option value="lower-to-lower">
-            Lower to lower <span id="lower-to-lower"></span>
+            Lower to lower
         </option>
-        <option value="lower-to-upper">
-            Lower to upper <span id="lower-to-upper"></span>
+        <option value="lower-to-higher">
+                Lower to higher
         </option>
-        <option value="upper-to-upper">
-            Upper to upper <span id="upper-to-upper"></span>
+        <option value="higher-to-higher">
+                Higher to higher
         </option>
-        <option value="upper-to-lower">
-            Upper to lower <span id="upper-to-lower">()</span>
+        <option value="higher-to-lower">
+                Higher to lower
         </option>
+
     </select>
     <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
         <span id="showChangesSpan">
@@ -109,7 +112,7 @@
         <button type="button" id="csvButton" style="display:inline" onclick="downloadFile()">Download CSV file</button>
     </div>
     <p id="infoPara" style="margin-left: 20px">
-        <table id="challengeTable" style="display:block" width="100%">
+        <table id="challengeTable" style="display:none" width="100%">
             <thead>
                 <tr id="chalHeaderRow">
                     <th>
@@ -151,7 +154,9 @@
         <table id="hintTable" width=100% style="margin-left:50px;display:none">
             <thead>
                 <tr>
-                    <th colspan=38 style="border-width:3px;background-color:#e9d0af;display:none;">Hints Table</th>
+                    <th colspan=38 style="border-width:3px;background-color:#e9d0af;display:none;">
+                        Hints Table
+                    </th>
                 </tr>
                 <tr>
                     <th rowSpan=4 id=" teacher" style="border-width:3px">Teacher</th>
@@ -422,6 +427,7 @@
                 }
             }(file);
             reader.readAsText(file);
+            document.getElementById("chalFilter").style.display="block"; 
         }
     </script>
 
