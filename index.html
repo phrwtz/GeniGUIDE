@@ -20,6 +20,7 @@
             border: 1px solid black;
             padding: 10px;
             text-align: center;
+            vertical-align: text-top;
         }
 
         th {
@@ -28,26 +29,34 @@
             style="border-top-width:3px"
         }
 
+        select {
+            margin-top:30px;
+            margin-left: 20px;
+        }
+
         button {
             background-color: lightcyan;
             padding: 5px;
-        }
-
-        td {
-            vertical-align: text-top;
+            margin-left: 20px;
         }
 
         p {
             font-size: 20;
             font-display: bold;
+            margin-left: 30px;
+            margin-top: 10px;
         }
 
         input[type="button"] {
-            background: white;
+            background: azure;
             color: blue;
-            height: 25px;
+            height: 30px;
             width: 120px;
             font-size: 20;
+        }
+
+        input[type="range"] {
+            margin-left: 30px;
         }
     </style>
 
@@ -95,12 +104,11 @@
         </option>
     </select>
     <div id="slideDiv" style="display:none" class="slidecontainer">
-        <p id="minPara" style="display:inline">
-        </p>
-        <input type="range" min="-20" max="30" value="-15" class="slider" id="minrange" style="display:block">
+        <p id="minPara" style="display:inline">Minimum = -30</p>
+        <input type="range" min="-30" max="30" value="-30" class="slider" id="minrange" style="display:block">
         </input>
-        <p id="maxPara" style="display:inline"></p>
-        <input type="range" min="-20" max="30" value="25" class="slider" id="maxrange" style="display:block">
+        <p id="maxPara" style="display:block">Maximum = 30</p>
+        <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange" style="display:block">
         </input>
     </div>
     <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
@@ -121,7 +129,7 @@
 
         <input type="text" display="inline" value="file name goes here" id="csvFileName">
 
-        <button type="button" id="csvButton" style="display:inline" onclick="downloadFile()">Download CSV file</button>
+        <button type="button" id="csvButton" style="display:none" onclick="downloadFile()">Download CSV file</button>
     </div>
     <p id="infoPara" style="margin-left: 20px">
         <table id="challengeTable" style="display:none" width="90%">
@@ -390,7 +398,7 @@
                                 .style.display = "block";
                             document.getElementById("fileInput").disabled =
                                 true;
-                            document.getElementById("analyzeButton").style.display="block";
+                            document.getElementById("analyzeButton").style.display = "block";
                         }
                         var myTeacher = new Object;
                         var myName = f.name.split(".")[0];
@@ -440,7 +448,6 @@
                 }
             }(file);
             reader.readAsText(file);
-            document.getElementById("chalFilter").style.display = "block";
         }
     </script>
     <script>
