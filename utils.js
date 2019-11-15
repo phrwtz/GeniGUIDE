@@ -508,7 +508,7 @@ function scoreAlleleChange(newAllele, currentGenotype, targetGenotype) { //retur
 
 function getIntersecting(array) //Array is an array of arrays. Return the intersection of the items in the second index
 {
-    var students =
+    let students =
         myFromElement,
         intersectingIds = [];
     for (var i = 0; i < fromArray.length; i++) {

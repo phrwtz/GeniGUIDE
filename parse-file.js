@@ -73,11 +73,11 @@ function filter() {
         createConceptsArray(studentIds[j]);
     }
     console.log("Concepts added to students.");
-    analyzeButton.disabled = "true";
+    analyzeButton.style.display = "none";
     document.getElementById("CSVfile").style.display = "block";
     document.getElementById("toggleChangesButton").style.display = "inline";
     document.getElementById("reversalsButton").style.display = "inline";
-    document.getElementById("singleStudentChalButton").style.display = "inline";
+    document.getElementById("singleStudentChalButton").style.display = "none";
     showConcepts();
     showTeachers();
     summarizeHints(students);

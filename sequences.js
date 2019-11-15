@@ -81,24 +81,6 @@ function filterActions(studentId, activity) {
     return arr;
 }
 
-function getCrystalColor(thisTry, thisAction) {
-    if (thisAction.parameters.correct == "false") {
-        return 0;
-    } else if (thisTry.excessMoves > 2) {
-        return 1;
-    } else {
-        switch (thisTry.excessMoves) {
-            case 0:
-                return 4;
-            case 1:
-                return 3;
-            case 2:
-                return 2;
-        }
-    }
-    console.log("Something wrong with crystal color. Teacher = " + thisAction.student.teacher.id + ", student = " + thisAction.student.id + ", action index + " + thisAction.index + ", " + thisTry.moves + " moves, " + thisTry.excessMoves + " excess moves.");
-}
-
 function checkoutSelectedStudent() {
     var singleSpan = document.getElementById("singleStudentChalButton");
     if (singleSpan.innerText == "Show selected student profile") {
@@ -228,23 +210,14 @@ function checkout(studentId, thisActivity) {
 }
 
 //For each challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.
-function getAverageOverStudents(filterBy) {
+function getAverageOverStudents(filteredStudents) {
     var chalSpan = document.getElementById("chalSpan"),
         chalBody = document.getElementById("challengeBody"),
         chalTable = document.getElementById("challengeTable"),
-        chalButton= document.getElementById("chalDownloadButton");
-    if (chalSpan.innerText == "Show challenge averages") {
-        chalSpan.innerText = "Hide challenge averages";
-        chalTable.style.display = "block";
-        chalButton.style.display = "inline";
-    } else {
-        chalSpan.innerHTML = "Show challenge averages";
-        chalTable.style.display = "none";
-        chalButton.style.display = "none";
-    }
-
+        chalButton = document.getElementById("chalDownloadButton");
+    chalTable.style.display = "block";
+    chalButton.style.display = "inline";
     var challengeResultsArray = [];
-    var filteredStudents = [];
     var numStudents = 0,
         chalArray = [],
         totalTries = 0,
@@ -267,8 +240,8 @@ function getAverageOverStudents(filterBy) {
         level2Hints = 0;
         level3Hints = 0;
         totalRemediations = 0;
-        for (let i = 0; i < students.length; i++) {
-            thisStudent = students[i];
+        for (let i = 0; i < filteredStudents.length; i++) {
+            thisStudent = filteredStudents[i];
             chalArray = checkout(thisStudent.id, thisActivity);
             tries = chalArray[0];
             totalRemediations += chalArray[1];
@@ -298,9 +271,6 @@ function getAverageOverStudents(filterBy) {
         } //new student
         challengeResults = new Object();
         challengeResults.name = thisActivity;
-        if (challengeResults.name === "allele-targetMatch-hidden-harderTraits2") {
-            //        console.log("This is the activity");
-        }
         challengeResults.totalStudents = numStudents;
         challengeResults.totalTries = totalTries;
         challengeResults.averageTries = Math.round(100 * totalTries / numStudents) / 100;
@@ -312,8 +282,7 @@ function getAverageOverStudents(filterBy) {
         challengeResults.totalNumericalCrystals = totalNumericalCrystals;
         challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
         challengeResultsArray.push(challengeResults);
-    }
-    //newActivity;
+    } //newActivity;
     makeChallengeResultsTable(challengeResultsArray);
 }
 
@@ -335,6 +304,11 @@ function makeChallengeResultsTable(challengeResultsArray) {
         chalCell7 = document.createElement("td");
         chalCell8 = document.createElement("td");
         chalCell9 = document.createElement("td");
+
+        chalCell6.style.backgroundColor= "cornsilk";
+        chalCell7.style.backgroundColor= "cornsilk";
+        chalCell8.style.backgroundColor= "cornsilk";
+        chalCell9.style.backgroundColor= "azure";
 
         chalCell1.innerHTML = challengeResult.name;
         chalCell2.innerHTML = challengeResult.totalStudents;
@@ -365,21 +339,6 @@ function downloadChallengeFile() {
     saveData()(csvFile, "challenge_averages.csv");
 }
 
-function getColorFromIndex(colorIndex) {
-    switch (colorIndex) {
-        case 0:
-            return "none";
-        case 1:
-            return ("black");
-        case 2:
-            return ("red");
-        case 3:
-            return ("yellow");
-        case 4:
-            return ("blue");
-    }
-}
-
 function findStudent(id) {
     for (let i = 0; i < students.length; i++) {
         if (students[i].id === id) {
@@ -402,4 +361,152 @@ function findActionsByActivity(studentId, activityName) {
         }
     }
     return returnArr;
+}
+
+function filterStudents(filterValue) {
+    if (filterValue) {
+        var thisStudent,
+            allStudents = [],
+            lowLowStudents = [],
+            lowHighStudents = [],
+            highHighStudents = [],
+            highLowStudents = [],
+            gain,
+            gainArray = [],
+            keys,
+            thisKey,
+            filteredStudents = [];
+        var gainHistogram = Object();
+        var allSpan = document.getElementById("allSpan");
+        for (let i = 0; i < students.length; i++) {
+            thisStudent = students[i];
+            try {
+                if (thisStudent.preScore && thisStudent.postScore) {
+                    gain = (thisStudent.postScore - thisStudent.preScore);
+                    gainStr = gain.toString()
+                    if (gainHistogram[gainStr]) {
+                        gainHistogram[gainStr]++;
+                    } else {
+                        gainHistogram[gainStr] = 1;
+                    };
+                    allStudents.push(thisStudent);
+                }
+            } catch (err) {
+                console.log("Something wrong with thisStudent");
+            }
+        }
+        keys = Object.keys(gainHistogram);
+        for (let g = 0; g < keys.length; g++) {
+            thisKey = keys[g];
+            gainArray.push([parseInt(thisKey), gainHistogram[thisKey]]);
+        }
+        gainArray.sort(function (a, b) {
+            return (a[0] - b[0]);
+        });
+        /*
+        for (let k = 0; k < gainArray.length; k++) {
+            console.log(gainArray[k][0] + ": " + gainArray[k][1])
+        }
+        */
+
+        allStudents.sort(function (a, b) {
+            return a.preScore - b.preScore
+        });
+        preScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].preScore;
+
+        allStudents.sort(function (a, b) {
+            return a.postScore - b.postScore
+        });
+        postScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].postScore;
+        //       console.log("Pre-score median = " + preScoreMedian + ", post-score median = " + postScoreMedian);
+
+        for (let j = 0; j < allStudents.length; j++) {
+            let thisStudent = allStudents[j];
+            if (thisStudent.preScore < preScoreMedian) {
+                if (thisStudent.postScore <= postScoreMedian) {
+                    lowLowStudents.push(thisStudent);
+                } else {
+                    lowHighStudents.push(thisStudent);
+                }
+            } else {
+                if (thisStudent.postScore < postScoreMedian) {
+                    highLowStudents.push(thisStudent);
+                } else {
+                    highHighStudents.push(thisStudent);
+                }
+            }
+        }
+        var slideDiv = document.getElementById("slideDiv");
+        var maxSlider = document.getElementById("maxrange");
+        var minSlider = document.getElementById("minrange");
+        var maxOutput = document.getElementById("maxPara");
+        var minOutput = document.getElementById("minPara");
+        var maxGain = parseInt(maxSlider.value);
+        var minGain = parseInt(minSlider.value);
+        if (filterValue === "filter") {
+            slideDiv.style.display = "block";
+            if (maxGain >= minGain) {
+                for (let m = 0; m < allStudents.length; m++) {
+                    thisStudent = allStudents[m];
+                    gain = thisStudent.postScore - thisStudent.preScore;
+                    if ((gain <= maxGain) && (gain >= minGain)) {
+                        filteredStudents.push(thisStudent);
+                    }
+                }
+            }
+        } else {
+            slideDiv.style.display = "none";
+            switch (filterValue) {
+                case "all":
+                    filteredStudents = allStudents;
+                    break;
+                case "lower-to-lower":
+                    filteredStudents = lowLowStudents;
+                    break;
+                case "lower-to-higher":
+                    filteredStudents = lowHighStudents;
+                    break;
+                case "higher-to-higher":
+                    filteredStudents = highHighStudents;
+                    break;
+                case "higher-to-lower":
+                    filteredStudents = highLowStudents;
+                    break;
+            }
+        }
+        getAverageOverStudents(filteredStudents);
+    }
+}
+
+function getCrystalColor(thisTry, thisAction) {
+    if (thisAction.parameters.correct == "false") {
+        return 0;
+    } else if (thisTry.excessMoves > 2) {
+        return 1;
+    } else {
+        switch (thisTry.excessMoves) {
+            case 0:
+                return 4;
+            case 1:
+                return 3;
+            case 2:
+                return 2;
+        }
+    }
+    console.log("Something wrong with crystal color. Teacher = " + thisAction.student.teacher.id + ", student = " + thisAction.student.id + ", action index + " + thisAction.index + ", " + thisTry.moves + " moves, " + thisTry.excessMoves + " excess moves.");
+}
+
+function getColorFromIndex(colorIndex) {
+    switch (colorIndex) {
+        case 0:
+            return "none";
+        case 1:
+            return ("black");
+        case 2:
+            return ("red");
+        case 3:
+            return ("yellow");
+        case 4:
+            return ("blue");
+    }
 }

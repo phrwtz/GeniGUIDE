@@ -12,6 +12,7 @@
             border-collapse: collapse;
             text-align: center;
             margin-left: 20px;
+            margin-right: 20px;
         }
 
         th,
@@ -29,7 +30,7 @@
 
         button {
             background-color: lightcyan;
-            margin: 10px;
+            padding: 5px;
         }
 
         td {
@@ -75,22 +76,33 @@
             Filter
         </option>
         <option id="allOption" value="all">
-            All students
+            All Students
         </option>
         <option value="lower-to-lower">
             Lower to lower
         </option>
         <option value="lower-to-higher">
-                Lower to higher
+            Lower to higher
         </option>
         <option value="higher-to-higher">
-                Higher to higher
+            Higher to higher
         </option>
         <option value="higher-to-lower">
-                Higher to lower
+            Higher to lower
         </option>
-
+        <option value="filter">
+            Set filter
+        </option>
     </select>
+    <div id="slideDiv" style="display:none" class="slidecontainer">
+        <p id="minPara" style="display:inline">
+        </p>
+        <input type="range" min="-20" max="30" value="-15" class="slider" id="minrange" style="display:block">
+        </input>
+        <p id="maxPara" style="display:inline"></p>
+        <input type="range" min="-20" max="30" value="25" class="slider" id="maxrange" style="display:block">
+        </input>
+    </div>
     <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
         <span id="showChangesSpan">
             Show changed probs only
@@ -112,7 +124,7 @@
         <button type="button" id="csvButton" style="display:inline" onclick="downloadFile()">Download CSV file</button>
     </div>
     <p id="infoPara" style="margin-left: 20px">
-        <table id="challengeTable" style="display:none" width="100%">
+        <table id="challengeTable" style="display:none" width="90%">
             <thead>
                 <tr id="chalHeaderRow">
                     <th>
@@ -378,7 +390,7 @@
                                 .style.display = "block";
                             document.getElementById("fileInput").disabled =
                                 true;
-                            document.getElementById("analyzeButton").disabled = false;
+                            document.getElementById("analyzeButton").style.display="block";
                         }
                         var myTeacher = new Object;
                         var myName = f.name.split(".")[0];
@@ -423,11 +435,31 @@
                             )
                         }
                     }
+                    document.getElementById("CSVfile").style.display = "none";
                     document.getElementById("chalFilter").style.display = "block";
                 }
             }(file);
             reader.readAsText(file);
-            document.getElementById("chalFilter").style.display="block"; 
+            document.getElementById("chalFilter").style.display = "block";
+        }
+    </script>
+    <script>
+        var chalFilter = document.getElementById("chalFilter");
+        var maxSlider = document.getElementById("maxrange");
+        var minSlider = document.getElementById("minrange");
+        var maxOutput = document.getElementById("maxPara");
+        var minOutput = document.getElementById("minPara");
+        maxSlider.oninput = function () {
+            maxOutput.innerHTML = "Maximum: " + this.value;
+        }
+        maxSlider.onmouseup = function () {
+            filterStudents(chalFilter.value);
+        }
+        minSlider.oninput = function () {
+            minOutput.innerHTML = "Minimum: " + this.value;
+        }
+        minSlider.onmouseup = function () {
+            filterStudents(chalFilter.value);
         }
     </script>
 
