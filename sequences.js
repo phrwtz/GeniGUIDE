@@ -283,7 +283,7 @@ function getAverageOverStudents(filteredStudents) {
         challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
         challengeResultsArray.push(challengeResults);
     } //newActivity;
-    makeChallengeResultsTable(challengeResultsArray);
+    makeChallengeResultsTable(challengeResultsArray); makeChallengeResultsGraph(challengeResultsArray);
 }
 
 function makeChallengeResultsTable(challengeResultsArray) {
@@ -444,7 +444,9 @@ function filterStudents(filterValue) {
         var maxGain = parseInt(maxSlider.value);
         var minGain = parseInt(minSlider.value);
         if (filterValue === "filter") {
-            slideDiv.style.display = "block";
+            slideDiv.style.display = "inline";
+            maxOutput.style.display = "inline";
+            minOutput.style.display = "inline";
             if (maxGain >= minGain) {
                 for (let m = 0; m < allStudents.length; m++) {
                     thisStudent = allStudents[m];

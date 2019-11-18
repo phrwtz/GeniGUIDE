@@ -1,3 +1,44 @@
+function makeChallengeResultsGraph(challengeResultsArray) {
+    var myDiv = document.getElementById("graphDiv");
+    var Trace = Object,
+        trace1 = new Trace(),
+        trace2 = new Trace(),
+        trace3 = new Trace(),
+        challengeName,
+        challengeType,
+        shortName,
+        data = [];
+    trace1.x = [];
+    trace1.y = [];
+    trace1.type = 'bar';
+    trace1.name = "Level 1";
+    trace2.x = [];
+    trace2.y = [];
+    trace2.type = 'bar';
+    trace2.name = "Level 2";
+    trace3.x = [];
+    trace3.y = [];
+    trace3.type = 'bar';
+    trace3.name = "Level 3";
+    for (let i = 0; i < challengeResultsArray.length; i++) {
+        challengeResult = challengeResultsArray[i];
+        challengeName = challengeResult.name.split("-")[3];
+        challengeType = challengeResult.name.split("-")[2];
+        shortName = challengeType + "-" + challengeName;
+        trace1.x.push(shortName);
+        trace2.x.push(shortName);
+        trace3.x.push(shortName);
+        trace1.y.push(challengeResult.level1Hints);
+        trace2.y.push(challengeResult.level2Hints);
+        trace3.y.push(challengeResult.level3Hints);
+    }
+    data = [trace1, trace2, trace3];
+    var layout = {
+        barmode: 'group'
+    };
+    Plotly.newPlot(myDiv, data);
+}
+
 function makeGraph() {
     if ((selectedStudents.length > 0) && (selectedConceptName)) {
         var myStudent = selectedStudents[0];
@@ -126,6 +167,8 @@ function makeGraph() {
         }
     }
 }
+
+
 
 //Count the number of times the graph reverses direction
 

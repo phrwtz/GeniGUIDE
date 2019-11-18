@@ -57,6 +57,7 @@ var teachersObj = Object(),
 
 function filter() {
     var analyzeButton = document.getElementById("analyzeButton");
+    var chalFilter = document.getElementById("chalFilter");
     for (var i = 0; i < teachersArray.length; i++) {
         var myTeacher = teachersArray[i];
         myTeacher.name = teachersArray[i].id;
@@ -74,8 +75,7 @@ function filter() {
     }
     console.log("Concepts added to students.");
     analyzeButton.style.display = "none";
-    document.getElementById("CSVfile").style.display = "block";
-    document.getElementById("toggleChangesButton").style.display = "inline";
+    document.getElementById("CSVfile").style.display = "block";document.getElementById("toggleChangesButton").style.display = "inline";
     document.getElementById("reversalsButton").style.display = "inline";
     document.getElementById("singleStudentChalButton").style.display = "none";
     showConcepts();
