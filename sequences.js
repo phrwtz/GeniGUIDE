@@ -214,9 +214,15 @@ function getAverageOverStudents(filteredStudents) {
     var chalSpan = document.getElementById("chalSpan"),
         chalBody = document.getElementById("challengeBody"),
         chalTable = document.getElementById("challengeTable"),
-        chalButton = document.getElementById("chalDownloadButton");
+        chalButton = document.getElementById("chalDownloadButton"),
+        mySelect = document.getElementById("chalFilter"),
+        myOption = mySelect.options[mySelect.selectedIndex].text;
     chalTable.style.display = "block";
-    chalButton.style.display = "inline";
+    if (myOption != "Select filter") {
+        chalButton.style.display = "inline";
+    } else {
+        chalButton.style.display = "none";
+    }
     var challengeResultsArray = [];
     var numStudents = 0,
         chalArray = [],
@@ -283,7 +289,8 @@ function getAverageOverStudents(filteredStudents) {
         challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
         challengeResultsArray.push(challengeResults);
     } //newActivity;
-    makeChallengeResultsTable(challengeResultsArray); makeChallengeResultsGraph(challengeResultsArray);
+    makeChallengeResultsTable(challengeResultsArray);
+    makeChallengeResultsGraph(challengeResultsArray);
 }
 
 function makeChallengeResultsTable(challengeResultsArray) {
@@ -305,10 +312,10 @@ function makeChallengeResultsTable(challengeResultsArray) {
         chalCell8 = document.createElement("td");
         chalCell9 = document.createElement("td");
 
-        chalCell6.style.backgroundColor= "cornsilk";
-        chalCell7.style.backgroundColor= "cornsilk";
-        chalCell8.style.backgroundColor= "cornsilk";
-        chalCell9.style.backgroundColor= "azure";
+        chalCell6.style.backgroundColor = "cornsilk";
+        chalCell7.style.backgroundColor = "cornsilk";
+        chalCell8.style.backgroundColor = "cornsilk";
+        chalCell9.style.backgroundColor = "azure";
 
         chalCell1.innerHTML = challengeResult.name;
         chalCell2.innerHTML = challengeResult.totalStudents;
@@ -333,10 +340,19 @@ function makeChallengeResultsTable(challengeResultsArray) {
 }
 
 function downloadChallengeFile() {
-    var body = document.getElementById("challengeBody");
-    var header = document.getElementById("chalHeaderRow");
-    var csvFile = tableToCSV(header, body);
-    saveData()(csvFile, "challenge_averages.csv");
+    var maxSlider = document.getElementById("maxrange"),
+        minSlider = document.getElementById("minrange"),
+        mySelect = document.getElementById("chalFilter"),
+        maxGain = maxSlider.value,
+        minGain = minSlider.value,
+        body = document.getElementById("challengeBody"),
+        header = document.getElementById("chalHeaderRow"),
+        csvFile = tableToCSV(header, body),
+        fileName = mySelect.options[mySelect.selectedIndex].text;
+    if (fileName === "Set filter") {
+        fileName = "gains_from_" + minGain + "_to_" + maxGain;
+    }
+    saveData()(csvFile, fileName + ".csv");
 }
 
 function findStudent(id) {

@@ -1,5 +1,14 @@
 function makeChallengeResultsGraph(challengeResultsArray) {
-    var myDiv = document.getElementById("graphDiv");
+    var myDiv = document.getElementById("graphDiv"),
+        mySelect = document.getElementById("chalFilter"),
+        maxSlider = document.getElementById("maxrange"),
+        minSlider = document.getElementById("minrange"),
+        maxGain = parseInt(maxSlider.value),
+        minGain = parseInt(minSlider.value),
+        myOption = mySelect.options[mySelect.selectedIndex].text;
+    if (myOption == "Set filter") {
+        myOption = "Gains between " + minGain + " and " + maxGain;
+    }
     var Trace = Object,
         trace1 = new Trace(),
         trace2 = new Trace(),
@@ -7,7 +16,9 @@ function makeChallengeResultsGraph(challengeResultsArray) {
         challengeName,
         challengeType,
         shortName,
-        data = [];
+        data = [],
+        layout = {};
+
     trace1.x = [];
     trace1.y = [];
     trace1.type = 'bar';
@@ -33,10 +44,12 @@ function makeChallengeResultsGraph(challengeResultsArray) {
         trace3.y.push(challengeResult.level3Hints);
     }
     data = [trace1, trace2, trace3];
-    var layout = {
-        barmode: 'group'
+    layout = {
+        barmode: 'group',
+        title: 'Hints per challenge<br>' + myOption
     };
-    Plotly.newPlot(myDiv, data);
+
+    Plotly.newPlot(myDiv, data, layout);
 }
 
 function makeGraph() {

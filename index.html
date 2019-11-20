@@ -30,7 +30,7 @@
         }
 
         select {
-            margin-top:30px;
+            margin-top: 30px;
             margin-left: 20px;
         }
 
@@ -62,14 +62,14 @@
 
     <h2>Parse Geniventure JSON log files</h2>
     <div id="JSONfiles" style="display:block">
-        Input JSON files
+        Input Teachers files
         <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
     </div>
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">
         Analyze
     </button>
     <div id="CSVfile" style="display:none">
-        Input CSV file
+        Input Students file
         <input type="file" id="csvInput" onchange="openCSVFile(event)"> <br><br>
     </div>
     <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
@@ -82,7 +82,7 @@
     </button>
     <select id="chalFilter" style="display:none" onchange="filterStudents(this.value)">
         <option value=null>
-            Filter
+            Select filter
         </option>
         <option id="allOption" value="all">
             All Students
@@ -121,7 +121,6 @@
             Show reversals table
         </span>
     </button>
-
     <div id="csvDiv" style="display:none">
         <button type="button" id="tableButton" style="display:inline" onclick="toggleTable()">
             <span id="tableSpan">Show table</span>
@@ -131,8 +130,7 @@
 
         <button type="button" id="csvButton" style="display:none" onclick="downloadFile()">Download CSV file</button>
     </div>
-    <div id="graphDiv" style="display:block"
-    width="300"px height="300px">
+    <div id="graphDiv" style="display:block" width="300" px height="300px">
     </div>
     <p id="infoPara" style="margin-left: 20px">
         <table id="challengeTable" style="display:none" width="90%">
@@ -188,8 +186,19 @@
                     </th>
                 </tr>
 
-                <th colspan=9 style="border-width:3px; background-color:#ffffb3">Visible Simple Dominance</th>
-                <th colspan=9 style="border-width:3px; background-color:#ffe6ff">Hidden Simple Dominance</th>
+                <th colspan=9 style="border-width:3px; background-color:#ffffb3">
+                    <select style="vertical-align:middle;">
+                        <option>
+                            Visible Simple Dominance
+                        </option>
+                    </select>
+                </th>
+                <th colspan=9 style="border-width:3px; background-color:#ffe6ff">
+                    <select style="vertical-align:middle;">
+                        <option>
+                            Hidden Simple Dominance
+                        </option>
+                    </select></th>
                 <th colspan=9 style="border-width:3px; background-color:#ffffb3">Visible Simple Dominance</th>
                 <th colspan=9 style="border-width:3px; background-color:#ffe6ff"">Hidden Simple Dominance</th>
             </tr>
