@@ -99,12 +99,18 @@
         <option value="higher-to-lower">
             Higher to lower
         </option>
-        <option value="filter">
-            Set filter
+        <option value="filter by prescore">
+            Set filter by prescore
+        </option>
+        <option value="filter by postscore">
+            Set filter by postscore
+        </option>
+        <option value="filter by gain">
+            Set filter by gain
         </option>
     </select>
     <div id="slideDiv" style="display:none" class="slidecontainer">
-        <p id="minPara" style="display:inline">Minimum = -30</p>
+        <p id="minPara" style="display:block">Minimum = -30</p>
         <input type="range" min="-30" max="30" value="-30" class="slider" id="minrange" style="display:block">
         </input>
         <p id="maxPara" style="display:block">Maximum = 30</p>
@@ -433,33 +439,38 @@
                     let csvStr = e.target.result;
                     let csvArr = Papa.parse(csvStr);
                     let data = csvArr.data;
+                    let header = data[0];
                     for (let i = 1; i < data.length; i++) {
                         dataRow = data[i];
                         ppStudent = new Object;
-                        ppStudent.id = dataRow[1];
-                        ppStudent.preScore = dataRow[13];
-                        ppStudent.postScore = dataRow[44];
+                        for (let j = 0; j < dataRow.length; j++) {
+                            ppStudent[header[j]] = dataRow[j]
+                        }
                         ppStudents.push(ppStudent);
                     }
                     for (let k = 0; k < ppStudents.length; k++) {
                         let thisPpStudent = ppStudents[k];
-                        let thisStudent = studentsObj[thisPpStudent.id];
+                        let thisStudent = studentsObj[thisPpStudent.UserID];
                         if (thisStudent) {
-                            thisStudent.preScore = thisPpStudent.preScore;
-                            thisStudent.postScore = thisPpStudent.postScore;
+                        thisStudent.score_pre = thisPpStudent.score_pre;
+                        thisStudent.score_post = thisPpStudent.score_post;
+                        thisStudent.prepost_gain =
+                        thisPpStudent.prepost_gain;
                             console.log("Student " + thisStudent.id + " had a pre-test score of " +
                                 thisPpStudent
-                                .preScore + " and a post-test score of " + thisPpStudent.postScore + "."
-                            )
+                                .score_pre + " and a post-test score of " + thisPpStudent.score_post +
+                                " for an effect size of " + (thisPpStudent.prepost_gain)
+                            );
                         }
                     }
                     document.getElementById("CSVfile").style.display = "none";
                     document.getElementById("chalFilter").style.display = "block";
-                }
-            }(file);
+                }(file);
+            }
             reader.readAsText(file);
         }
     </script>
+
     <script>
         var chalFilter = document.getElementById("chalFilter");
         var maxSlider = document.getElementById("maxrange");
@@ -467,13 +478,13 @@
         var maxOutput = document.getElementById("maxPara");
         var minOutput = document.getElementById("minPara");
         maxSlider.oninput = function () {
-            maxOutput.innerHTML = "Maximum: " + this.value;
+            maxOutput.innerHTML = "Maximum = " + this.value;
         }
         maxSlider.onmouseup = function () {
             filterStudents(chalFilter.value);
         }
         minSlider.oninput = function () {
-            minOutput.innerHTML = "Minimum: " + this.value;
+            minOutput.innerHTML = "Minimum = " + this.value;
         }
         minSlider.onmouseup = function () {
             filterStudents(chalFilter.value);

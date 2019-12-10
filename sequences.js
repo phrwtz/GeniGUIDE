@@ -389,6 +389,10 @@ function filterStudents(filterValue) {
             highLowStudents = [],
             gain,
             gainArray = [],
+            preScore,
+            preScoreArray,
+            postScore,
+            postScoreArray,
             keys,
             thisKey,
             filteredStudents = [];
@@ -397,8 +401,8 @@ function filterStudents(filterValue) {
         for (let i = 0; i < students.length; i++) {
             thisStudent = students[i];
             try {
-                if (thisStudent.preScore && thisStudent.postScore) {
-                    gain = (thisStudent.postScore - thisStudent.preScore);
+                if (thisStudent.score_pre && thisStudent.score_post) {
+                    gain = (thisStudent.score_post - thisStudent.score_pre);
                     gainStr = gain.toString()
                     if (gainHistogram[gainStr]) {
                         gainHistogram[gainStr]++;
@@ -419,33 +423,26 @@ function filterStudents(filterValue) {
         gainArray.sort(function (a, b) {
             return (a[0] - b[0]);
         });
-        /*
-        for (let k = 0; k < gainArray.length; k++) {
-            console.log(gainArray[k][0] + ": " + gainArray[k][1])
-        }
-        */
-
         allStudents.sort(function (a, b) {
-            return a.preScore - b.preScore
+            return a.score_pre - b.score_pre;
         });
-        preScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].preScore;
-
+        preScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].score_pre;
         allStudents.sort(function (a, b) {
-            return a.postScore - b.postScore
+            return a.score_post - b.score_post;
         });
-        postScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].postScore;
+        postScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].score_post;
         //       console.log("Pre-score median = " + preScoreMedian + ", post-score median = " + postScoreMedian);
 
         for (let j = 0; j < allStudents.length; j++) {
             let thisStudent = allStudents[j];
-            if (thisStudent.preScore < preScoreMedian) {
-                if (thisStudent.postScore <= postScoreMedian) {
+            if (thisStudent.score_pre < preScoreMedian) {
+                if (thisStudent.score_post <= postScoreMedian) {
                     lowLowStudents.push(thisStudent);
                 } else {
                     lowHighStudents.push(thisStudent);
                 }
             } else {
-                if (thisStudent.postScore < postScoreMedian) {
+                if (thisStudent.score_post < postScoreMedian) {
                     highLowStudents.push(thisStudent);
                 } else {
                     highHighStudents.push(thisStudent);
@@ -457,19 +454,44 @@ function filterStudents(filterValue) {
         var minSlider = document.getElementById("minrange");
         var maxOutput = document.getElementById("maxPara");
         var minOutput = document.getElementById("minPara");
-        var maxGain = parseInt(maxSlider.value);
-        var minGain = parseInt(minSlider.value);
-        if (filterValue === "filter") {
+        var maxValue, minValue;
+        if ((filterValue === "filter by gain") || (filterValue === "filter by prescore") || (filterValue === "filter by postscore")) {
+            if (filterValue === "filter by gain") {
+                minSlider.min = -30;
+                minSlider.max = 30;
+            } else {
+                minSlider.min = 0;
+                minSlider.max = 30;
+            }
+            minValue = minSlider.value;
+            maxValue = maxSlider.value;
+            maxSlider.min = -30;
+            maxSlider.max = 30;
             slideDiv.style.display = "inline";
-            maxOutput.style.display = "inline";
-            minOutput.style.display = "inline";
-            if (maxGain >= minGain) {
-                for (let m = 0; m < allStudents.length; m++) {
-                    thisStudent = allStudents[m];
-                    gain = thisStudent.postScore - thisStudent.preScore;
-                    if ((gain <= maxGain) && (gain >= minGain)) {
-                        filteredStudents.push(thisStudent);
-                    }
+            minPara.innerText = "Minimum = " + minSlider.value;
+            maxPara.innerText = "Maximum = " + maxSlider.value;
+            for (let m = 0; m < allStudents.length; m++) {
+                thisStudent = allStudents[m];
+                preScore = parseInt(thisStudent.score_pre);
+                postScore = parseInt(thisStudent.score_post);
+                gain = postScore - preScore;
+                effectSize = parseFloat(thisStudent.prepost_gain);
+                switch (filterValue) {
+                    case "filter by gain":
+                        if ((gain <= maxValue) && (gain >= minValue)) {
+                            filteredStudents.push(thisStudent);
+                        }
+                        break;
+                    case "filter by prescore":
+                        if ((preScore <= maxValue) && (preScore >= minValue)) {
+                            filteredStudents.push(thisStudent);
+                        }
+                        break;
+                    case "filter by postscore":
+                        if ((postScore <= maxValue) && (postScore >= minValue)) {
+                            filteredStudents.push(thisStudent);
+                        }
+                        break;
                 }
             }
         } else {

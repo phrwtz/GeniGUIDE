@@ -1,7 +1,5 @@
 *.json
 *.csv
-extras.js
 extra_stuff.js
 biologica.js
 jquery-3.1.1.js
-jquery.csv.js
