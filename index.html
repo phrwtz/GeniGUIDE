@@ -175,7 +175,7 @@
             </tbody>
         </table>
     </p>
-    <div id="actionDiv" width="100%" style="margin-top: 30px">
+    <div id="actionDiv" width="100%" style="margin-top: 30px; display:block">
         <table id="hintTable" width=100% style="margin-left:50px;display:none">
             <thead>
                 <tr>
@@ -193,20 +193,17 @@
                 </tr>
 
                 <th colspan=9 style="border-width:3px; background-color:#ffffb3">
-                    <select style="vertical-align:middle;">
-                        <option>
-                            Visible Simple Dominance
-                        </option>
-                    </select>
+                    Visible Simple Dominance
                 </th>
                 <th colspan=9 style="border-width:3px; background-color:#ffe6ff">
-                    <select style="vertical-align:middle;">
-                        <option>
-                            Hidden Simple Dominance
-                        </option>
-                    </select></th>
-                <th colspan=9 style="border-width:3px; background-color:#ffffb3">Visible Simple Dominance</th>
-                <th colspan=9 style="border-width:3px; background-color:#ffe6ff"">Hidden Simple Dominance</th>
+                    Hidden Simple Dominance
+                </th>
+                <th colspan=9 style="border-width:3px; background-color:#ffffb3">
+                    Visible Simple Dominance
+                </th>
+                <th colspan=9 style="border-width:3px; background-color:#ffe6ff">
+                    Hidden Simple Dominance
+                </th>
             </tr>
             <tr>
                 <th colspan=3 style=" border-width:2px; background-color:#ffffb3">Wings</th>
@@ -452,10 +449,10 @@
                         let thisPpStudent = ppStudents[k];
                         let thisStudent = studentsObj[thisPpStudent.UserID];
                         if (thisStudent) {
-                        thisStudent.score_pre = thisPpStudent.score_pre;
-                        thisStudent.score_post = thisPpStudent.score_post;
-                        thisStudent.prepost_gain =
-                        thisPpStudent.prepost_gain;
+                            thisStudent.score_pre = thisPpStudent.score_pre;
+                            thisStudent.score_post = thisPpStudent.score_post;
+                            thisStudent.prepost_gain =
+                                thisPpStudent.prepost_gain;
                             console.log("Student " + thisStudent.id + " had a pre-test score of " +
                                 thisPpStudent
                                 .score_pre + " and a post-test score of " + thisPpStudent.score_post +
