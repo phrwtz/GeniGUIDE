@@ -502,14 +502,16 @@ function filterStudents(filterValue) {
             if (filterValue === "filter by gain") {
                 minSlider.min = -30;
                 minSlider.max = 30;
+                maxSlider.min = -30;
+                maxSlider.max = 30;
             } else {
                 minSlider.min = 0;
                 minSlider.max = 30;
+                maxSlider.min = 0;
+                maxSlider.max = 30;
             }
             minValue = minSlider.value;
             maxValue = maxSlider.value;
-            maxSlider.min = -30;
-            maxSlider.max = 30;
             slideDiv.style.display = "inline";
             minPara.innerText = "Minimum = " + minSlider.value;
             maxPara.innerText = "Maximum = " + maxSlider.value;
