@@ -226,32 +226,49 @@ function getAverageOverStudents(filteredStudents) {
     var challengeResultsArray = [];
     var numStudents = 0,
         chalArray = [],
-        totalTries = 0,
+        activityTries = 0,
         tries,
         totalExcessMoves = 0,
         totalCorrect = 0,
-        level1Hints = 0,
-        level2Hints = 0,
-        level3Hints = 0,
+        studentLevel1Hints,
+        studentLevel2Hints,
+        studentLevel3Hints,
+        activityLevel1Hints,
+        activityLevel2Hints,
+        activityLevel3Hints,
+        hintScoreArray = [],
+        hintScoreMean,
+        hintScoreStdDev,
+        hintScoreMeanStdDev = [],
         totalRemediations,
         totalNumericalCrystals = 0,
         thisActivity;
+    //Start new activity
     for (let j = 0; j < activitiesArray.length; j++) {
         thisActivity = activitiesArray[j];
         numStudents = 0;
-        totalTries = 0;
+        activityTries = 0;
         totalNumericalCrystals = 0;
         totalMoves = 0;
-        level1Hints = 0;
-        level2Hints = 0;
-        level3Hints = 0;
+        studentLevel1Hints = 0;
+        studentLevel2Hints = 0;
+        studentLevel3Hints = 0;
+        activityLevel1Hints = 0;
+        activityLevel2Hints = 0;
+        activityLevel3Hints = 0;
+        studentActivityHintScores = [];
         totalRemediations = 0;
+        //Start new student
         for (let i = 0; i < filteredStudents.length; i++) {
             thisStudent = filteredStudents[i];
             chalArray = checkout(thisStudent.id, thisActivity);
             tries = chalArray[0];
             totalRemediations += chalArray[1];
+            //Only count student if s/he tried the activity at least once
             if (tries.length > 0) {
+                studentLevel1Hints = 0;
+                studentLevel2Hints = 0;
+                studentLevel3Hints = 0;
                 numStudents++;
                 var colorIndexArray = [];
                 for (let j = 0; j < tries.length; j++) {
@@ -260,30 +277,37 @@ function getAverageOverStudents(filteredStudents) {
                         totalCorrect++;
                         totalExcessMoves += thisTry.excessMoves;
                     }
-                    level1Hints += thisTry.level1Hints;
-                    level2Hints += thisTry.level2Hints;
-                    level3Hints += thisTry.level3Hints;
+                    studentLevel1Hints += thisTry.level1Hints;
+                    studentLevel2Hints += thisTry.level2Hints;
+                    studentLevel3Hints += thisTry.level3Hints;
                     colorIndexArray.push(thisTry.crystalColor);
                 }
+                studentActivityHintScores.push((studentLevel1Hints + 2 * studentLevel2Hints + 3 * studentLevel3Hints) / tries.length);
                 maxColorIndex = colorIndexArray.reduce(function (a, b) {
                     return Math.max(a, b);
                 });
-                totalTries += tries.length;
+                activityTries += tries.length;
                 if (isNaN(maxColorIndex)) {
                     console.log("Stop! Bad crystal!");
                 }
                 totalNumericalCrystals += maxColorIndex;
             }
+            activityLevel1Hints += studentLevel1Hints;
+            activityLevel2Hints += studentLevel2Hints;
+            activityLevel3Hints += studentLevel3Hints;
         } //new student
         challengeResults = new Object();
         challengeResults.name = thisActivity;
         challengeResults.totalStudents = numStudents;
-        challengeResults.totalTries = totalTries;
-        challengeResults.averageTries = Math.round(100 * totalTries / numStudents) / 100;
+        challengeResults.totalTries = activityTries;
+        challengeResults.averageTries = Math.round(100 * activityTries / numStudents) / 100;
         challengeResults.averageExcessMoves = Math.round(100 * totalExcessMoves / totalCorrect) / 100;
-        challengeResults.level1Hints = Math.round(1000 * level1Hints / totalTries) / 1000;
-        challengeResults.level2Hints = Math.round(1000 * level2Hints / totalTries) / 1000;
-        challengeResults.level3Hints = Math.round(1000 * level3Hints / totalTries) / 1000;
+        challengeResults.level1Hints = Math.round(1000 * activityLevel1Hints / activityTries) / 1000;
+        challengeResults.level2Hints = Math.round(1000 * activityLevel2Hints / activityTries) / 1000;
+        challengeResults.level3Hints = Math.round(1000 * activityLevel3Hints / activityTries) / 1000;
+        hintScoreMeanStdDev = meanStdDev(studentActivityHintScores);
+        challengeResults.hintScoreMean = Math.round(1000 * hintScoreMeanStdDev[0]) / 1000;
+        challengeResults.hintScoreStdDev = Math.round(1000 * hintScoreMeanStdDev[1]) / 1000;
         challengeResults.totalRemediations = totalRemediations;
         challengeResults.totalNumericalCrystals = totalNumericalCrystals;
         challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
@@ -292,6 +316,21 @@ function getAverageOverStudents(filteredStudents) {
     makeChallengeResultsTable(challengeResultsArray);
     makeChallengeResultsGraph(challengeResultsArray);
 }
+
+function meanStdDev(array) {
+    var sum = 0,
+        mean,
+        stdDev;
+    for (let i = 0; i < array.length; i++) {
+        sum = sum + array[i];
+    }
+    mean = sum / array.length;
+    for (let j = 0; j < array.length; j++) {
+        stdDev = Math.sqrt(Math.pow((array[j] - mean), 2) / (array.length - 1));
+    }
+    return [mean, stdDev];
+}
+
 
 function makeChallengeResultsTable(challengeResultsArray) {
     var chalBody = document.getElementById("challengeBody"),
@@ -311,11 +350,13 @@ function makeChallengeResultsTable(challengeResultsArray) {
         chalCell7 = document.createElement("td");
         chalCell8 = document.createElement("td");
         chalCell9 = document.createElement("td");
+        chalCell10 = document.createElement("td");
 
         chalCell6.style.backgroundColor = "cornsilk";
         chalCell7.style.backgroundColor = "cornsilk";
         chalCell8.style.backgroundColor = "cornsilk";
-        chalCell9.style.backgroundColor = "azure";
+        chalCell9.style.backgroundColor = "cornsilk";
+        chalCell10.style.backgroundColor = "azure";
 
         chalCell1.innerHTML = challengeResult.name;
         chalCell2.innerHTML = challengeResult.totalStudents;
@@ -325,7 +366,8 @@ function makeChallengeResultsTable(challengeResultsArray) {
         chalCell6.innerHTML = challengeResult.level1Hints;
         chalCell7.innerHTML = challengeResult.level2Hints;
         chalCell8.innerHTML = challengeResult.level3Hints;
-        chalCell9.innerHTML = challengeResult.totalRemediations;
+        chalCell9.innerHTML = challengeResult.hintScoreMean + " " + String.fromCharCode(177) + " " + challengeResult.hintScoreStdDev;
+        chalCell10.innerHTML = challengeResult.totalRemediations;
         chalRow.appendChild(chalCell1);
         chalRow.appendChild(chalCell2);
         chalRow.appendChild(chalCell3);
@@ -335,6 +377,7 @@ function makeChallengeResultsTable(challengeResultsArray) {
         chalRow.appendChild(chalCell7);
         chalRow.appendChild(chalCell8);
         chalRow.appendChild(chalCell9);
+        chalRow.appendChild(chalCell10);
         chalBody.appendChild(chalRow);
     }
 }
