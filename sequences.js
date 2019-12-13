@@ -297,6 +297,7 @@ function getAverageOverStudents(filteredStudents) {
             activityLevel3Hints += studentLevel3Hints;
         } //new student
         challengeResults = new Object();
+        challengeResults.hintScores = [];
         challengeResults.name = thisActivity;
         challengeResults.totalStudents = numStudents;
         challengeResults.totalTries = activityTries;
@@ -305,30 +306,37 @@ function getAverageOverStudents(filteredStudents) {
         challengeResults.level1Hints = Math.round(1000 * activityLevel1Hints / activityTries) / 1000;
         challengeResults.level2Hints = Math.round(1000 * activityLevel2Hints / activityTries) / 1000;
         challengeResults.level3Hints = Math.round(1000 * activityLevel3Hints / activityTries) / 1000;
+        challengeResults.hintScores = studentActivityHintScores;
         hintScoreMeanStdDev = meanStdDev(studentActivityHintScores);
         challengeResults.hintScoreMean = Math.round(1000 * hintScoreMeanStdDev[0]) / 1000;
         challengeResults.hintScoreStdDev = Math.round(1000 * hintScoreMeanStdDev[1]) / 1000;
+        challengeResults.hintScoreStdErr = Math.round(1000 * hintScoreMeanStdDev[2]) / 1000;
         challengeResults.totalRemediations = totalRemediations;
         challengeResults.totalNumericalCrystals = totalNumericalCrystals;
         challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
         challengeResultsArray.push(challengeResults);
     } //newActivity;
     makeChallengeResultsTable(challengeResultsArray);
-    makeChallengeResultsGraph(challengeResultsArray);
+    //makeChallengeResultsBoxPlot(challengeResultsArray);
+    makeChallengeResultsBarGraph(challengeResultsArray);
 }
 
 function meanStdDev(array) {
     var sum = 0,
         mean,
-        stdDev;
+        squareSum = 0,
+        stdDev,
+        stdErr;
     for (let i = 0; i < array.length; i++) {
         sum = sum + array[i];
     }
     mean = sum / array.length;
     for (let j = 0; j < array.length; j++) {
-        stdDev = Math.sqrt(Math.pow((array[j] - mean), 2) / (array.length - 1));
+        squareSum = squareSum + (array[j] - mean) ** 2;
     }
-    return [mean, stdDev];
+    stdDev = Math.sqrt(squareSum / (array.length - 1));
+    stdErr = stdDev / Math.sqrt(array.length);
+    return [mean, stdDev, stdErr];
 }
 
 
@@ -366,7 +374,7 @@ function makeChallengeResultsTable(challengeResultsArray) {
         chalCell6.innerHTML = challengeResult.level1Hints;
         chalCell7.innerHTML = challengeResult.level2Hints;
         chalCell8.innerHTML = challengeResult.level3Hints;
-        chalCell9.innerHTML = challengeResult.hintScoreMean + " " + String.fromCharCode(177) + " " + challengeResult.hintScoreStdDev;
+        chalCell9.innerHTML = challengeResult.hintScoreMean + " " + String.fromCharCode(177) + " " + challengeResult.hintScoreStdErr;
         chalCell10.innerHTML = challengeResult.totalRemediations;
         chalRow.appendChild(chalCell1);
         chalRow.appendChild(chalCell2);
