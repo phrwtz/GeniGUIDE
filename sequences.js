@@ -326,57 +326,7 @@ function meanStdDev(array) {
 }
 
 
-function makeChallengeResultsTable(challengeResultsArray) {
-    var chalTable = document.getElementById("challengeTable"),
-        chalBody = document.getElementById("challengeBody"),
-        challengeResult,
-        chalRow,
-        chalCell;
-    clear(chalBody);
-    chalTable.style.display = "block";
-    for (let i = 0; i < challengeResultsArray.length; i++) {
-        challengeResult = challengeResultsArray[i];
-        chalRow = document.createElement("tr");
-        chalCell1 = document.createElement("td");
-        chalCell2 = document.createElement("td");
-        chalCell3 = document.createElement("td");
-        chalCell4 = document.createElement("td");
-        chalCell5 = document.createElement("td");
-        chalCell6 = document.createElement("td");
-        chalCell7 = document.createElement("td");
-        chalCell8 = document.createElement("td");
-        chalCell9 = document.createElement("td");
-        chalCell10 = document.createElement("td");
 
-        chalCell6.style.backgroundColor = "cornsilk";
-        chalCell7.style.backgroundColor = "cornsilk";
-        chalCell8.style.backgroundColor = "cornsilk";
-        chalCell9.style.backgroundColor = "cornsilk";
-        chalCell10.style.backgroundColor = "azure";
-
-        chalCell1.innerHTML = challengeResult.name;
-        chalCell2.innerHTML = challengeResult.totalStudents;
-        chalCell3.innerHTML = challengeResult.averageTries;
-        chalCell4.innerHTML = challengeResult.averageExcessMoves;
-        chalCell5.innerHTML = challengeResult.averageNumericalCrystal;
-        chalCell6.innerHTML = challengeResult.level1Hints;
-        chalCell7.innerHTML = challengeResult.level2Hints;
-        chalCell8.innerHTML = challengeResult.level3Hints;
-        chalCell9.innerHTML = challengeResult.hintScoreMean + " " + String.fromCharCode(177) + " " + challengeResult.hintScoreStdErr;
-        chalCell10.innerHTML = challengeResult.totalRemediations;
-        chalRow.appendChild(chalCell1);
-        chalRow.appendChild(chalCell2);
-        chalRow.appendChild(chalCell3);
-        chalRow.appendChild(chalCell4);
-        chalRow.appendChild(chalCell5);
-        chalRow.appendChild(chalCell6);
-        chalRow.appendChild(chalCell7);
-        chalRow.appendChild(chalCell8);
-        chalRow.appendChild(chalCell9);
-        chalRow.appendChild(chalCell10);
-        chalBody.appendChild(chalRow);
-    }
-}
 
 function downloadChallengeFile() {
     var maxSlider = document.getElementById("maxrange"),
@@ -420,10 +370,12 @@ function findActionsByActivity(studentId, activityName) {
 
 function makeHintGraph() {
     var chalTable = document.getElementById("challengeTable");
+    var compTable = document.getElementById("comparisonTable");
     var myDiv = document.getElementById("graphDiv");
     var slideDiv1 = document.getElementById("slideDiv1");
     var slideDiv2 = document.getElementById("slideDiv2");
     var chalFilter1 = document.getElementById("chalFilter1");
+    var chalFilter2 = document.getElementById("chalFilter2");
     var maxSlider1 = document.getElementById("maxrange1");
     var minSlider1 = document.getElementById("minrange1");
     var graphTypeSelect = document.getElementById("graphType");
@@ -431,6 +383,7 @@ function makeHintGraph() {
     var secondTitle = document.getElementById("secondTitle");
     var graphType = graphTypeSelect.value,
         filter1 = chalFilter1.value,
+        filter2 = chalFilter2.value,
         max1 = parseInt(maxSlider1.value),
         min1 = parseInt(minSlider1.value),
         max2 = parseInt(maxSlider2.value),
@@ -449,28 +402,25 @@ function makeHintGraph() {
     if ((!graphType) || (!filter1)) {
         chalTable.style.display = "none";
     }
-    if (graphType) {
-        chalFilter1.style.display = "block";
-        setFilterParameters(filter1);
+    if (graphType != "null") {
+        setFilterParameters(filter1, filter2);
         filteredStudents1 = filterStudents(filter1, max1, min1);
         if (filteredStudents1.length > 0) {
             results1 = getChallengeResults(filteredStudents1);
         }
-        filteredStudents2 = filterStudents(filter1, max2, min2);
+        filteredStudents2 = filterStudents(filter2, max2, min2);
         if (filteredStudents2.length > 0) {
             results2 = getChallengeResults(filteredStudents2);
         }
         if (graphType === "singleCohort") {
+            chalTable.style.display = "block";
+            compTable.style.display = "none";
+            chalFilter1.style.display = "block";
+            chalFilter2.style.display = "none";
             if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
                 sliderTable.style.display = "block";
-                slideDiv1.style.display = "block";
-                slideDiv2.style.display = "none";
-                secondTitle.style.display = "none";
             } else {
                 sliderTable.style.display = "none";
-                slideDiv1.style.display = "none";
-                slideDiv2.style.display = "none";
-                secondTitle.style.display = "none";
             }
             if (filteredStudents1.length > 0) {
                 makeChallengeResultsTable(results1);
@@ -481,16 +431,21 @@ function makeHintGraph() {
                 myDiv.style.display = "none";
             }
         } else if (graphType === "twoCohorts") {
-            if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
+            chalTable.style.display = "none";
+            compTable.style.display = "block";
+            chalFilter1.style.display = "block";
+            chalFilter2.style.display = "block";
+            if (((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) || ((filter2 === "filter by prescore") || (filter2 === "filter by postscore") || (filter2 === "filter by gain"))) {
                 sliderTable.style.display = "block";
-                slideDiv1.style.display = "block";
-                slideDiv2.style.display = "block";
-                secondTitle.style.display = "block";
             } else {
                 sliderTable.style.display = "none";
-                slideDiv1.style.display = "none";
-                slideDiv2.style.display = "none";
-                secondTitle.style.display = "none";
+            }
+            if ((filteredStudents1.length > 0) && (filteredStudents2.length > 0)) {
+                makeComparisonTable(results1, results2);
+                //      makeComparisonGraph(results1, results2);
+            } else {
+                compTable.style.display = "none";
+                myDiv.style.display = "none";
             }
         }
     } else { //if no graph type has been selected
@@ -612,33 +567,38 @@ function filterStudents(filterValue, maxValue, minValue) {
         return filteredStudents;
     }
 }
-function setFilterParameters(filter1) {
+
+function setFilterParameters(filter1, filter2) {
     if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
         if (filter1 === "filter by gain") {
             maxSlider1.min = -30;
             maxSlider1.max = 30;
             minSlider1.min = -30;
             minSlider1.max = 30;
-            maxSlider2.max = 30;
-            minSlider2.min = -30;
-            minSlider2.max = 30;
-            minSlider2.min = -30;
         } else {
             maxSlider1.min = 0;
             maxSlider1.max = 30;
             minSlider1.min = 0;
             minSlider1.max = 30;
+        }
+        if (filter2 === "filter by gain") {
+            maxSlider2.min = -30;
+            maxSlider2.max = 30;
+            minSlider2.min = -30;
+            minSlider2.max = 30;
+        } else {
             maxSlider2.min = 0;
             maxSlider2.max = 30;
             minSlider2.min = 0;
             minSlider2.max = 30;
         }
-        minOutput1.innerHTML = "Minimum = " + minSlider1.value;
-        minOutput2.innerHTML = "Minimum = " + minSlider2.value;
-        maxOutput1.innerHTML = "Maximum = " + maxSlider1.value;
-        maxOutput2.innerHTML = "Maximum = " + maxSlider2.value;
+        minOutput1.innerHTML = "Group 1 minimum = " + minSlider1.value;
+        minOutput2.innerHTML = "Group 2 minimum = " + minSlider2.value;
+        maxOutput1.innerHTML = "Group 1 maximum = " + maxSlider1.value;
+        maxOutput2.innerHTML = "Group 2 maximum = " + maxSlider2.value;
     }
 }
+
 function getCrystalColor(thisTry, thisAction) {
     if (thisAction.parameters.correct == "false") {
         return 0;

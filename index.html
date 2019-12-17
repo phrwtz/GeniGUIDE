@@ -123,38 +123,62 @@
         </option>
     </select>
 
-    <table id="sliderTable" style="display:none;border-style:none">
+    <select id="chalFilter2" style="display:none" onchange="makeHintGraph()">
+        <option value=null>
+            Select filter
+        </option>
+        <option value="all">
+            All Students
+        </option>
+        <option value="lower-to-lower">
+            Lower to lower
+        </option>
+        <option value="lower-to-higher">
+            Lower to higher
+        </option>
+        <option value="higher-to-higher">
+            Higher to higher
+        </option>
+        <option value="higher-to-lower">
+            Higher to lower
+        </option>
+        <option value="filter by prescore">
+            Set filter by prescore
+        </option>
+        <option value="filter by postscore">
+            Set filter by postscore
+        </option>
+        <option value="filter by gain">
+            Set filter by gain
+        </option>
+    </select>
+
+    <table id="sliderTable" style="display:none">
         <tr>
-            <td id="firstTitle">
-                First cohort
+            <td>
+                <p id="minPara1" style="display:block">Group 1 minimum = -30</p>
+                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange1"
+                    onmouseup="makeHintGraph()" style="display:block">
+                </input>
             </td>
-            <td id="secondTitle" style="display:block">
-                Second cohort
-                </tdid="firstCohort">
+            <td>
+                <p id="maxPara1" style="display:block">Group 1 maximum = 30</p>
+                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1"
+                    onmouseup="makeHintGraph()" style="display:block">
+                </input>
+            </td>
         </tr>
         <tr>
             <td>
-                <div id="slideDiv1" style="display:block">
-                    <p id="minPara1" style="display:block">Minimum = -30</p>
-                    <input type="range" min="-30" max="30" value="-30" class="slider" id="minrange1"
-                        onmouseup="makeHintGraph()" style="display:block">
-                    </input>
-                    <p id="maxPara1" style="display:block">Maximum = 30</p>
-                    <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1"
-                        onmouseup="makeHintGraph()" style="display:block">
-                    </input>
-                </div>
+                <p id="minPara2" style="display:block">Group 2 minimum = -30</p>
+                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange2"
+                    onmouseup="makeHintGraph()" style="display:block"> </input>
             </td>
             <td>
-                <div id="slideDiv2" style="display:block">
-                    <p id="minPara2" style="display:block">Minimum = -30</p>
-                    <input type="range" min="-30" max="30" value="-30" class="slider" id="minrange2"
-                        onmouseup="makeHintGraph()" style="display:block"> </input>
-                    <p id="maxPara2" style="display:block">Maximum = 30</p>
-                    <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange2"
-                        onmouseup="makeHintGraph()" style="display:block">
-                    </input>
-                </div>
+                <p id="maxPara2" style="display:block">Group 2 maximum = 30</p>
+                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange2"
+                    onmouseup="makeHintGraph()" style="display:block">
+                </input>
             </td>
         </tr>
     </table>
@@ -219,6 +243,24 @@
             <tbody id="challengeBody">
             </tbody>
         </table>
+
+        <table id="comparisonTable" style="display:none" width="90%">
+            <thead>
+                <tr id="compHeaderRow">
+                    <th>
+                        Challenge
+                    </th>
+                    <th>
+                        Cohort
+                    </th>
+                    <th>
+                        Students
+                    </th>
+                    </head>
+            <tbody id="comparisonBody">
+            </tbody>
+        </table>
+
     </p>
     <div id="actionDiv" width="100%" style="margin-top: 30px; display:block">
         <table id="hintTable" width=100% style="margin-left:50px;display:none">

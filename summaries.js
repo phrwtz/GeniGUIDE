@@ -1,3 +1,156 @@
+function makeComparisonTable(resultArray1, resultArray2) {
+    if (resultArray1.length != resultArray2.length) {
+        alert("Result arrays different sizes!")
+    }
+    var compTable = document.getElementById("comparisonTable"),
+        compBody = document.getElementById("comparisonBody"),
+        challengeResult,
+        compRow,
+        compCell;
+    clear(compBody);
+    compTable.style.display = "block";
+    for (let i = 0; i < resultArray1.length; i++) {
+        result1 = resultArray1[i];
+        result2 = resultArray2[i];
+
+        //Make row from first cohort
+        compRow = document.createElement("tr");
+        compCell1 = document.createElement("td");
+        compCell2 = document.createElement("td");
+        compCell3 = document.createElement("td");
+        compCell4 = document.createElement("td");
+        compCell5 = document.createElement("td");
+        compCell6 = document.createElement("td");
+        compCell7 = document.createElement("td");
+        compCell8 = document.createElement("td");
+        compCell9 = document.createElement("td");
+        compCell10 = document.createElement("td");
+
+        compCell6.style.backgroundColor = "cornsilk";
+        compCell7.style.backgroundColor = "cornsilk";
+        compCell8.style.backgroundColor = "cornsilk";
+        compCell9.style.backgroundColor = "cornsilk";
+        compCell10.style.backgroundColor = "azure";
+
+        compCell1.innerHTML = result1.name;
+        compCell2.innerHTML = result1.totalStudents;
+        compCell3.innerHTML = result1.averageTries;
+        compCell4.innerHTML = result1.averageExcessMoves;
+        compCell5.innerHTML = result1.averageNumericalCrystal;
+        compCell6.innerHTML = result1.level1Hints;
+        compCell7.innerHTML = result1.level2Hints;
+        compCell8.innerHTML = result1.level3Hints;
+        compCell9.innerHTML = result1.hintScoreMean + " " + String.fromCharCode(177) + " " + result1.hintScoreStdErr;
+        compCell10.innerHTML = result1.totalRemediations;
+
+        compRow.appendChild(compCell1);
+        compRow.appendChild(compCell2);
+        compRow.appendChild(compCell3);
+        compRow.appendChild(compCell4);
+        compRow.appendChild(compCell5);
+        compRow.appendChild(compCell6);
+        compRow.appendChild(compCell7);
+        compRow.appendChild(compCell8);
+        compRow.appendChild(compCell9);
+        compRow.appendChild(compCell10);
+        compBody.appendChild(compRow);
+
+        //Make row from second cohort
+        compRow = document.createElement("tr");
+        compCell1 = document.createElement("td");
+        compCell2 = document.createElement("td");
+        compCell3 = document.createElement("td");
+        compCell4 = document.createElement("td");
+        compCell5 = document.createElement("td");
+        compCell6 = document.createElement("td");
+        compCell7 = document.createElement("td");
+        compCell8 = document.createElement("td");
+        compCell9 = document.createElement("td");
+        compCell10 = document.createElement("td");
+
+        compCell6.style.backgroundColor = "cornsilk";
+        compCell7.style.backgroundColor = "cornsilk";
+        compCell8.style.backgroundColor = "cornsilk";
+        compCell9.style.backgroundColor = "cornsilk";
+        compCell10.style.backgroundColor = "azure";
+
+        compCell1.innerHTML = result2.name;
+        compCell2.innerHTML = result2.totalStudents;
+        compCell3.innerHTML = result2.averageTries;
+        compCell4.innerHTML = result2.averageExcessMoves;
+        compCell5.innerHTML = result2.averageNumericalCrystal;
+        compCell6.innerHTML = result2.level1Hints;
+        compCell7.innerHTML = result2.level2Hints;
+        compCell8.innerHTML = result2.level3Hints;
+        compCell9.innerHTML = result2.hintScoreMean + " " + String.fromCharCode(177) + " " + result2.hintScoreStdErr;
+        compCell10.innerHTML = result2.totalRemediations;
+
+        compRow.appendChild(compCell1);
+        compRow.appendChild(compCell2);
+        compRow.appendChild(compCell3);
+        compRow.appendChild(compCell4);
+        compRow.appendChild(compCell5);
+        compRow.appendChild(compCell6);
+        compRow.appendChild(compCell7);
+        compRow.appendChild(compCell8);
+        compRow.appendChild(compCell9);
+        compRow.appendChild(compCell10);
+        compBody.appendChild(compRow);
+    }
+}
+
+function makeChallengeResultsTable(challengeResultsArray) {
+    var chalTable = document.getElementById("challengeTable"),
+        chalBody = document.getElementById("challengeBody"),
+        challengeResult,
+        chalRow,
+        chalCell;
+    clear(chalBody);
+    chalTable.style.display = "block";
+    for (let i = 0; i < challengeResultsArray.length; i++) {
+        challengeResult = challengeResultsArray[i];
+        chalRow = document.createElement("tr");
+        chalCell1 = document.createElement("td");
+        chalCell2 = document.createElement("td");
+        chalCell3 = document.createElement("td");
+        chalCell4 = document.createElement("td");
+        chalCell5 = document.createElement("td");
+        chalCell6 = document.createElement("td");
+        chalCell7 = document.createElement("td");
+        chalCell8 = document.createElement("td");
+        chalCell9 = document.createElement("td");
+        chalCell10 = document.createElement("td");
+
+        chalCell6.style.backgroundColor = "cornsilk";
+        chalCell7.style.backgroundColor = "cornsilk";
+        chalCell8.style.backgroundColor = "cornsilk";
+        chalCell9.style.backgroundColor = "cornsilk";
+        chalCell10.style.backgroundColor = "azure";
+
+        chalCell1.innerHTML = challengeResult.name;
+        chalCell2.innerHTML = challengeResult.totalStudents;
+        chalCell3.innerHTML = challengeResult.averageTries;
+        chalCell4.innerHTML = challengeResult.averageExcessMoves;
+        chalCell5.innerHTML = challengeResult.averageNumericalCrystal;
+        chalCell6.innerHTML = challengeResult.level1Hints;
+        chalCell7.innerHTML = challengeResult.level2Hints;
+        chalCell8.innerHTML = challengeResult.level3Hints;
+        chalCell9.innerHTML = challengeResult.hintScoreMean + " " + String.fromCharCode(177) + " " + challengeResult.hintScoreStdErr;
+        chalCell10.innerHTML = challengeResult.totalRemediations;
+        chalRow.appendChild(chalCell1);
+        chalRow.appendChild(chalCell2);
+        chalRow.appendChild(chalCell3);
+        chalRow.appendChild(chalCell4);
+        chalRow.appendChild(chalCell5);
+        chalRow.appendChild(chalCell6);
+        chalRow.appendChild(chalCell7);
+        chalRow.appendChild(chalCell8);
+        chalRow.appendChild(chalCell9);
+        chalRow.appendChild(chalCell10);
+        chalBody.appendChild(chalRow);
+    }
+}
+
 function summarizeHints(students) {
     //summarizes hints for concepts LG1.C2a and LG1.c2b for activities "allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", and "allele-targetMatch-hidden-simpleDom2". Returns total number of students in each activity and number in each hint category (no hints, highest hint level = 1,2,3) 
     document.getElementById("hintTable").style.display = "block";
@@ -124,9 +277,9 @@ function summarizeHints(students) {
                             cellId = conceptStr + challengeStr + traitStr + levelStr;
                             hintTotals[cellId]++;
                         }
-                        }
-                        if (noHintsFound) {
-                            myTeacher.noHints++;
+                    }
+                    if (noHintsFound) {
+                        myTeacher.noHints++;
                     }
                 }
             }
