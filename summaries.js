@@ -16,6 +16,7 @@ function makeComparisonTable(resultArray1, resultArray2) {
         //Make row from first cohort
         compRow = document.createElement("tr");
         compCell1 = document.createElement("td");
+        compCell1.rowSpan = 2;
         compCell2 = document.createElement("td");
         compCell3 = document.createElement("td");
         compCell4 = document.createElement("td");
@@ -25,23 +26,38 @@ function makeComparisonTable(resultArray1, resultArray2) {
         compCell8 = document.createElement("td");
         compCell9 = document.createElement("td");
         compCell10 = document.createElement("td");
+        compCell11 = document.createElement("td");
 
-        compCell6.style.backgroundColor = "cornsilk";
+        /* compCell1.style.borderTopWidth = "3px";
+        compCell2.style.borderTopWidth = "3px";
+        compCell3.style.borderTopWidth = "3px";
+        compCell4.style.borderTopWidth = "3px";
+        compCell5.style.borderTopWidth = "3px";
+        compCell6.style.borderTopWidth = "3px"; */
+        compCell7.style.borderTopWidth = "3px";
+        compCell8.style.borderTopWidth = "3px";
+        compCell9.style.borderTopWidth = "3px";
+        compCell10.style.borderTopWidth = "3px";
+        compCell11.style.borderTopWidth = "3px";
+
+
         compCell7.style.backgroundColor = "cornsilk";
         compCell8.style.backgroundColor = "cornsilk";
         compCell9.style.backgroundColor = "cornsilk";
-        compCell10.style.backgroundColor = "azure";
+        compCell10.style.backgroundColor = "cornsilk";
+        compCell11.style.backgroundColor = "azure";
 
         compCell1.innerHTML = result1.name;
-        compCell2.innerHTML = result1.totalStudents;
-        compCell3.innerHTML = result1.averageTries;
-        compCell4.innerHTML = result1.averageExcessMoves;
-        compCell5.innerHTML = result1.averageNumericalCrystal;
-        compCell6.innerHTML = result1.level1Hints;
-        compCell7.innerHTML = result1.level2Hints;
-        compCell8.innerHTML = result1.level3Hints;
-        compCell9.innerHTML = result1.hintScoreMean + " " + String.fromCharCode(177) + " " + result1.hintScoreStdErr;
-        compCell10.innerHTML = result1.totalRemediations;
+        compCell2.innerHTML = 1
+        compCell3.innerHTML = result1.totalStudents;
+        compCell4.innerHTML = result1.averageTries;
+        compCell5.innerHTML = result1.averageExcessMoves;
+        compCell6.innerHTML = result1.averageNumericalCrystal;
+        compCell7.innerHTML = result1.level1Hints;
+        compCell8.innerHTML = result1.level2Hints;
+        compCell9.innerHTML = result1.level3Hints;
+        compCell10.innerHTML = result1.hintScoreMean + " " + String.fromCharCode(177) + " " + result1.hintScoreStdErr;
+        compCell11.innerHTML = result1.totalRemediations;
 
         compRow.appendChild(compCell1);
         compRow.appendChild(compCell2);
@@ -53,6 +69,7 @@ function makeComparisonTable(resultArray1, resultArray2) {
         compRow.appendChild(compCell8);
         compRow.appendChild(compCell9);
         compRow.appendChild(compCell10);
+        compRow.appendChild(compCell11);
         compBody.appendChild(compRow);
 
         //Make row from second cohort
@@ -74,7 +91,7 @@ function makeComparisonTable(resultArray1, resultArray2) {
         compCell9.style.backgroundColor = "cornsilk";
         compCell10.style.backgroundColor = "azure";
 
-        compCell1.innerHTML = result2.name;
+        compCell1.innerHTML = 2;
         compCell2.innerHTML = result2.totalStudents;
         compCell3.innerHTML = result2.averageTries;
         compCell4.innerHTML = result2.averageExcessMoves;
