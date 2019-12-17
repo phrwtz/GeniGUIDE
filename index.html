@@ -80,11 +80,24 @@
             Show selected student profile
         </span>
     </button>
-    <select id="chalFilter" style="display:none" onchange="filterStudents(this.value)">
+
+    <select id="graphType" style="display:none" onchange="makeHintGraph()">
+        <option value=null>
+            Select graph type
+        </option>
+        <option value="singleCohort">
+            Single cohort
+        </option>
+        <option value="twoCohorts">
+            Cohort comparison
+        </option>
+    </select>
+
+    <select id="chalFilter1" style="display:none" onchange="makeHintGraph()">
         <option value=null>
             Select filter
         </option>
-        <option id="allOption" value="all">
+        <option value="all">
             All Students
         </option>
         <option value="lower-to-lower">
@@ -109,14 +122,42 @@
             Set filter by gain
         </option>
     </select>
-    <div id="slideDiv" style="display:none" class="slidecontainer">
-        <p id="minPara" style="display:block">Minimum = -30</p>
-        <input type="range" min="-30" max="30" value="-30" class="slider" id="minrange" style="display:block">
-        </input>
-        <p id="maxPara" style="display:block">Maximum = 30</p>
-        <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange" style="display:block">
-        </input>
-    </div>
+
+    <table id="sliderTable" style="display:none;border-style:none">
+        <tr>
+            <td id="firstTitle">
+                First cohort
+            </td>
+            <td id="secondTitle" style="display:block">
+                Second cohort
+                </tdid="firstCohort">
+        </tr>
+        <tr>
+            <td>
+                <div id="slideDiv1" style="display:block">
+                    <p id="minPara1" style="display:block">Minimum = -30</p>
+                    <input type="range" min="-30" max="30" value="-30" class="slider" id="minrange1"
+                        onmouseup="makeHintGraph()" style="display:block">
+                    </input>
+                    <p id="maxPara1" style="display:block">Maximum = 30</p>
+                    <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1"
+                        onmouseup="makeHintGraph()" style="display:block">
+                    </input>
+                </div>
+            </td>
+            <td>
+                <div id="slideDiv2" style="display:block">
+                    <p id="minPara2" style="display:block">Minimum = -30</p>
+                    <input type="range" min="-30" max="30" value="-30" class="slider" id="minrange2"
+                        onmouseup="makeHintGraph()" style="display:block"> </input>
+                    <p id="maxPara2" style="display:block">Maximum = 30</p>
+                    <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange2"
+                        onmouseup="makeHintGraph()" style="display:block">
+                    </input>
+                </div>
+            </td>
+        </tr>
+    </table>
     <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
         <span id="showChangesSpan">
             Show changed probs only
@@ -134,7 +175,8 @@
 
         <input type="text" display="inline" value="file name goes here" id="csvFileName">
 
-        <button type="button" id="csvButton" style="display:none" onclick="downloadFile()">Download CSV file</button>
+        <button type="button" id="csvButton" style="display:none" onclick="downloadFile()">Download CSV
+            file</button>
     </div>
     <div id="graphDiv" style="display:block" width="300" px height="300px">
     </div>
@@ -453,19 +495,15 @@
                         let thisPpStudent = ppStudents[k];
                         let thisStudent = studentsObj[thisPpStudent.UserID];
                         if (thisStudent) {
-                            thisStudent.score_pre = thisPpStudent.score_pre;
-                            thisStudent.score_post = thisPpStudent.score_post;
+                            thisStudent.score_pre = parseInt(thisPpStudent.score_pre);
+                            thisStudent.score_post = parseInt(thisPpStudent.score_post);
                             thisStudent.prepost_gain =
-                                thisPpStudent.prepost_gain;
-                            console.log("Student " + thisStudent.id + " had a pre-test score of " +
-                                thisPpStudent
-                                .score_pre + " and a post-test score of " + thisPpStudent.score_post +
-                                " for an effect size of " + (thisPpStudent.prepost_gain)
-                            );
+                                parseInt(thisPpStudent.prepost_gain);
+                            //console.log("Student " + thisStudent.id + " had a pre-test score of " +  thisPpStudent    .score_pre + " and a post-test score of " + thisPpStudent.score_post +  " for an effect size of " + (thisPpStudent.prepost_gain);
                         }
                     }
                     document.getElementById("CSVfile").style.display = "none";
-                    document.getElementById("chalFilter").style.display = "block";
+                    document.getElementById("graphType").style.display = "block";
                 }(file);
             }
             reader.readAsText(file);
@@ -473,22 +511,26 @@
     </script>
 
     <script>
-        var chalFilter = document.getElementById("chalFilter");
-        var maxSlider = document.getElementById("maxrange");
-        var minSlider = document.getElementById("minrange");
-        var maxOutput = document.getElementById("maxPara");
-        var minOutput = document.getElementById("minPara");
-        maxSlider.oninput = function () {
-            maxOutput.innerHTML = "Maximum = " + this.value;
+        var chalFilter1 = document.getElementById("chalFilter1");
+        var maxSlider1 = document.getElementById("maxrange1");
+        var minSlider1 = document.getElementById("minrange1");
+        var maxOutput1 = document.getElementById("maxPara1");
+        var minOutput1 = document.getElementById("minPara1");
+        var maxSlider2 = document.getElementById("maxrange2");
+        var minSlider2 = document.getElementById("minrange2");
+        var maxOutput2 = document.getElementById("maxPara2");
+        var minOutput2 = document.getElementById("minPara2");
+        maxSlider1.oninput = function () {
+            maxOutput1.innerHTML = "Maximum = " + this.value;
         }
-        maxSlider.onmouseup = function () {
-            filterStudents(chalFilter.value);
+        minSlider1.oninput = function () {
+            minOutput1.innerHTML = "Minimum = " + this.value;
         }
-        minSlider.oninput = function () {
-            minOutput.innerHTML = "Minimum = " + this.value;
+        maxSlider2.oninput = function () {
+            maxOutput2.innerHTML = "Maximum = " + this.value;
         }
-        minSlider.onmouseup = function () {
-            filterStudents(chalFilter.value);
+        minSlider2.oninput = function () {
+            minOutput2.innerHTML = "Minimum = " + this.value;
         }
     </script>
 

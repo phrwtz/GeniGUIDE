@@ -1,8 +1,8 @@
 function makeChallengeResultsBarGraph(challengeResultsArray) {
     var myDiv = document.getElementById("graphDiv"),
-        mySelect = document.getElementById("chalFilter"),
-        maxSlider = document.getElementById("maxrange"),
-        minSlider = document.getElementById("minrange"),
+        mySelect = document.getElementById("chalFilter1"),
+        maxSlider = document.getElementById("maxrange1"),
+        minSlider = document.getElementById("minrange1"),
         maxGain = parseInt(maxSlider.value),
         minGain = parseInt(minSlider.value),
         myOption = mySelect.options[mySelect.selectedIndex].text;
@@ -47,9 +47,12 @@ function makeChallengeResultsBarGraph(challengeResultsArray) {
     data = [trace1, trace2, trace3];
     layout = {
         barmode: 'group',
-        title: 'Hints per challenge<br>' + myOption
+        title: 'Hints per challenge<br>' + myOption,
+        yaxis: {
+            range: [0, 0.2]
+        }
     };
-
+    myDiv.style.display = "block";
     Plotly.newPlot(myDiv, data, layout);
 }
 

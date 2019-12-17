@@ -12,6 +12,7 @@ var fieldsPara = document.getElementById("fields");
 var actionsPara = document.getElementById("actions");
 var infoPara = document.getElementById("infoPara");
 var graphDiv = document.getElementById("graphDiv");
+var graphType = null; //Used to select which graph to display when looking at hint/challenge
 
 var conceptDescriptions = [];
 var selectedConceptName;
