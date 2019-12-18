@@ -28,17 +28,17 @@ function makeComparisonTable(resultArray1, resultArray2) {
         compCell10 = document.createElement("td");
         compCell11 = document.createElement("td");
 
-        /* compCell1.style.borderTopWidth = "3px";
-        compCell2.style.borderTopWidth = "3px";
-        compCell3.style.borderTopWidth = "3px";
-        compCell4.style.borderTopWidth = "3px";
-        compCell5.style.borderTopWidth = "3px";
-        compCell6.style.borderTopWidth = "3px"; */
-        compCell7.style.borderTopWidth = "3px";
-        compCell8.style.borderTopWidth = "3px";
-        compCell9.style.borderTopWidth = "3px";
-        compCell10.style.borderTopWidth = "3px";
-        compCell11.style.borderTopWidth = "3px";
+        compCell1.style.borderTopWidth = "2px";
+        compCell2.style.borderTopWidth = "2px";
+        compCell3.style.borderTopWidth = "2px";
+        compCell4.style.borderTopWidth = "2px";
+        compCell5.style.borderTopWidth = "2px";
+        compCell6.style.borderTopWidth = "2px";
+        compCell7.style.borderTopWidth = "2px";
+        compCell8.style.borderTopWidth = "2px";
+        compCell9.style.borderTopWidth = "2px";
+        compCell10.style.borderTopWidth = "2px";
+        compCell11.style.borderTopWidth = "2px";
 
 
         compCell7.style.backgroundColor = "cornsilk";

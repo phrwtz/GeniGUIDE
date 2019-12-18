@@ -95,7 +95,7 @@
 
     <select id="chalFilter1" style="display:none" onchange="makeHintGraph()">
         <option value=null>
-            Select filter
+            Select cohort 1 filter
         </option>
         <option value="all">
             All Students
@@ -125,7 +125,7 @@
 
     <select id="chalFilter2" style="display:none" onchange="makeHintGraph()">
         <option value=null>
-            Select filter
+            Select cohort 2 filter
         </option>
         <option value="all">
             All Students
@@ -153,30 +153,30 @@
         </option>
     </select>
 
-    <table id="sliderTable" style="display:none">
+    <table id="sliderTable" style="display:none; border-style:none">
         <tr>
             <td>
-                <p id="minPara1" style="display:block">Group 1 minimum = -30</p>
-                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange1"
-                    onmouseup="makeHintGraph()" style="display:block">
+                <p id="minPara1" style="display:none">Group 1 minimum = -30</p>
+                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange1" style="display: none;
+                    onmouseup=" makeHintGraph()">
                 </input>
             </td>
             <td>
-                <p id="maxPara1" style="display:block">Group 1 maximum = 30</p>
-                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1"
-                    onmouseup="makeHintGraph()" style="display:block">
+                <p id="maxPara1" style="display:none">Group 1 maximum = 30</p>
+                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1" style="display: none"
+                    onmouseup="makeHintGraph()">
                 </input>
             </td>
         </tr>
         <tr>
             <td>
                 <p id="minPara2" style="display:block">Group 2 minimum = -30</p>
-                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange2"
+                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange2" style="display.block"
                     onmouseup="makeHintGraph()" style="display:block"> </input>
             </td>
             <td>
                 <p id="maxPara2" style="display:block">Group 2 maximum = 30</p>
-                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange2"
+                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange2" style="display.block"
                     onmouseup="makeHintGraph()" style="display:block">
                 </input>
             </td>
@@ -255,6 +255,30 @@
                     </th>
                     <th>
                         Students
+                    </th>
+                    <th>
+                        Tries/Student
+                    </th>
+                    <th>
+                        Excess Moves/Success
+                    </th>
+                    <th>
+                        Best Crystal/Try
+                    </th>
+                    <th>
+                        Level 1 Hints/Try
+                    </th>
+                    <th>
+                        Level 2 Hints/Try
+                    </th>
+                    <th>
+                        Level 3+ Hints/Try
+                    </th>
+                    <th>
+                        Score/Try
+                    </th>
+                    <th>
+                        Total Remediations
                     </th>
                     </head>
             <tbody id="comparisonBody">
@@ -554,6 +578,7 @@
 
     <script>
         var chalFilter1 = document.getElementById("chalFilter1");
+        var sliderTable = document.getElementById("sliderTable");
         var maxSlider1 = document.getElementById("maxrange1");
         var minSlider1 = document.getElementById("minrange1");
         var maxOutput1 = document.getElementById("maxPara1");
