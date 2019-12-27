@@ -211,100 +211,108 @@ function checkout(studentId, thisActivity) {
 
 //For each challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.
 function getChallengeResults(filteredStudents) {
-    var challengeResultsArray = [];
-    var numStudents = 0,
-        chalArray = [],
-        activityTries = 0,
-        tries,
-        totalExcessMoves = 0,
-        totalCorrect = 0,
-        studentLevel1Hints,
-        studentLevel2Hints,
-        studentLevel3Hints,
-        activityLevel1Hints,
-        activityLevel2Hints,
-        activityLevel3Hints,
-        hintScoreArray = [],
-        hintScoreMean,
-        hintScoreStdDev,
-        hintScoreMeanStdDev = [],
-        totalRemediations,
-        totalNumericalCrystals = 0,
-        thisActivity;
-    //Start new activity
-    for (let j = 0; j < activitiesArray.length; j++) {
-        thisActivity = activitiesArray[j];
-        numStudents = 0;
-        activityTries = 0;
-        totalNumericalCrystals = 0;
-        totalMoves = 0;
-        studentLevel1Hints = 0;
-        studentLevel2Hints = 0;
-        studentLevel3Hints = 0;
-        activityLevel1Hints = 0;
-        activityLevel2Hints = 0;
-        activityLevel3Hints = 0;
-        studentActivityHintScores = [];
-        totalRemediations = 0;
-        //Start new student
-        for (let i = 0; i < filteredStudents.length; i++) {
-            thisStudent = filteredStudents[i];
-            chalArray = checkout(thisStudent.id, thisActivity);
-            tries = chalArray[0];
-            totalRemediations += chalArray[1];
-            //Only count student if s/he tried the activity at least once
-            if (tries.length > 0) {
-                studentLevel1Hints = 0;
-                studentLevel2Hints = 0;
-                studentLevel3Hints = 0;
-                numStudents++;
-                var colorIndexArray = [];
-                for (let j = 0; j < tries.length; j++) {
-                    thisTry = tries[j];
-                    if (thisTry.correct) {
-                        totalCorrect++;
-                        totalExcessMoves += thisTry.excessMoves;
+    if (filteredStudents.length == 0) {
+        console.log("In getChallengeResults. No filtered students.")
+    }
+    return new Promise((resolve, reject) => {
+        var challengeResultsArray = [];
+        var numStudents = 0,
+            chalArray = [],
+            activityTries = 0,
+            tries,
+            totalExcessMoves = 0,
+            totalCorrect = 0,
+            studentLevel1Hints,
+            studentLevel2Hints,
+            studentLevel3Hints,
+            activityLevel1Hints,
+            activityLevel2Hints,
+            activityLevel3Hints,
+            hintScoreArray = [],
+            hintScoreMean,
+            hintScoreStdDev,
+            hintScoreMeanStdDev = [],
+            totalRemediations,
+            totalNumericalCrystals = 0,
+            thisActivity;
+        //Start new activity
+        for (let j = 0; j < activitiesArray.length; j++) {
+            thisActivity = activitiesArray[j];
+            numStudents = 0;
+            activityTries = 0;
+            totalNumericalCrystals = 0;
+            totalMoves = 0;
+            studentLevel1Hints = 0;
+            studentLevel2Hints = 0;
+            studentLevel3Hints = 0;
+            activityLevel1Hints = 0;
+            activityLevel2Hints = 0;
+            activityLevel3Hints = 0;
+            studentActivityHintScores = [];
+            totalRemediations = 0;
+            //Start new student
+            for (let i = 0; i < filteredStudents.length; i++) {
+                thisStudent = filteredStudents[i];
+                chalArray = checkout(thisStudent.id, thisActivity);
+                tries = chalArray[0];
+                totalRemediations += chalArray[1];
+                //Only count student if s/he tried the activity at least once
+                if (tries.length > 0) {
+                    studentLevel1Hints = 0;
+                    studentLevel2Hints = 0;
+                    studentLevel3Hints = 0;
+                    numStudents++;
+                    var colorIndexArray = [];
+                    for (let j = 0; j < tries.length; j++) {
+                        thisTry = tries[j];
+                        if (thisTry.correct) {
+                            totalCorrect++;
+                            totalExcessMoves += thisTry.excessMoves;
+                        }
+                        studentLevel1Hints += thisTry.level1Hints;
+                        studentLevel2Hints += thisTry.level2Hints;
+                        studentLevel3Hints += thisTry.level3Hints;
+                        colorIndexArray.push(thisTry.crystalColor);
                     }
-                    studentLevel1Hints += thisTry.level1Hints;
-                    studentLevel2Hints += thisTry.level2Hints;
-                    studentLevel3Hints += thisTry.level3Hints;
-                    colorIndexArray.push(thisTry.crystalColor);
+                    studentActivityHintScores.push((studentLevel1Hints + 2 * studentLevel2Hints + 3 * studentLevel3Hints) / tries.length);
+                    maxColorIndex = colorIndexArray.reduce(function (a, b) {
+                        return Math.max(a, b);
+                    });
+                    activityTries += tries.length;
+                    if (isNaN(maxColorIndex)) {
+                        console.log("Stop! Bad crystal!");
+                    }
+                    totalNumericalCrystals += maxColorIndex;
                 }
-                studentActivityHintScores.push((studentLevel1Hints + 2 * studentLevel2Hints + 3 * studentLevel3Hints) / tries.length);
-                maxColorIndex = colorIndexArray.reduce(function (a, b) {
-                    return Math.max(a, b);
-                });
-                activityTries += tries.length;
-                if (isNaN(maxColorIndex)) {
-                    console.log("Stop! Bad crystal!");
-                }
-                totalNumericalCrystals += maxColorIndex;
-            }
-            activityLevel1Hints += studentLevel1Hints;
-            activityLevel2Hints += studentLevel2Hints;
-            activityLevel3Hints += studentLevel3Hints;
-        } //new student
-        challengeResults = new Object();
-        challengeResults.hintScores = [];
-        challengeResults.name = thisActivity;
-        challengeResults.totalStudents = numStudents;
-        challengeResults.totalTries = activityTries;
-        challengeResults.averageTries = Math.round(100 * activityTries / numStudents) / 100;
-        challengeResults.averageExcessMoves = Math.round(100 * totalExcessMoves / totalCorrect) / 100;
-        challengeResults.level1Hints = Math.round(1000 * activityLevel1Hints / activityTries) / 1000;
-        challengeResults.level2Hints = Math.round(1000 * activityLevel2Hints / activityTries) / 1000;
-        challengeResults.level3Hints = Math.round(1000 * activityLevel3Hints / activityTries) / 1000;
-        challengeResults.hintScores = studentActivityHintScores;
-        hintScoreMeanStdDev = meanStdDev(studentActivityHintScores);
-        challengeResults.hintScoreMean = Math.round(1000 * hintScoreMeanStdDev[0]) / 1000;
-        challengeResults.hintScoreStdDev = Math.round(1000 * hintScoreMeanStdDev[1]) / 1000;
-        challengeResults.hintScoreStdErr = Math.round(1000 * hintScoreMeanStdDev[2]) / 1000;
-        challengeResults.totalRemediations = totalRemediations;
-        challengeResults.totalNumericalCrystals = totalNumericalCrystals;
-        challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
-        challengeResultsArray.push(challengeResults);
-    } //newActivity;
-    return challengeResultsArray;
+                activityLevel1Hints += studentLevel1Hints;
+                activityLevel2Hints += studentLevel2Hints;
+                activityLevel3Hints += studentLevel3Hints;
+            } //new student
+            challengeResults = new Object();
+            challengeResults.hintScores = [];
+            challengeResults.name = thisActivity;
+            challengeResults.totalStudents = numStudents;
+            challengeResults.totalTries = activityTries;
+            challengeResults.averageTries = Math.round(100 * activityTries / numStudents) / 100;
+            challengeResults.averageExcessMoves = Math.round(100 * totalExcessMoves / totalCorrect) / 100;
+            challengeResults.level1Hints = Math.round(1000 * activityLevel1Hints / activityTries) / 1000;
+            challengeResults.level2Hints = Math.round(1000 * activityLevel2Hints / activityTries) / 1000;
+            challengeResults.level3Hints = Math.round(1000 * activityLevel3Hints / activityTries) / 1000;
+            challengeResults.hintScores = studentActivityHintScores;
+            hintScoreMeanStdDev = meanStdDev(studentActivityHintScores);
+            challengeResults.hintScoreMean = Math.round(1000 * hintScoreMeanStdDev[0]) / 1000;
+            challengeResults.hintScoreStdDev = Math.round(1000 * hintScoreMeanStdDev[1]) / 1000;
+            challengeResults.hintScoreStdErr = Math.round(1000 * hintScoreMeanStdDev[2]) / 1000;
+            challengeResults.totalRemediations = totalRemediations;
+            challengeResults.totalNumericalCrystals = totalNumericalCrystals;
+            challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
+            challengeResultsArray.push(challengeResults);
+        } //newActivity;
+        if (challengeResultsArray.length == 0) {
+            console.log("In filterStudents, no students filtered.")
+        }
+        resolve(challengeResultsArray);
+    });
 }
 
 function meanStdDev(array) {
@@ -324,9 +332,6 @@ function meanStdDev(array) {
     stdErr = stdDev / Math.sqrt(array.length);
     return [mean, stdDev, stdErr];
 }
-
-
-
 
 function downloadChallengeFile() {
     var maxSlider = document.getElementById("maxrange"),
@@ -389,236 +394,302 @@ function makeHintGraph() {
         max2 = parseInt(maxSlider2.value),
         min2 = parseInt(minSlider2.value),
         sliderTable = document.getElementById("sliderTable"),
-        filteredStudents1,
-        filteredStudents2,
-        results1,
-        results2;
-    if ((!graphType) || (!filter1)) {
-        chalTable.style.display = "none";
+        fs1, fs2,
+        results1 = [],
+        results2 = [];
+    setUIVisibility(graphType, filter1, filter2);
+    if (graphType === "singleCohort") {
+        filterStudents(filter1, max1, min1)
+            .then(getChallengeResults)
+            .then(makeChallengeResultsTable);
+    } else if (graphType === "twoCohorts") {
+        var cr1 = filterStudents(filter1, max1, min1)
+            .then(getChallengeResults);
+        var cr2 = filterStudents(filter2, max2, min2)
+            .then(getChallengeResults);
+        Promise.all([cr1, cr2]).then(function (values) {
+            makeComparisonTable(values[0], values[1]);
+            makeTwoCohortBarGraph(values[0], values[1]);
+        });
     }
-    if (graphType != "null") {
-        setFilterParameters(filter1, filter2);
-        filteredStudents1 = filterStudents(filter1, max1, min1);
-        if (filteredStudents1.length > 0) {
-            results1 = getChallengeResults(filteredStudents1);
-        }
-        filteredStudents2 = filterStudents(filter2, max2, min2);
-        if (filteredStudents2.length > 0) {
-            results2 = getChallengeResults(filteredStudents2);
-        }
-        if (graphType === "singleCohort") {
-            chalTable.style.display = "block";
+}
+
+function setUIVisibility(graphType, filter1, filter2) {
+    var chalTable = document.getElementById("challengeTable");
+    var compTable = document.getElementById("comparisonTable");
+    var myDiv = document.getElementById("graphDiv");
+    var slideDiv1 = document.getElementById("slideDiv1");
+    var slideDiv2 = document.getElementById("slideDiv2");
+    var chalFilter1 = document.getElementById("chalFilter1");
+    var chalFilter2 = document.getElementById("chalFilter2");
+    var maxSlider1 = document.getElementById("maxrange1");
+    var minSlider1 = document.getElementById("minrange1");
+    var graphTypeSelect = document.getElementById("graphType");
+    var firstTitle = document.getElementById("firstTitle");
+    var secondTitle = document.getElementById("secondTitle");
+    setFilterParameters(filter1, filter2);
+    switch (graphType) {
+        case "null":
+            graphDiv.style.display = "none";
+            chalTable.style.display = "none";
+            compTable.style.display = "none";
+            sliderTable.style.display = "none";
+            maxSlider1.style.display = "none";
+            maxOutput1.style.display = "none";
+            minSlider1.style.display = "none";
+            minOutput1.style.display = "none";
             maxSlider2.style.display = "none";
             maxOutput2.style.display = "none";
             minSlider2.style.display = "none";
             minOutput2.style.display = "none";
+            break;
+        case "singleCohort":
+            sliderTable.style.display = "none"; //Set visible later
             compTable.style.display = "none";
-            chalFilter1.style.display = "block";
+            maxSlider2.style.display = "none";
+            maxOutput2.style.display = "none";
+            minSlider2.style.display = "none";
+            minOutput2.style.display = "none";
             chalFilter2.style.display = "none";
+            if (filter1 === "null") {
+                chalFilter1.style.display = "block";
+                chalFilter2.style.display = "none";
+                graphDiv.style.display = "none";
+                chalTable.style.display = "none";
+            } else {
+                graphDiv.style.display = "block";
+                chalTable.style.display = "block";
+            }
             if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
                 sliderTable.style.display = "block";
+                maxSlider1.style.display = "block";
+                minSlider1.style.display = "block";
+                maxOutput1.style.display = "block";
+                minOutput1.style.display = "block";
             } else {
                 sliderTable.style.display = "none";
             }
-            if (filteredStudents1.length > 0) {
-                makeChallengeResultsTable(results1);
-                //makeChallengeResultsBoxPlot(challengeResultsArray);
-                makeSingleCohortBarGraph(results1);
-            } else {
-                chalTable.style.display = "none";
-                myDiv.style.display = "none";
-            }
-        } else if (graphType === "twoCohorts") {
+            break;
+        case "twoCohorts":
+            graphDiv.style.display = "none";
             chalTable.style.display = "none";
+            sliderTable.style.display = "none"; //Set visible later
             compTable.style.display = "block";
             chalFilter1.style.display = "block";
             chalFilter2.style.display = "block";
-            if (((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) || ((filter2 === "filter by prescore") || (filter2 === "filter by postscore") || (filter2 === "filter by gain"))) {
-                sliderTable.style.display = "block";
-            } else {
-                sliderTable.style.display = "none";
-            }
-            if ((filteredStudents1.length > 0) && (filteredStudents2.length > 0)) {
-                makeComparisonTable(results1, results2);
-                makeTwoCohortBarGraph(results1, results2);
-            } else {
+            maxSlider2.style.display = "block";
+            maxOutput2.style.display = "block";
+            minSlider2.style.display = "block";
+            minOutput2.style.display = "block";
+            if ((filter1 === "null") || (chalFilter2 === "null")) {
+                infoPara.style.display = "none";
+                graphDiv.style.display = "none";
                 compTable.style.display = "none";
-                myDiv.style.display = "none";
+            } else {
+                infoPara.style.display = "block";
+                graphDiv.style.display = "block";
+                compTable.style.display = "block";
             }
-        }
-    } else { //if no graph type has been selected
-        chalFilter1.style.display = "none";
+            if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
+                sliderTable.style.display = "block";
+                maxSlider1.style.display = "block";
+                minSlider1.style.display = "block";
+                maxOutput1.style.display = "block";
+                minOutput1.style.display = "block";
+            } else {
+                maxSlider1.style.display = "none";
+                minSlider1.style.display = "none";
+                maxOutput1.style.display = "none";
+                minOutput1.style.display = "none";
+            }
+            if ((filter2 === "filter by prescore") || (filter2 === "filter by postscore") || (filter2 === "filter by gain")) {
+                sliderTable.style.display = "block";
+                maxSlider2.style.display = "block";
+                minSlider2.style.display = "block";
+                maxOutput2.style.display = "block";
+                minOutput2.style.display = "block";
+            } else {
+                maxSlider2.style.display = "none";
+                minSlider2.style.display = "none";
+                maxOutput2.style.display = "none";
+                minOutput2.style.display = "none";
+            }
     }
 }
 
-function filterStudents(filterValue, maxValue, minValue) {
-    var filteredStudents = [];
-    if (filterValue === "null") { //Don't do anything if no filter has been set
-        return filteredStudents;
-    } else {
-        var thisStudent,
-            allStudents = [],
-            lowLowStudents = [],
-            lowHighStudents = [],
-            highHighStudents = [],
-            highLowStudents = [],
-            gain,
-            gainArray = [],
-            preScore,
-            postScore,
-            keys,
-            thisKey,
-            filteredStudents = [];
-        var gainHistogram = Object();
-        var allSpan = document.getElementById("allSpan");
-        for (let i = 0; i < students.length; i++) {
-            thisStudent = students[i];
-            try {
-                if (thisStudent.score_pre && thisStudent.score_post) {
-                    gain = (thisStudent.score_post - thisStudent.score_pre);
-                    gainStr = gain.toString()
-                    if (gainHistogram[gainStr]) {
-                        gainHistogram[gainStr]++;
-                    } else {
-                        gainHistogram[gainStr] = 1;
-                    };
-                    allStudents.push(thisStudent);
-                }
-            } catch (err) {
-                console.log("Something wrong with thisStudent");
+
+
+
+function delay(num) {
+    return new Promise(function (resolve, reject) {
+        var arr = [];
+        for (var i = 0; i < num; i++) {
+            if (i % 10000000 == 0) {
+                arr.push(i);
             }
         }
-        keys = Object.keys(gainHistogram);
-        for (let g = 0; g < keys.length; g++) {
-            thisKey = keys[g];
-            gainArray.push([parseInt(thisKey), gainHistogram[thisKey]]);
-        }
-        gainArray.sort(function (a, b) {
-            return (a[0] - b[0]);
-        });
-        allStudents.sort(function (a, b) {
-            return a.score_pre - b.score_pre;
-        });
-        preScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].score_pre;
-        allStudents.sort(function (a, b) {
-            return a.score_post - b.score_post;
-        });
-        postScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].score_post;
-        for (let j = 0; j < allStudents.length; j++) {
-            let thisStudent = allStudents[j];
-            if (thisStudent.score_pre < preScoreMedian) {
-                if (thisStudent.score_post <= postScoreMedian) {
-                    lowLowStudents.push(thisStudent);
+        resolve(arr);
+    });
+}
+
+function ret(array) {
+    alert("The array is " + array.length + " elements long.");
+    return array;
+}
+
+
+function filterStudents(filterValue, maxValue, minValue) {
+    return new Promise((resolve, reject) => {
+        var filteredStudents = [];
+        if (filterValue === "null") { //Don't do anything if no filter has been set
+            return filteredStudents;
+        } else {
+            var thisStudent,
+                allStudents = [],
+                lowLowStudents = [],
+                lowHighStudents = [],
+                highHighStudents = [],
+                highLowStudents = [],
+                gain,
+                gainArray = [],
+                preScore,
+                postScore,
+                keys,
+                thisKey,
+                filteredStudents = [];
+            var gainHistogram = Object();
+            var allSpan = document.getElementById("allSpan");
+            for (let i = 0; i < students.length; i++) {
+                thisStudent = students[i];
+                try {
+                    if (thisStudent.score_pre && thisStudent.score_post) {
+                        gain = (thisStudent.score_post - thisStudent.score_pre);
+                        gainStr = gain.toString()
+                        if (gainHistogram[gainStr]) {
+                            gainHistogram[gainStr]++;
+                        } else {
+                            gainHistogram[gainStr] = 1;
+                        };
+                        allStudents.push(thisStudent);
+                    }
+                } catch (err) {
+                    console.log("Something wrong with thisStudent");
+                }
+            }
+            keys = Object.keys(gainHistogram);
+            for (let g = 0; g < keys.length; g++) {
+                thisKey = keys[g];
+                gainArray.push([parseInt(thisKey), gainHistogram[thisKey]]);
+            }
+            gainArray.sort(function (a, b) {
+                return (a[0] - b[0]);
+            });
+            allStudents.sort(function (a, b) {
+                return a.score_pre - b.score_pre;
+            });
+            preScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].score_pre;
+            allStudents.sort(function (a, b) {
+                return a.score_post - b.score_post;
+            });
+            postScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].score_post;
+            for (let j = 0; j < allStudents.length; j++) {
+                let thisStudent = allStudents[j];
+                if (thisStudent.score_pre < preScoreMedian) {
+                    if (thisStudent.score_post <= postScoreMedian) {
+                        lowLowStudents.push(thisStudent);
+                    } else {
+                        lowHighStudents.push(thisStudent);
+                    }
                 } else {
-                    lowHighStudents.push(thisStudent);
+                    if (thisStudent.score_post < postScoreMedian) {
+                        highLowStudents.push(thisStudent);
+                    } else {
+                        highHighStudents.push(thisStudent);
+                    }
+                }
+            }
+            if ((filterValue === "filter by gain") || (filterValue === "filter by prescore") || (filterValue === "filter by postscore")) {
+                for (let m = 0; m < allStudents.length; m++) {
+                    thisStudent = allStudents[m];
+                    gain = thisStudent.score_post - thisStudent.score_pre;
+                    effectSize = parseFloat(thisStudent.prepost_gain);
+                    switch (filterValue) {
+                        case "filter by gain":
+                            if ((gain <= maxValue) && (gain >= minValue)) {
+                                filteredStudents.push(thisStudent);
+                            }
+                            break;
+                        case "filter by prescore":
+                            if ((thisStudent.score_pre <= maxValue) && (thisStudent.score_pre >= minValue)) {
+                                filteredStudents.push(thisStudent);
+                            }
+                            break;
+                        case "filter by postscore":
+                            if ((thisStudent.score_post <= maxValue) && (thisStudent.score_post >= minValue)) {
+                                filteredStudents.push(thisStudent);
+                            }
+                            break;
+                    }
                 }
             } else {
-                if (thisStudent.score_post < postScoreMedian) {
-                    highLowStudents.push(thisStudent);
-                } else {
-                    highHighStudents.push(thisStudent);
-                }
-            }
-        }
-        if ((filterValue === "filter by gain") || (filterValue === "filter by prescore") || (filterValue === "filter by postscore")) {
-            for (let m = 0; m < allStudents.length; m++) {
-                thisStudent = allStudents[m];
-                gain = thisStudent.score_post - thisStudent.score_pre;
-                effectSize = parseFloat(thisStudent.prepost_gain);
                 switch (filterValue) {
-                    case "filter by gain":
-                        if ((gain <= maxValue) && (gain >= minValue)) {
-                            filteredStudents.push(thisStudent);
-                        }
+                    case "all":
+                        filteredStudents = allStudents;
                         break;
-                    case "filter by prescore":
-                        if ((thisStudent.score_pre <= maxValue) && (thisStudent.score_pre >= minValue)) {
-                            filteredStudents.push(thisStudent);
-                        }
+                    case "lower-to-lower":
+                        filteredStudents = lowLowStudents;
                         break;
-                    case "filter by postscore":
-                        if ((thisStudent.score_post <= maxValue) && (thisStudent.score_post >= minValue)) {
-                            filteredStudents.push(thisStudent);
-                        }
+                    case "lower-to-higher":
+                        filteredStudents = lowHighStudents;
+                        break;
+                    case "higher-to-higher":
+                        filteredStudents = highHighStudents;
+                        break;
+                    case "higher-to-lower":
+                        filteredStudents = highLowStudents;
                         break;
                 }
             }
-        } else {
-            switch (filterValue) {
-                case "all":
-                    filteredStudents = allStudents;
-                    break;
-                case "lower-to-lower":
-                    filteredStudents = lowLowStudents;
-                    break;
-                case "lower-to-higher":
-                    filteredStudents = lowHighStudents;
-                    break;
-                case "higher-to-higher":
-                    filteredStudents = highHighStudents;
-                    break;
-                case "higher-to-lower":
-                    filteredStudents = highLowStudents;
-                    break;
-            }
         }
-        return filteredStudents;
-    }
+        resolve(filteredStudents);
+    });
 }
 
 function setFilterParameters(filter1, filter2) {
-    if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
-        sliderTable.style.display = "block";
-        maxSlider1.style.display = "block";
-        maxOutput1.style.display = "block";
-        minSlider1.style.display = "block";
-        minOutput1.style.display = "block";
-        if (filter1 === "filter by gain") {
-            maxSlider1.min = -30;
-            maxSlider1.max = 30;
-            minSlider1.min = -30;
-            minSlider1.max = 30;
-        } else {
-            maxSlider1.min = 0;
-            maxSlider1.max = 30;
-            minSlider1.min = 0;
-            minSlider1.max = 30;
-        }
+    if (filter1 === "filter by gain") {
+        maxSlider1.min = -30;
+        maxSlider1.max = 30;
+        maxSlider1.value = 30;
+        minSlider1.min = -30;
+        minSlider1.max = 30;
+        minSlider1.value = -30;
     } else {
-        sliderTable.style.display = "none";
-        maxSlider1.style.display = "none";
-        maxOutput1.style.display = "none";
-        minSlider1.style.display = "none";
-        minOutput1.style.display = "none";
+        maxSlider1.min = 0;
+        maxSlider1.max = 30;
+        maxSlider1.value = 30;
+        minSlider1.min = 0;
+        minSlider1.max = 30;
+        minSlider1.value = 0;
     }
-    if ((filter2 === "filter by prescore") || (filter2 === "filter by postscore") || (filter2 === "filter by gain")) {
-        sliderTable.style.display = "block";
-        maxSlider2.style.display = "block";
-        maxOutput2.style.display = "block";
-        minSlider2.style.display = "block";
-        minOutput2.style.display = "block";
-        if (filter2 === "filter by gain") {
-            maxSlider2.min = -30;
-            maxSlider2.max = 30;
-            minSlider2.min = -30;
-            minSlider2.max = 30;
-        } else {
-            maxSlider2.min = 0;
-            maxSlider2.max = 30;
-            minSlider2.min = 0;
-            minSlider2.max = 30;
-        }
+    if (filter2 === "filter by gain") {
+        maxSlider2.min = -30;
+        maxSlider2.max = 30;
+        maxSlider2.value = 30;
+        minSlider2.min = -30;
+        minSlider2.max = 30;
+        minSlider2.value = -30;
     } else {
-        sliderTable.style.display = "none";
-        maxSlider2.style.display = "none";
-        maxOutput2.style.display = "none";
-        minSlider2.style.display = "none";
-        minOutput2.style.display = "none";
+        maxSlider2.min = 0;
+        maxSlider2.max = 30;
+        maxSlider2.value = 30;
+        minSlider2.min = 0;
+        minSlider2.max = 30;
+        minSlider2.value = 0;
     }
-    minOutput1.innerHTML = "Group 1 minimum = " + minSlider1.value;
-    minOutput2.innerHTML = "Group 2 minimum = " + minSlider2.value;
-    maxOutput1.innerHTML = "Group 1 maximum = " + maxSlider1.value;
-    maxOutput2.innerHTML = "Group 2 maximum = " + maxSlider2.value;
+    minOutput1.innerHTML = "Cohort 1 minimum = " + minSlider1.value;
+    minOutput2.innerHTML = "Cohort 2 minimum = " + minSlider2.value;
+    maxOutput1.innerHTML = "Cohort 1 maximum = " + maxSlider1.value;
+    maxOutput2.innerHTML = "Cohort 2 maximum = " + maxSlider2.value;
 }
 
 function getCrystalColor(thisTry, thisAction) {

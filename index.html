@@ -156,26 +156,26 @@
     <table id="sliderTable" style="display:none; border-style:none">
         <tr>
             <td>
-                <p id="minPara1" style="display:none">Group 1 minimum = -30</p>
-                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange1" style="display: none;
+                <p id="minPara1" style="display:block">Cohort 1 minimum = -30</p>
+                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange1" style="display: block;
                     onmouseup=" makeHintGraph()">
                 </input>
             </td>
             <td>
-                <p id="maxPara1" style="display:none">Group 1 maximum = 30</p>
-                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1" style="display: none"
+                <p id="maxPara1" style="display:block">Maximum = 30</p>
+                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1" style="display: block"
                     onmouseup="makeHintGraph()">
                 </input>
             </td>
         </tr>
         <tr>
             <td>
-                <p id="minPara2" style="display:block">Group 2 minimum = -30</p>
+                <p id="minPara2" style="display:block">Cohort 2 minimum = -30</p>
                 <input type="range" min="-30" max="30" value="0" class="slider" id="minrange2" style="display.block"
                     onmouseup="makeHintGraph()" style="display:block"> </input>
             </td>
             <td>
-                <p id="maxPara2" style="display:block">Group 2 maximum = 30</p>
+                <p id="maxPara2" style="display:block">Maximum = 30</p>
                 <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange2" style="display.block"
                     onmouseup="makeHintGraph()" style="display:block">
                 </input>
@@ -577,6 +577,8 @@
     </script>
 
     <script>
+        var chalTable = document.getElementById("comparisonTable");
+        var compTable = document.getElementById("challengeTable");
         var chalFilter1 = document.getElementById("chalFilter1");
         var sliderTable = document.getElementById("sliderTable");
         var maxSlider1 = document.getElementById("maxrange1");
@@ -588,16 +590,16 @@
         var maxOutput2 = document.getElementById("maxPara2");
         var minOutput2 = document.getElementById("minPara2");
         maxSlider1.oninput = function () {
-            maxOutput1.innerHTML = "Maximum = " + this.value;
+            maxOutput1.innerHTML = "Cohort 1 maximum = " + this.value;
         }
         minSlider1.oninput = function () {
-            minOutput1.innerHTML = "Minimum = " + this.value;
+            minOutput1.innerHTML = "Cohort 1 minimum = " + this.value;
         }
         maxSlider2.oninput = function () {
-            maxOutput2.innerHTML = "Maximum = " + this.value;
+            maxOutput2.innerHTML = "Cohort 2 maximum = " + this.value;
         }
         minSlider2.oninput = function () {
-            minOutput2.innerHTML = "Minimum = " + this.value;
+            minOutput2.innerHTML = "Cohort 2 minimum = " + this.value;
         }
     </script>
 

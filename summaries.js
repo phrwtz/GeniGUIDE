@@ -1,3 +1,4 @@
+
 function makeComparisonTable(resultArray1, resultArray2) {
     if (resultArray1.length != resultArray2.length) {
         alert("Result arrays different sizes!")
@@ -166,6 +167,7 @@ function makeChallengeResultsTable(challengeResultsArray) {
         chalRow.appendChild(chalCell10);
         chalBody.appendChild(chalRow);
     }
+    makeSingleCohortBarGraph(challengeResultsArray);
 }
 
 function summarizeHints(students) {

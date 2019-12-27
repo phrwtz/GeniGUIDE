@@ -54,6 +54,7 @@ function mean(array) {
 }
 
 function makeSingleCohortBarGraph(challengeResultsArray) {
+    console.log("making single cohort graph")
     var myDiv = document.getElementById("graphDiv"),
         mySelect = document.getElementById("chalFilter1"),
         maxSlider = document.getElementById("maxrange1"),
