@@ -377,15 +377,11 @@ function makeHintGraph() {
     var chalTable = document.getElementById("challengeTable");
     var compTable = document.getElementById("comparisonTable");
     var myDiv = document.getElementById("graphDiv");
-    var slideDiv1 = document.getElementById("slideDiv1");
-    var slideDiv2 = document.getElementById("slideDiv2");
     var chalFilter1 = document.getElementById("chalFilter1");
     var chalFilter2 = document.getElementById("chalFilter2");
     var maxSlider1 = document.getElementById("maxrange1");
     var minSlider1 = document.getElementById("minrange1");
     var graphTypeSelect = document.getElementById("graphType");
-    var firstTitle = document.getElementById("firstTitle");
-    var secondTitle = document.getElementById("secondTitle");
     var graphType = graphTypeSelect.value,
         filter1 = chalFilter1.value,
         filter2 = chalFilter2.value,
@@ -393,10 +389,7 @@ function makeHintGraph() {
         min1 = parseInt(minSlider1.value),
         max2 = parseInt(maxSlider2.value),
         min2 = parseInt(minSlider2.value),
-        sliderTable = document.getElementById("sliderTable"),
-        fs1, fs2,
-        results1 = [],
-        results2 = [];
+        fs1, fs2;
     setUIVisibility(graphType, filter1, filter2);
     if (graphType === "singleCohort") {
         filterStudents(filter1, max1, min1)
@@ -424,9 +417,6 @@ function setUIVisibility(graphType, filter1, filter2) {
     var chalFilter2 = document.getElementById("chalFilter2");
     var maxSlider1 = document.getElementById("maxrange1");
     var minSlider1 = document.getElementById("minrange1");
-    var graphTypeSelect = document.getElementById("graphType");
-    var firstTitle = document.getElementById("firstTitle");
-    var secondTitle = document.getElementById("secondTitle");
     setFilterParameters(filter1, filter2);
     switch (graphType) {
         case "null":
@@ -659,32 +649,32 @@ function setFilterParameters(filter1, filter2) {
     if (filter1 === "filter by gain") {
         maxSlider1.min = -30;
         maxSlider1.max = 30;
-        maxSlider1.value = 30;
+   //     maxSlider1.value = 30;
         minSlider1.min = -30;
         minSlider1.max = 30;
-        minSlider1.value = -30;
+    //    minSlider1.value = -30;
     } else {
         maxSlider1.min = 0;
         maxSlider1.max = 30;
-        maxSlider1.value = 30;
+   //     maxSlider1.value = 30;
         minSlider1.min = 0;
         minSlider1.max = 30;
-        minSlider1.value = 0;
+   //     minSlider1.value = 0;
     }
     if (filter2 === "filter by gain") {
         maxSlider2.min = -30;
         maxSlider2.max = 30;
-        maxSlider2.value = 30;
+  //      maxSlider2.value = 30;
         minSlider2.min = -30;
         minSlider2.max = 30;
-        minSlider2.value = -30;
+   //     minSlider2.value = -30;
     } else {
         maxSlider2.min = 0;
         maxSlider2.max = 30;
-        maxSlider2.value = 30;
+   //     maxSlider2.value = 30;
         minSlider2.min = 0;
         minSlider2.max = 30;
-        minSlider2.value = 0;
+   //     minSlider2.value = 0;
     }
     minOutput1.innerHTML = "Cohort 1 minimum = " + minSlider1.value;
     minOutput2.innerHTML = "Cohort 2 minimum = " + minSlider2.value;
