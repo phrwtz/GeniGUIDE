@@ -81,6 +81,18 @@
         </span>
     </button>
 
+    <select id="challengeType" style="display:none" onchange="makeHintGraph()">
+        <option value="null">
+            Select challenge type
+        </option>
+        <option value="targetMatch">
+            Target match
+        </option>
+        <option value="eggDrop">
+            Egg drop
+        </option>
+    </select>
+
     <select id="graphType" style="display:none" onchange="makeHintGraph()">
         <option value=null>
             Select graph type
@@ -569,7 +581,7 @@
                         }
                     }
                     document.getElementById("CSVfile").style.display = "none";
-                    document.getElementById("graphType").style.display = "block";
+                    document.getElementById("challengeType").style.display = "block";
                 }(file);
             }
             reader.readAsText(file);

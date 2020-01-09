@@ -1,4 +1,5 @@
-var activitiesArray = ["allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2",
+var targetMatchArray = [ //Includes egg drop
+    "allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2",
     "allele-targetMatch-visible-armorHorns",
     "allele-targetMatch-visible-armorHorns2",
     "allele-targetMatch-visible-armorHorns3",
@@ -18,44 +19,175 @@ var activitiesArray = ["allele-targetMatch-visible-simpleDom", "allele-targetMat
     "allele-targetMatch-hidden-harderTraits",
     "allele-targetMatch-hidden-harderTraits2"
 ];
+var eggDropArray = ["eggDrop-wings", "eggDrop-limbs", "eggDrop-horns", "eggDrop-armor", "eggDrop-tail", "eggDrop-noseSpike"];
+var gameteArray = ["gamete-5drakes-starterTraits", "gamete-5drakes-starterTraits2", "gamete-targetMatch-starterTraits", "gamete-targetMatch-starterTraits2", "gamete-targetMatch-starterTraits3", "gamete-selectSpermEgg-starterTraits", "gamete-selectSpermEgg-starterTraits2", "gamete-selectSpermEgg-starterTraitsl-bothParents", "gamete-selectSpermEgg-starterTraits-bothParents2", "gamete-selectSpermEgg-harderTraits", "gamete-selectSpermEgg-harderTraits-bothParents"];
 
-function findFutureProbs() { //Goes through all the actions for every student, searching ahead for a tenth of a second for a new set of probs for the same student (which only happens when the future event is ITS-Data-Updated). Adds the new probs to the action.
-    var actionsLength;
-    for (var i = 0; i < students.length; i++) {
-        myStudent = students[i];
-        actionsLength = myStudent.actions.length;
-        if (actionsLength > 0) {
-            for (var j = 0; j < actionsLength; j++) {
-                myAction = myStudent.actions[j];
-                var index = myAction.index,
-                    thisTime = new Date(myAction.time).getTime(),
-                    newTime,
-                    newProbs = [],
-                    newProbsFound = false;
-                for (var k = 1;
-                    ((k < 16) && (index + k < actionsLength)); k++) {
-                    newTime = new Date(myStudent.actions[index + k].time).getTime();
-                    if (newTime - thisTime > 500) {
-                        break;
-                    }
-                    if ((myStudent.actions[index + k].event == "ITS-Data-Updated") && (!newProbsFound)) {
-                        newAction = myStudent.actions[index + k];
-                        newProbsFound = true;
-                        break;
-                    }
+//For each egg drop challenge, run through the filtered students and count up all the level 1, level 2 and level 3 hints they receive. Return a promise since the process may take a while.
+function getEggdropResults(filteredStudents) {
+    var challengeResultsArray = [],
+        numStudents = 0,
+        chalArray = [],
+        studentLevel1Hints,
+        studentLevel2Hints,
+        studentLevel3Hints,
+        studentEggsRejected,
+        activityLevel1Hints,
+        activityLevel2Hints,
+        activityLevel3Hints,
+        activityEggsRejected,
+        hintScoreArray = [],
+        hintScoreMean,
+        hintScoreStdDev,
+        hintScoreMeanStdDev = [],
+        thisActivity;
+    //Start new activity
+    for (let j = 0; j < eggDropArray.length; j++) {
+        activityLevel1Hints = 0;
+        activityLevel2Hints = 0;
+        activityLevel3Hints = 0;
+        activityEggsRejected = 0;
+        thisActivity = eggDropArray[j];
+        numStudents = 0;
+        studentLevel1Hints = 0;
+        studentLevel2Hints = 0;
+        studentLevel3Hints = 0;
+        studentEggsRejected = 0;
+        studentActivityHintScores = [];
+        //Start new student
+        for (let i = 0; i < filteredStudents.length; i++) {
+            thisStudent = filteredStudents[i];
+            studentLevel1Hints = 0;
+            studentLevel2Hints = 0;
+            studentLevel3Hints = 0;
+            studentEggsRejected = 0;
+            if (thisStudent.activitiesByName[thisActivity]) {
+                if (thisStudent.activitiesByName[thisActivity].eventsByName["Egg-rejected"]) {
+                    studentEggsRejected = thisStudent.activitiesByName[thisActivity].eventsByName["Egg-rejected"].actions.length;
                 }
-                if (newProbsFound) {
-                    myAction.newProbs = getProbs(newAction);
-                    //                console.log("Action got new probs!");
-                } else { //Didn't find an ITS-Data-Updated event within 1/10 second
-                    myAction.newProbs = [];
+                activityEggsRejected += studentEggsRejected;
+                if (thisStudent.activitiesByName[thisActivity].eventsByName["Guide-hint-received"]) {
+                    var data = thisStudent.activitiesByName[thisActivity].eventsByName["Guide-hint-received"].actions[0].parameters.data;
+                    var hintLevel = data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
+                    var attribute = data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
+                    var conceptId = data.match(/("conceptId")([^a-zA-z]+)([^"]+)/)[3]
+                    var rawScore = data.match(/("conceptScore")([^\d]+)([\d.]+)/)[3];
+                    var score = Math.round((parseFloat(rawScore) * 1000)) / 1000;
+                    console.log("Student " + thisStudent.id + " got a level " + hintLevel + " hint for " + attribute + " trait on challenge " + thisActivity + ".");
                 }
             }
-        } else {
-            console.log("Student " + i + " has no actions!");
-        }
-    }
+        } //Back for new student
+  //      console.log("Activity " + thisActivity + " had " + activityEggsRejected + " in all.")
+    } //Back for new activity
 }
+
+
+//For each target match challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.
+function getTargetMatchResults(filteredStudents) {
+    if (filteredStudents.length == 0) {
+        console.log("In getTargetMatchResults. No filtered students.")
+    }
+    return new Promise((resolve, reject) => {
+        var challengeResultsArray = [];
+        var numStudents = 0,
+            chalArray = [],
+            activityTries = 0,
+            tries,
+            totalExcessMoves = 0,
+            totalCorrect = 0,
+            studentLevel1Hints,
+            studentLevel2Hints,
+            studentLevel3Hints,
+            activityLevel1Hints,
+            activityLevel2Hints,
+            activityLevel3Hints,
+            hintScoreArray = [],
+            hintScoreMean,
+            hintScoreStdDev,
+            hintScoreMeanStdDev = [],
+            totalRemediations,
+            totalNumericalCrystals = 0,
+            thisActivity;
+        //Start new activity
+        for (let j = 0; j < targetMatchArray.length; j++) {
+            thisActivity = targetMatchArray[j];
+            numStudents = 0;
+            activityTries = 0;
+            totalNumericalCrystals = 0;
+            totalMoves = 0;
+            studentLevel1Hints = 0;
+            studentLevel2Hints = 0;
+            studentLevel3Hints = 0;
+            activityLevel1Hints = 0;
+            activityLevel2Hints = 0;
+            activityLevel3Hints = 0;
+            studentActivityHintScores = [];
+            totalRemediations = 0;
+            //Start new student
+            for (let i = 0; i < filteredStudents.length; i++) {
+                thisStudent = filteredStudents[i];
+                chalArray = checkout(thisStudent.id, thisActivity);
+                tries = chalArray[0];
+                totalRemediations += chalArray[1];
+                //Only count student if s/he tried the activity at least once
+                if (tries.length > 0) {
+                    studentLevel1Hints = 0;
+                    studentLevel2Hints = 0;
+                    studentLevel3Hints = 0;
+                    numStudents++;
+                    var colorIndexArray = [];
+                    for (let j = 0; j < tries.length; j++) {
+                        thisTry = tries[j];
+                        if (thisTry.correct) {
+                            totalCorrect++;
+                            totalExcessMoves += thisTry.excessMoves;
+                        }
+                        studentLevel1Hints += thisTry.level1Hints;
+                        studentLevel2Hints += thisTry.level2Hints;
+                        studentLevel3Hints += thisTry.level3Hints;
+                        colorIndexArray.push(thisTry.crystalColor);
+                    }
+                    studentActivityHintScores.push((studentLevel1Hints + 2 * studentLevel2Hints + 3 * studentLevel3Hints) / tries.length);
+                    maxColorIndex = colorIndexArray.reduce(function (a, b) {
+                        return Math.max(a, b);
+                    });
+                    activityTries += tries.length;
+                    if (isNaN(maxColorIndex)) {
+                        console.log("Stop! Bad crystal!");
+                    }
+                    totalNumericalCrystals += maxColorIndex;
+                }
+                activityLevel1Hints += studentLevel1Hints;
+                activityLevel2Hints += studentLevel2Hints;
+                activityLevel3Hints += studentLevel3Hints;
+            } //new student
+            challengeResults = new Object();
+            challengeResults.hintScores = [];
+            challengeResults.name = thisActivity;
+            challengeResults.totalStudents = numStudents;
+            challengeResults.totalTries = activityTries;
+            challengeResults.averageTries = Math.round(100 * activityTries / numStudents) / 100;
+            challengeResults.averageExcessMoves = Math.round(100 * totalExcessMoves / totalCorrect) / 100;
+            challengeResults.level1Hints = Math.round(1000 * activityLevel1Hints / activityTries) / 1000;
+            challengeResults.level2Hints = Math.round(1000 * activityLevel2Hints / activityTries) / 1000;
+            challengeResults.level3Hints = Math.round(1000 * activityLevel3Hints / activityTries) / 1000;
+            challengeResults.hintScores = studentActivityHintScores;
+            hintScoreMeanStdDev = meanStdDev(studentActivityHintScores);
+            challengeResults.hintScoreMean = Math.round(1000 * hintScoreMeanStdDev[0]) / 1000;
+            challengeResults.hintScoreStdDev = Math.round(1000 * hintScoreMeanStdDev[1]) / 1000;
+            challengeResults.hintScoreStdErr = Math.round(1000 * hintScoreMeanStdDev[2]) / 1000;
+            challengeResults.totalRemediations = totalRemediations;
+            challengeResults.totalNumericalCrystals = totalNumericalCrystals;
+            challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
+            challengeResultsArray.push(challengeResults);
+        } //newActivity;
+        if (challengeResultsArray.length == 0) {
+            console.log("In filterStudents, no students filtered.")
+        }
+        resolve(challengeResultsArray);
+    });
+}
+
+
 
 function downloadTable(table) {
     var hintsTable = document.getElementById("hintsTable");
@@ -209,112 +341,6 @@ function checkout(studentId, thisActivity) {
     return [tries, remediations];
 }
 
-//For each challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.
-function getChallengeResults(filteredStudents) {
-    if (filteredStudents.length == 0) {
-        console.log("In getChallengeResults. No filtered students.")
-    }
-    return new Promise((resolve, reject) => {
-        var challengeResultsArray = [];
-        var numStudents = 0,
-            chalArray = [],
-            activityTries = 0,
-            tries,
-            totalExcessMoves = 0,
-            totalCorrect = 0,
-            studentLevel1Hints,
-            studentLevel2Hints,
-            studentLevel3Hints,
-            activityLevel1Hints,
-            activityLevel2Hints,
-            activityLevel3Hints,
-            hintScoreArray = [],
-            hintScoreMean,
-            hintScoreStdDev,
-            hintScoreMeanStdDev = [],
-            totalRemediations,
-            totalNumericalCrystals = 0,
-            thisActivity;
-        //Start new activity
-        for (let j = 0; j < activitiesArray.length; j++) {
-            thisActivity = activitiesArray[j];
-            numStudents = 0;
-            activityTries = 0;
-            totalNumericalCrystals = 0;
-            totalMoves = 0;
-            studentLevel1Hints = 0;
-            studentLevel2Hints = 0;
-            studentLevel3Hints = 0;
-            activityLevel1Hints = 0;
-            activityLevel2Hints = 0;
-            activityLevel3Hints = 0;
-            studentActivityHintScores = [];
-            totalRemediations = 0;
-            //Start new student
-            for (let i = 0; i < filteredStudents.length; i++) {
-                thisStudent = filteredStudents[i];
-                chalArray = checkout(thisStudent.id, thisActivity);
-                tries = chalArray[0];
-                totalRemediations += chalArray[1];
-                //Only count student if s/he tried the activity at least once
-                if (tries.length > 0) {
-                    studentLevel1Hints = 0;
-                    studentLevel2Hints = 0;
-                    studentLevel3Hints = 0;
-                    numStudents++;
-                    var colorIndexArray = [];
-                    for (let j = 0; j < tries.length; j++) {
-                        thisTry = tries[j];
-                        if (thisTry.correct) {
-                            totalCorrect++;
-                            totalExcessMoves += thisTry.excessMoves;
-                        }
-                        studentLevel1Hints += thisTry.level1Hints;
-                        studentLevel2Hints += thisTry.level2Hints;
-                        studentLevel3Hints += thisTry.level3Hints;
-                        colorIndexArray.push(thisTry.crystalColor);
-                    }
-                    studentActivityHintScores.push((studentLevel1Hints + 2 * studentLevel2Hints + 3 * studentLevel3Hints) / tries.length);
-                    maxColorIndex = colorIndexArray.reduce(function (a, b) {
-                        return Math.max(a, b);
-                    });
-                    activityTries += tries.length;
-                    if (isNaN(maxColorIndex)) {
-                        console.log("Stop! Bad crystal!");
-                    }
-                    totalNumericalCrystals += maxColorIndex;
-                }
-                activityLevel1Hints += studentLevel1Hints;
-                activityLevel2Hints += studentLevel2Hints;
-                activityLevel3Hints += studentLevel3Hints;
-            } //new student
-            challengeResults = new Object();
-            challengeResults.hintScores = [];
-            challengeResults.name = thisActivity;
-            challengeResults.totalStudents = numStudents;
-            challengeResults.totalTries = activityTries;
-            challengeResults.averageTries = Math.round(100 * activityTries / numStudents) / 100;
-            challengeResults.averageExcessMoves = Math.round(100 * totalExcessMoves / totalCorrect) / 100;
-            challengeResults.level1Hints = Math.round(1000 * activityLevel1Hints / activityTries) / 1000;
-            challengeResults.level2Hints = Math.round(1000 * activityLevel2Hints / activityTries) / 1000;
-            challengeResults.level3Hints = Math.round(1000 * activityLevel3Hints / activityTries) / 1000;
-            challengeResults.hintScores = studentActivityHintScores;
-            hintScoreMeanStdDev = meanStdDev(studentActivityHintScores);
-            challengeResults.hintScoreMean = Math.round(1000 * hintScoreMeanStdDev[0]) / 1000;
-            challengeResults.hintScoreStdDev = Math.round(1000 * hintScoreMeanStdDev[1]) / 1000;
-            challengeResults.hintScoreStdErr = Math.round(1000 * hintScoreMeanStdDev[2]) / 1000;
-            challengeResults.totalRemediations = totalRemediations;
-            challengeResults.totalNumericalCrystals = totalNumericalCrystals;
-            challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
-            challengeResultsArray.push(challengeResults);
-        } //newActivity;
-        if (challengeResultsArray.length == 0) {
-            console.log("In filterStudents, no students filtered.")
-        }
-        resolve(challengeResultsArray);
-    });
-}
-
 function meanStdDev(array) {
     var sum = 0,
         mean,
@@ -374,6 +400,7 @@ function findActionsByActivity(studentId, activityName) {
 }
 
 function makeHintGraph() {
+    document.getElementById("graphType").style.display = "block";
     var chalTable = document.getElementById("challengeTable");
     var compTable = document.getElementById("comparisonTable");
     var myDiv = document.getElementById("graphDiv");
@@ -381,29 +408,52 @@ function makeHintGraph() {
     var chalFilter2 = document.getElementById("chalFilter2");
     var maxSlider1 = document.getElementById("maxrange1");
     var minSlider1 = document.getElementById("minrange1");
-    var graphTypeSelect = document.getElementById("graphType");
-    var graphType = graphTypeSelect.value,
+    var graphTypeSelect = document.getElementById("graphType"),
+        graphType = graphTypeSelect.value,
         filter1 = chalFilter1.value,
         filter2 = chalFilter2.value,
         max1 = parseInt(maxSlider1.value),
         min1 = parseInt(minSlider1.value),
         max2 = parseInt(maxSlider2.value),
         min2 = parseInt(minSlider2.value),
-        fs1, fs2;
+        fs1, fs2, cr1, cr2;
+    var challengeTypeSelect = document.getElementById("challengeType"),
+        challengeType = challengeTypeSelect.value;
     setUIVisibility(graphType, filter1, filter2);
-    if (graphType === "singleCohort") {
-        filterStudents(filter1, max1, min1)
-            .then(getChallengeResults)
-            .then(makeChallengeResultsTable);
-    } else if (graphType === "twoCohorts") {
-        var cr1 = filterStudents(filter1, max1, min1)
-            .then(getChallengeResults);
-        var cr2 = filterStudents(filter2, max2, min2)
-            .then(getChallengeResults);
-        Promise.all([cr1, cr2]).then(function (values) {
-            makeComparisonTable(values[0], values[1]);
-            makeTwoCohortBarGraph(values[0], values[1]);
-        });
+    if (challengeType === "targetMatch") {
+        if (graphType === "singleCohort") {
+            filterStudents(filter1, max1, min1)
+                .then(getTargetMatchResults)
+                .then(function (result) {
+                    makeChallengeResultsTable(result);
+                    makeSingleCohortBarGraph(result);
+                });
+        } else if (graphType === "twoCohorts") {
+            var cr1 = filterStudents(filter1, max1, min1)
+                .then(getTargetMatchResults)
+            var cr2 = filterStudents(filter2, max2, min2)
+                .then(getTargetMatchResults);
+            Promise.all([cr1, cr2]).then(function (values) {
+                makeComparisonTable(values[0], values[1]);
+                makeTwoCohortBarGraph(values[0], values[1]);
+            });
+        }
+    } else if (challengeType === "eggDrop") {
+        if (graphType === "singleCohort") {
+            filterStudents(filter1, max1, min1)
+                .then(getEggdropResults)
+                .then(function (result) {
+                    console.log("Egg drop challenge results are in for one cohort!");
+                });
+        } else if (graphType === "twoCohorts") {
+            var cr1 = filterStudents(filter1, max1, min1)
+                .then(getEggdropResults)
+            var cr2 = filterStudents(filter2, max2, min2)
+                .then(getEggdropResults);
+            Promise.all([cr1, cr2]).then(function (values) {
+                console.log("Egg drop challenge results are in for two cohorts!");
+            });
+        }
     }
 }
 
@@ -506,27 +556,6 @@ function setUIVisibility(graphType, filter1, filter2) {
             }
     }
 }
-
-
-
-
-function delay(num) {
-    return new Promise(function (resolve, reject) {
-        var arr = [];
-        for (var i = 0; i < num; i++) {
-            if (i % 10000000 == 0) {
-                arr.push(i);
-            }
-        }
-        resolve(arr);
-    });
-}
-
-function ret(array) {
-    alert("The array is " + array.length + " elements long.");
-    return array;
-}
-
 
 function filterStudents(filterValue, maxValue, minValue) {
     return new Promise((resolve, reject) => {
@@ -649,32 +678,32 @@ function setFilterParameters(filter1, filter2) {
     if (filter1 === "filter by gain") {
         maxSlider1.min = -30;
         maxSlider1.max = 30;
-   //     maxSlider1.value = 30;
+        //     maxSlider1.value = 30;
         minSlider1.min = -30;
         minSlider1.max = 30;
-    //    minSlider1.value = -30;
+        //    minSlider1.value = -30;
     } else {
         maxSlider1.min = 0;
         maxSlider1.max = 30;
-   //     maxSlider1.value = 30;
+        //     maxSlider1.value = 30;
         minSlider1.min = 0;
         minSlider1.max = 30;
-   //     minSlider1.value = 0;
+        //     minSlider1.value = 0;
     }
     if (filter2 === "filter by gain") {
         maxSlider2.min = -30;
         maxSlider2.max = 30;
-  //      maxSlider2.value = 30;
+        //      maxSlider2.value = 30;
         minSlider2.min = -30;
         minSlider2.max = 30;
-   //     minSlider2.value = -30;
+        //     minSlider2.value = -30;
     } else {
         maxSlider2.min = 0;
         maxSlider2.max = 30;
-   //     maxSlider2.value = 30;
+        //     maxSlider2.value = 30;
         minSlider2.min = 0;
         minSlider2.max = 30;
-   //     minSlider2.value = 0;
+        //     minSlider2.value = 0;
     }
     minOutput1.innerHTML = "Cohort 1 minimum = " + minSlider1.value;
     minOutput2.innerHTML = "Cohort 2 minimum = " + minSlider2.value;
@@ -712,5 +741,43 @@ function getColorFromIndex(colorIndex) {
             return ("yellow");
         case 4:
             return ("blue");
+    }
+}
+
+function findFutureProbs() { //Goes through all the actions for every student, searching ahead for a tenth of a second for a new set of probs for the same student (which only happens when the future event is ITS-Data-Updated). Adds the new probs to the action.
+    var actionsLength;
+    for (var i = 0; i < students.length; i++) {
+        myStudent = students[i];
+        actionsLength = myStudent.actions.length;
+        if (actionsLength > 0) {
+            for (var j = 0; j < actionsLength; j++) {
+                myAction = myStudent.actions[j];
+                var index = myAction.index,
+                    thisTime = new Date(myAction.time).getTime(),
+                    newTime,
+                    newProbs = [],
+                    newProbsFound = false;
+                for (var k = 1;
+                    ((k < 16) && (index + k < actionsLength)); k++) {
+                    newTime = new Date(myStudent.actions[index + k].time).getTime();
+                    if (newTime - thisTime > 500) {
+                        break;
+                    }
+                    if ((myStudent.actions[index + k].event == "ITS-Data-Updated") && (!newProbsFound)) {
+                        newAction = myStudent.actions[index + k];
+                        newProbsFound = true;
+                        break;
+                    }
+                }
+                if (newProbsFound) {
+                    myAction.newProbs = getProbs(newAction);
+                    //                console.log("Action got new probs!");
+                } else { //Didn't find an ITS-Data-Updated event within 1/10 second
+                    myAction.newProbs = [];
+                }
+            }
+        } else {
+            console.log("Student " + i + " has no actions!");
+        }
     }
 }

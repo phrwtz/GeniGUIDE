@@ -167,7 +167,6 @@ function makeChallengeResultsTable(challengeResultsArray) {
         chalRow.appendChild(chalCell10);
         chalBody.appendChild(chalRow);
     }
-    makeSingleCohortBarGraph(challengeResultsArray);
 }
 
 function summarizeHints(students) {
