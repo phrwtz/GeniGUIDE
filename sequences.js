@@ -22,64 +22,58 @@ var targetMatchArray = [ //Includes egg drop
 var eggDropArray = ["eggDrop-wings", "eggDrop-limbs", "eggDrop-horns", "eggDrop-armor", "eggDrop-tail", "eggDrop-noseSpike"];
 var gameteArray = ["gamete-5drakes-starterTraits", "gamete-5drakes-starterTraits2", "gamete-targetMatch-starterTraits", "gamete-targetMatch-starterTraits2", "gamete-targetMatch-starterTraits3", "gamete-selectSpermEgg-starterTraits", "gamete-selectSpermEgg-starterTraits2", "gamete-selectSpermEgg-starterTraitsl-bothParents", "gamete-selectSpermEgg-starterTraits-bothParents2", "gamete-selectSpermEgg-harderTraits", "gamete-selectSpermEgg-harderTraits-bothParents"];
 
-//For each egg drop challenge, run through the filtered students and count up all the level 1, level 2 and level 3 hints they receive. Return a promise since the process may take a while.
+//For each egg drop challenge, run through the filtered students and count up all the hints they receive. Return a promise since the process may take a while.
 function getEggdropResults(filteredStudents) {
-    var challengeResultsArray = [],
-        numStudents = 0,
-        chalArray = [],
-        studentLevel1Hints,
-        studentLevel2Hints,
-        studentLevel3Hints,
-        studentEggsRejected,
-        activityLevel1Hints,
-        activityLevel2Hints,
-        activityLevel3Hints,
-        activityEggsRejected,
-        hintScoreArray = [],
-        hintScoreMean,
-        hintScoreStdDev,
-        hintScoreMeanStdDev = [],
-        thisActivity;
-    //Start new activity
-    for (let j = 0; j < eggDropArray.length; j++) {
-        activityLevel1Hints = 0;
-        activityLevel2Hints = 0;
-        activityLevel3Hints = 0;
-        activityEggsRejected = 0;
-        thisActivity = eggDropArray[j];
-        numStudents = 0;
-        studentLevel1Hints = 0;
-        studentLevel2Hints = 0;
-        studentLevel3Hints = 0;
-        studentEggsRejected = 0;
-        studentActivityHintScores = [];
-        //Start new student
-        for (let i = 0; i < filteredStudents.length; i++) {
-            thisStudent = filteredStudents[i];
-            studentLevel1Hints = 0;
-            studentLevel2Hints = 0;
-            studentLevel3Hints = 0;
-            studentEggsRejected = 0;
-            if (thisStudent.activitiesByName[thisActivity]) {
-                if (thisStudent.activitiesByName[thisActivity].eventsByName["Egg-rejected"]) {
-                    studentEggsRejected = thisStudent.activitiesByName[thisActivity].eventsByName["Egg-rejected"].actions.length;
+    return new Promise((resolve, reject) => {
+        var eggResultsArray = [],
+            numStudents = 0,
+            thisStudent,
+            thisActivity,
+            studentHints,
+            studentEggsRejected,
+            activityHints,
+            activityEggsRejected;
+        //Start new activity
+        for (let j = 0; j < eggDropArray.length; j++) {
+            activityEggsRejected = 0;
+            activityHints = 0;
+            thisActivity = eggDropArray[j];
+            numStudents = 0;
+            //Start new student
+            for (let i = 0; i < filteredStudents.length; i++) {
+                thisStudent = filteredStudents[i];
+                studentHints = 0;
+                studentEggsRejected = 0;
+                if (thisStudent.activitiesByName[thisActivity]) {
+                    numStudents++;
+                    if (thisStudent.activitiesByName[thisActivity].eventsByName["Egg-rejected"]) {
+                        studentEggsRejected = thisStudent.activitiesByName[thisActivity].eventsByName["Egg-rejected"].actions.length;
+                        activityEggsRejected += studentEggsRejected;
+                    }
+                    if (thisStudent.activitiesByName[thisActivity].eventsByName["Guide-hint-received"]) {
+                        studentHints = thisStudent.activitiesByName[thisActivity].eventsByName["Guide-hint-received"].actions.length;
+                        activityHints += studentHints;
+                        var data = thisStudent.activitiesByName[thisActivity].eventsByName["Guide-hint-received"].actions[0].parameters.data;
+                        var trait = data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
+                        var conceptId = data.match(/("conceptId")([^a-zA-z]+)([^"]+)/)[3]
+                        var rawScore = data.match(/("conceptScore")([^\d]+)([\d.]+)/)[3];
+                        var score = Math.round((parseFloat(rawScore) * 1000)) / 1000;
+                        console.log("Student " + thisStudent.id + " had " + studentEggsRejected + " eggs rejected and got " + studentHints + " on challenge " + thisActivity + ".");
+                    }
                 }
-                activityEggsRejected += studentEggsRejected;
-                if (thisStudent.activitiesByName[thisActivity].eventsByName["Guide-hint-received"]) {
-                    var data = thisStudent.activitiesByName[thisActivity].eventsByName["Guide-hint-received"].actions[0].parameters.data;
-                    var hintLevel = data.match(/"hintLevel"[=|>|"]+([^"^,]+)/)[1];
-                    var attribute = data.match(/"attribute"[=|>|"]+([^"^,]+)/)[1];
-                    var conceptId = data.match(/("conceptId")([^a-zA-z]+)([^"]+)/)[3]
-                    var rawScore = data.match(/("conceptScore")([^\d]+)([\d.]+)/)[3];
-                    var score = Math.round((parseFloat(rawScore) * 1000)) / 1000;
-                    console.log("Student " + thisStudent.id + " got a level " + hintLevel + " hint for " + attribute + " trait on challenge " + thisActivity + ".");
-                }
-            }
-        } //Back for new student
-  //      console.log("Activity " + thisActivity + " had " + activityEggsRejected + " in all.")
-    } //Back for new activity
+            } //Back for new student
+            console.log("Challenge " + thisActivity + " had " + activityHints + " hints and " + activityEggsRejected + " eggs rejected.");
+            console.log("");
+            eggResults = new Object();
+            eggResults.name = thisActivity;
+            eggResults.totalStudents = numStudents;
+            eggResults.eggsRejected = Math.round(1000 * activityEggsRejected / numStudents) / 1000;
+            eggResults.hints = Math.round(1000 * activityHints / numStudents) / 1000;
+            eggResultsArray.push(eggResults);
+        } //Back for new activity
+        resolve(eggResultsArray);
+    });
 }
-
 
 //For each target match challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.
 function getTargetMatchResults(filteredStudents) {
@@ -180,9 +174,6 @@ function getTargetMatchResults(filteredStudents) {
             challengeResults.averageNumericalCrystal = Math.round(100 * totalNumericalCrystals / numStudents) / 100;
             challengeResultsArray.push(challengeResults);
         } //newActivity;
-        if (challengeResultsArray.length == 0) {
-            console.log("In filterStudents, no students filtered.")
-        }
         resolve(challengeResultsArray);
     });
 }
@@ -425,7 +416,7 @@ function makeHintGraph() {
             filterStudents(filter1, max1, min1)
                 .then(getTargetMatchResults)
                 .then(function (result) {
-                    makeChallengeResultsTable(result);
+                    makeTargetMatchTable(result);
                     makeSingleCohortBarGraph(result);
                 });
         } else if (graphType === "twoCohorts") {
@@ -434,7 +425,7 @@ function makeHintGraph() {
             var cr2 = filterStudents(filter2, max2, min2)
                 .then(getTargetMatchResults);
             Promise.all([cr1, cr2]).then(function (values) {
-                makeComparisonTable(values[0], values[1]);
+                makeTargetMatchCompTable(values[0], values[1]);
                 makeTwoCohortBarGraph(values[0], values[1]);
             });
         }
@@ -443,6 +434,7 @@ function makeHintGraph() {
             filterStudents(filter1, max1, min1)
                 .then(getEggdropResults)
                 .then(function (result) {
+                    makeEggdropTable(result);
                     console.log("Egg drop challenge results are in for one cohort!");
                 });
         } else if (graphType === "twoCohorts") {

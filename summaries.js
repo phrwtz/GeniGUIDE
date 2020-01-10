@@ -1,5 +1,4 @@
-
-function makeComparisonTable(resultArray1, resultArray2) {
+function makeTargetMatchCompTable(resultArray1, resultArray2) {
     if (resultArray1.length != resultArray2.length) {
         alert("Result arrays different sizes!")
     }
@@ -40,7 +39,6 @@ function makeComparisonTable(resultArray1, resultArray2) {
         compCell9.style.borderTopWidth = "2px";
         compCell10.style.borderTopWidth = "2px";
         compCell11.style.borderTopWidth = "2px";
-
 
         compCell7.style.backgroundColor = "cornsilk";
         compCell8.style.backgroundColor = "cornsilk";
@@ -117,14 +115,44 @@ function makeComparisonTable(resultArray1, resultArray2) {
     }
 }
 
-function makeChallengeResultsTable(challengeResultsArray) {
+function makeEggdropTable(eggResultsArray) {
+    var chalTable = document.getElementById("challengeTable"),
+        eggTable = document.getElementById("eggTable"),
+        eggBody = document.getElementById("eggBody"),
+        eggResult, eggRow, eggCell1, eggCell2, eggCell3, eggCell4;
+    clear(eggBody);
+    chalTable.style.display = "none";
+    eggTable.style.display = "block";
+    for (let i = 0; i < eggResultsArray.length; i++) {
+        eggResult = eggResultsArray[i];
+        eggRow = document.createElement("tr");
+        eggCell1 = document.createElement("td");
+        eggCell2 = document.createElement("td");
+        eggCell3 = document.createElement("td");
+        eggCell4 = document.createElement("td");
+        eggRow.appendChild(eggCell1);
+        eggRow.appendChild(eggCell2);
+        eggRow.appendChild(eggCell3);
+        eggRow.appendChild(eggCell4);
+        eggBody.appendChild(eggRow);
+        eggCell1.innerHTML = eggResult.name;
+        eggCell2.innerHTML = eggResult.totalStudents;
+        eggCell3.innerHTML = eggResult.eggsRejected;
+        eggCell4.innerHTML = eggResult.hints;
+
+    }
+}
+
+
+function makeTargetMatchTable(challengeResultsArray) {
+    chalTable.style.display = "block";
+    eggTable.style.display = "none";
     var chalTable = document.getElementById("challengeTable"),
         chalBody = document.getElementById("challengeBody"),
         challengeResult,
         chalRow,
         chalCell;
     clear(chalBody);
-    chalTable.style.display = "block";
     for (let i = 0; i < challengeResultsArray.length; i++) {
         challengeResult = challengeResultsArray[i];
         chalRow = document.createElement("tr");
