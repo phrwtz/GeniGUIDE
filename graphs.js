@@ -5,6 +5,8 @@ function makeTwoCohortTargetMatchGraph(results1, results2) {
         trace2 = new Trace(),
         shortName1,
         shortName2,
+        myOption1 = chalFilter1.value,
+        myOption2 = chalFilter2.value,
         result1,
         result2,
         data = [],
@@ -36,7 +38,7 @@ function makeTwoCohortTargetMatchGraph(results1, results2) {
     data = [trace1, trace2];
     layout = {
         barmode: 'group',
-        title: 'Average hint scores per challenge<br>',
+        title: 'Average hint scores per target-match challenge<br>' + myOption1 + ", " + myOption2,
         yaxis: {
             range: "auto"
         }
@@ -45,26 +47,52 @@ function makeTwoCohortTargetMatchGraph(results1, results2) {
     Plotly.newPlot(myDiv, data, layout);
 }
 
-function mean(array) {
-    let sum = 0;
-    for (let i = 0; i < array.length; i++) {
-        sum += array[i];
+function makeTwoCohortEggDropGraph(results1, results2) {
+    var myDiv = document.getElementById("graphDiv");
+    var Trace = Object,
+        trace1 = new Trace(),
+        trace2 = new Trace(),
+        result1,
+        result2,
+        myOption1 = chalFilter1.value,
+        myOption2 = chalFilter2.value;
+    data = [],
+        layout = {};
+    trace1.x = [];
+    trace1.y = [];
+    trace1.type = 'bar';
+    trace1.name = "Cohort 1";
+    trace2.x = [];
+    trace2.y = [];
+    trace2.type = 'bar';
+    trace2.name = "Cohort 2";
+    for (let i = 0; i < results1.length; i++) {
+        result1 = results1[i];
+        result2 = results2[i];
+        result1Name = result1.name;
+        result2Name = result2.name;
+        result1Hints = result1.hints;
+        result2Hints = result2.hints;
+        trace1.x.push(result1Name);
+        trace2.x.push(result2Name);
+        trace1.y.push(result1.hints);
+        trace2.y.push(result2.hints);
     }
-    return sum / array.length;
+    data = [trace1, trace2];
+    layout = {
+        barmode: 'group',
+        title: 'Hints per egg-drop challenge per student<br>' + myOption1 + ", " + myOption2,
+        yaxis: {
+            range: "auto"
+        }
+    };
+    myDiv.style.display = "block";
+    Plotly.newPlot(myDiv, data, layout);
 }
 
-function makeSingleCohortBarGraph(challengeResultsArray) {
-    console.log("making single cohort graph")
+function makeSingleTargetMatchGraph(challengeResultsArray) {
     var myDiv = document.getElementById("graphDiv"),
-        mySelect = document.getElementById("chalFilter1"),
-        maxSlider = document.getElementById("maxrange1"),
-        minSlider = document.getElementById("minrange1"),
-        maxGain = parseInt(maxSlider.value),
-        minGain = parseInt(minSlider.value),
-        myOption = mySelect.options[mySelect.selectedIndex].text;
-    if (myOption == "Set filter") {
-        myOption = "Gains between " + minGain + " and " + maxGain;
-    }
+        myOption1 = chalFilter1.value;
     var Trace = Object,
         trace1 = new Trace(),
         trace2 = new Trace(),
@@ -103,13 +131,52 @@ function makeSingleCohortBarGraph(challengeResultsArray) {
     data = [trace1, trace2, trace3];
     layout = {
         barmode: 'group',
-        title: 'Hints per challenge<br>' + myOption,
+        title: 'Average hint scores per target-match challenge<br>' + myOption1,
         yaxis: {
             range: "auto"
         }
     };
     myDiv.style.display = "block";
     Plotly.newPlot(myDiv, data, layout);
+}
+
+function makeSingleEggDropGraph(challengeResultsArray) {
+    var myDiv = document.getElementById("graphDiv"),
+        myOption1 = chalFilter1.value;
+    var Trace = Object,
+        trace = new Trace(),
+        challengeResult,
+        challengeName,
+        data = [],
+        layout = {};
+    trace.x = [];
+    trace.y = [];
+    trace.type = 'bar';
+    trace.name = "Hints";
+    for (let i = 0; i < challengeResultsArray.length; i++) {
+        challengeResult = challengeResultsArray[i];
+        challengeName = challengeResult.name;
+        trace.x.push(challengeName);
+        trace.y.push(challengeResult.hints);
+    }
+    data = [trace];
+    layout = {
+        barmode: 'group',
+        title: 'Hints per egg-drop challenge per student<br>' + myOption1,
+        yaxis: {
+            range: "auto"
+        }
+    };
+    myDiv.style.display = "block";
+    Plotly.newPlot(myDiv, data, layout);
+}
+
+function mean(array) {
+    let sum = 0;
+    for (let i = 0; i < array.length; i++) {
+        sum += array[i];
+    }
+    return sum / array.length;
 }
 
 function makeChallengeResultsBoxPlot(challengeResultsArray) {

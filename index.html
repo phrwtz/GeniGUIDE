@@ -93,78 +93,77 @@
         </option>
     </select>
 
-    <select id="graphType" style="display:none" onchange="makeHintGraph()">
-        <option value=null>
-            Select graph type
-        </option>
-        <option value="singleCohort">
-            Single cohort
-        </option>
-        <option value="twoCohorts">
-            Cohort comparison
-        </option>
-    </select>
-
-    <select id="chalFilter1" style="display:none" onchange="makeHintGraph()">
-        <option value=null>
-            Select cohort 1 filter
-        </option>
-        <option value="all">
-            All Students
-        </option>
-        <option value="lower-to-lower">
-            Lower to lower
-        </option>
-        <option value="lower-to-higher">
-            Lower to higher
-        </option>
-        <option value="higher-to-higher">
-            Higher to higher
-        </option>
-        <option value="higher-to-lower">
-            Higher to lower
-        </option>
-        <option value="filter by prescore">
-            Set filter by prescore
-        </option>
-        <option value="filter by postscore">
-            Set filter by postscore
-        </option>
-        <option value="filter by gain">
-            Set filter by gain
-        </option>
-    </select>
-
-    <select id="chalFilter2" style="display:none" onchange="makeHintGraph()">
-        <option value=null>
-            Select cohort 2 filter
-        </option>
-        <option value="all">
-            All Students
-        </option>
-        <option value="lower-to-lower">
-            Lower to lower
-        </option>
-        <option value="lower-to-higher">
-            Lower to higher
-        </option>
-        <option value="higher-to-higher">
-            Higher to higher
-        </option>
-        <option value="higher-to-lower">
-            Higher to lower
-        </option>
-        <option value="filter by prescore">
-            Set filter by prescore
-        </option>
-        <option value="filter by postscore">
-            Set filter by postscore
-        </option>
-        <option value="filter by gain">
-            Set filter by gain
-        </option>
-    </select>
-
+    <div id="filterDiv">
+        <select id="graphType" style="display:none" onchange="makeHintGraph()">
+            <option value=null>
+                Select graph type
+            </option>
+            <option value="singleCohort">
+                Single cohort
+            </option>
+            <option value="twoCohorts">
+                Cohort comparison
+            </option>
+        </select>
+        <select id="chalFilter1" style="display:none" onchange="makeHintGraph()">
+            <option value=null>
+                Select cohort 1 filter
+            </option>
+            <option value="all students">
+                All Students
+            </option>
+            <option value="lower-to-lower">
+                Lower to lower
+            </option>
+            <option value="lower-to-higher">
+                Lower to higher
+            </option>
+            <option value="higher-to-higher">
+                Higher to higher
+            </option>
+            <option value="higher-to-lower">
+                Higher to lower
+            </option>
+            <option value="filter by prescore">
+                Set filter by prescore
+            </option>
+            <option value="filter by postscore">
+                Set filter by postscore
+            </option>
+            <option value="filter by gain">
+                Set filter by gain
+            </option>
+        </select>
+        <select id="chalFilter2" style="display:none" onchange="makeHintGraph()">
+            <option value=null>
+                Select cohort 2 filter
+            </option>
+            <option value="all students">
+                All Students
+            </option>
+            <option value="lower-to-lower">
+                Lower to lower
+            </option>
+            <option value="lower-to-higher">
+                Lower to higher
+            </option>
+            <option value="higher-to-higher">
+                Higher to higher
+            </option>
+            <option value="higher-to-lower">
+                Higher to lower
+            </option>
+            <option value="filter by prescore">
+                Set filter by prescore
+            </option>
+            <option value="filter by postscore">
+                Set filter by postscore
+            </option>
+            <option value="filter by gain">
+                Set filter by gain
+            </option>
+        </select>
+    </div>
     <table id="sliderTable" style="display:none; border-style:none">
         <tr>
             <td>
@@ -174,7 +173,7 @@
                 </input>
             </td>
             <td>
-                <p id="maxPara1" style="display:block">Maximum = 30</p>
+                <p id="maxPara1" style="display:block">Cohort 1 maximum = 30</p>
                 <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1" style="display: block"
                     onmouseup="makeHintGraph()">
                 </input>
@@ -187,13 +186,16 @@
                     onmouseup="makeHintGraph()" style="display:block"> </input>
             </td>
             <td>
-                <p id="maxPara2" style="display:block">Maximum = 30</p>
+                <p id="maxPara2" style="display:block">Cohort 2 maximum = 30</p>
                 <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange2" style="display.block"
                     onmouseup="makeHintGraph()" style="display:block">
                 </input>
             </td>
         </tr>
+        </div>
     </table>
+    </div>
+
     <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
         <span id="showChangesSpan">
             Show changed probs only
@@ -642,8 +644,9 @@
             eggDropCompBody = document.getElementById("eggDropCompBody"),
             targetMatchCompTable = document.getElementById("targetMatchCompTable"),
             targetMatchCompBody = document.getElementById("targetMatchCompBody"),
-            chalFilter1 = document.getElementById("chalFilter1"),
-            chalFilter2 = document.getElementById("chalFilter1"),
+            filterDiv = document.getElementById("filterDiv");
+        chalFilter1 = document.getElementById("chalFilter1"),
+            chalFilter2 = document.getElementById("chalFilter2"),
             sliderTable = document.getElementById("sliderTable"),
             maxSlider1 = document.getElementById("maxrange1"),
             minSlider1 = document.getElementById("minrange1"),

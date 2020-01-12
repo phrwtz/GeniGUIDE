@@ -408,14 +408,14 @@ function makeHintGraph() {
         fs1, fs2, cr1, cr2;
     var challengeTypeSelect = document.getElementById("challengeType"),
         challengeType = challengeTypeSelect.value;
-    setUIVisibility(graphType, filter1, filter2);
+    setUIVisibility(challengeType, graphType, filter1, filter2);
     if (challengeType === "targetMatch") {
         if (graphType === "singleCohort") {
             filterStudents(filter1, max1, min1)
                 .then(getTargetMatchResults)
                 .then(function (result) {
                     makeTargetMatchTable(result);
-                    makeSingleCohortBarGraph(result);
+                    makeSingleTargetMatchGraph(result);
                 });
         } else if (graphType === "twoCohorts") {
             var cr1 = filterStudents(filter1, max1, min1)
@@ -433,7 +433,7 @@ function makeHintGraph() {
                 .then(getEggdropResults)
                 .then(function (result) {
                     makeEggdropTable(result);
-                    console.log("Egg drop challenge results are in for one cohort!");
+                    makeSingleEggDropGraph(result);
                 });
         } else if (graphType === "twoCohorts") {
             var cr1 = filterStudents(filter1, max1, min1)
@@ -442,6 +442,7 @@ function makeHintGraph() {
                 .then(getEggdropResults);
             Promise.all([cr1, cr2]).then(function (values) {
                 makeEggDropCompTable(values[0], values[1]);
+                makeTwoCohortEggDropGraph(values[0], values[1])
             });
         }
     }
@@ -449,91 +450,122 @@ function makeHintGraph() {
 
 function setUIVisibility(challengeType, graphType, filter1, filter2) {
     setFilterParameters(filter1, filter2);
-    if (challengeType === "targetMatch") {
-        eggDropTable.style.display = "none";
-        eggDropCompTable.style.display = "none";
-    } else if (challengeType === "eggDrop") {
-        targetMatchTable.style.display = "none";
-        targetMatchCompTable.style.display = "none";
-    }
-    switch (graphType) {
+    chalFilter1.style.display = "none";
+    chalFilter2.style.display = "none";
+    //set table visibility according to challenge and graph type
+    switch (challengeType) {
         case "null":
-            graphDiv.style.display = "none";
             targetMatchTable.style.display = "none";
             targetMatchCompTable.style.display = "none";
             eggDropTable.style.display = "none";
             eggDropCompTable.style.display = "none";
-            sliderTable.style.display = "none";
+            graphDiv.style.display = "none";
+            infoPara.style.display = "none";
+            filterDiv.style.display = "none";
+            break;
+        case "targetMatch":
+            filterDiv.style.display = "block";
+            switch (graphType) {
+                case "null":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    break;
+                case "singleCohort":
+                    targetMatchTable.style.display = "block";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    break;
+                case "twoCohorts":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "block";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    break;
+            }
+            break;
+        case "eggDrop":
+            filterDiv.style.display = "block";
+            switch (graphType) {
+                case "null":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    break;
+                case "singleCohort":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "block";
+                    eggDropCompTable.style.display = "none";
+                    break;
+                case "twoCohorts":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "block";
+                    break;
+            }
+            break;
+    }
+    //Set graph type selector and slider visibility according to graph type
+    switch (graphType) {
+        case "null":
+            chalFilter1.style.display = "none";
+            chalFilter2.style.display = "none";
+            break;
+        case "singleCohort":
+            chalFilter1.style.display = "block";
+            chalFilter2.style.display = "none";
             maxSlider1.style.display = "none";
-            maxOutput1.style.display = "none";
             minSlider1.style.display = "none";
+            maxOutput1.style.display = "none";
             minOutput1.style.display = "none";
             maxSlider2.style.display = "none";
-            maxOutput2.style.display = "none";
             minSlider2.style.display = "none";
+            maxOutput2.style.display = "none";
             minOutput2.style.display = "none";
-            break;
-        //This is where I left off
-        case "singleCohort":
-            sliderTable.style.display = "none"; //Set visible later
-            targetMatchCompTable.style.display = "none";
+            sliderTable.style.display = "none";
+            maxSlider1.style.display = "none";
+            minSlider1.style.display = "none";
+            maxOutput1.style.display = "none";
+            minOutput1.style.display = "none";
             maxSlider2.style.display = "none";
-            maxOutput2.style.display = "none";
             minSlider2.style.display = "none";
+            maxOutput2.style.display = "none";
             minOutput2.style.display = "none";
-            chalFilter2.style.display = "none";
-            if (filter1 === "null") {
-                chalFilter1.style.display = "block";
-                chalFilter2.style.display = "none";
-                graphDiv.style.display = "none";
-                targetMatchTable.style.display = "none";
-                eggDropTable.style.display = "none";
-            } else {
-                graphDiv.style.display = "block";
-                targetMatchTable.style.display = "block";
-                eggDropTable.style.display = "block";
-            }
             if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
                 sliderTable.style.display = "block";
                 maxSlider1.style.display = "block";
                 minSlider1.style.display = "block";
                 maxOutput1.style.display = "block";
                 minOutput1.style.display = "block";
-            } else {
-                sliderTable.style.display = "none";
             }
             break;
         case "twoCohorts":
-            graphDiv.style.display = "none";
-            targetMatchTable.style.display = "none";
-            sliderTable.style.display = "none"; //Set visible later
-            targetMatchCompTable.style.display = "block";
             chalFilter1.style.display = "block";
             chalFilter2.style.display = "block";
-            maxSlider2.style.display = "block";
-            maxOutput2.style.display = "block";
-            minSlider2.style.display = "block";
-            minOutput2.style.display = "block";
-            if ((filter1 === "null") || (chalFilter2 === "null")) {
-                infoPara.style.display = "none";
-                graphDiv.style.display = "none";
-                targetMatchCompTable.style.display = "none";
-            } else {
-                infoPara.style.display = "block";
-                graphDiv.style.display = "block";
-                targetMatchCompTable.style.display = "block";
-            }
+            sliderTable.style.display = "none";
+            infoPara.style.display = "none";
+            graphDiv.style.display = "none";
+            maxSlider1.style.display = "none";
+            minSlider1.style.display = "none";
+            maxOutput1.style.display = "none";
+            minOutput1.style.display = "none";
+            maxSlider2.style.display = "none";
+            minSlider2.style.display = "none";
+            maxOutput2.style.display = "none";
+            minOutput2.style.display = "none";
             if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
                 sliderTable.style.display = "block";
                 maxSlider1.style.display = "block";
                 minSlider1.style.display = "block";
                 maxOutput1.style.display = "block";
                 minOutput1.style.display = "block";
-            } else {
-                maxSlider1.style.display = "none";
-                minSlider1.style.display = "none";
-                maxOutput1.style.display = "none";
-                minOutput1.style.display = "none";
+                infoPara.style.display = "block";
+                graphDiv.style.display = "block";
             }
             if ((filter2 === "filter by prescore") || (filter2 === "filter by postscore") || (filter2 === "filter by gain")) {
                 sliderTable.style.display = "block";
@@ -541,15 +573,11 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                 minSlider2.style.display = "block";
                 maxOutput2.style.display = "block";
                 minOutput2.style.display = "block";
-            } else {
-                maxSlider2.style.display = "none";
-                minSlider2.style.display = "none";
-                maxOutput2.style.display = "none";
-                minOutput2.style.display = "none";
+                infoPara.style.display = "block";
+                graphDiv.style.display = "block";
             }
+            break;
     }
-}
-
 }
 
 function filterStudents(filterValue, maxValue, minValue) {
@@ -647,7 +675,7 @@ function filterStudents(filterValue, maxValue, minValue) {
                 }
             } else {
                 switch (filterValue) {
-                    case "all":
+                    case "all students":
                         filteredStudents = allStudents;
                         break;
                     case "lower-to-lower":

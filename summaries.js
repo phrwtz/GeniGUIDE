@@ -176,13 +176,8 @@ function makeTargetMatchCompTable(resultArray1, resultArray2) {
 }
 
 function makeEggdropTable(eggResultsArray) {
-    var chalTable = document.getElementById("challengeTable"),
-        eggTable = document.getElementById("eggTable"),
-        eggBody = document.getElementById("eggBody"),
-        eggResult, eggRow, eggCell1, eggCell2, eggCell3, eggCell4;
-    clear(eggBody);
-    chalTable.style.display = "none";
-    eggTable.style.display = "block";
+    var eggResult, eggRow, eggCell1, eggCell2, eggCell3, eggCell4;
+    clear(eggDropBody);
     for (let i = 0; i < eggResultsArray.length; i++) {
         eggResult = eggResultsArray[i];
         eggRow = document.createElement("tr");
@@ -194,25 +189,22 @@ function makeEggdropTable(eggResultsArray) {
         eggRow.appendChild(eggCell2);
         eggRow.appendChild(eggCell3);
         eggRow.appendChild(eggCell4);
-        eggBody.appendChild(eggRow);
+        eggDropBody.appendChild(eggRow);
         eggCell1.innerHTML = eggResult.name;
         eggCell2.innerHTML = eggResult.totalStudents;
         eggCell3.innerHTML = eggResult.eggsRejected;
         eggCell4.innerHTML = eggResult.hints;
-
     }
 }
 
 
 function makeTargetMatchTable(challengeResultsArray) {
-    chalTable.style.display = "block";
-    eggTable.style.display = "none";
-    var chalTable = document.getElementById("challengeTable"),
-        chalBody = document.getElementById("challengeBody"),
-        challengeResult,
+    targetMatchTable.style.display = "block";
+    eggDropTable.style.display = "none";
+    var challengeResult,
         chalRow,
         chalCell;
-    clear(chalBody);
+    clear(targetMatchBody);
     for (let i = 0; i < challengeResultsArray.length; i++) {
         challengeResult = challengeResultsArray[i];
         chalRow = document.createElement("tr");
@@ -253,13 +245,13 @@ function makeTargetMatchTable(challengeResultsArray) {
         chalRow.appendChild(chalCell8);
         chalRow.appendChild(chalCell9);
         chalRow.appendChild(chalCell10);
-        chalBody.appendChild(chalRow);
+        targetMatchBody.appendChild(chalRow);
     }
 }
 
 function summarizeHints(students) {
     //summarizes hints for concepts LG1.C2a and LG1.c2b for activities "allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", and "allele-targetMatch-hidden-simpleDom2". Returns total number of students in each activity and number in each hint category (no hints, highest hint level = 1,2,3) 
-    document.getElementById("hintTable").style.display = "block";
+    //   document.getElementById("hintTable").style.display = "block";
     clear(document.getElementById("hintBody"));
     var conceptIds = ["LG1.C2a", "LG1.C2b"],
         myStudents = [],
