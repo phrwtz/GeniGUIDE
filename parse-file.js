@@ -14,6 +14,8 @@ var infoPara = document.getElementById("infoPara");
 var graphDiv = document.getElementById("graphDiv");
 var graphType = null; //Used to select which graph to display when looking at hint/challenge
 
+
+
 var conceptDescriptions = [];
 var selectedConceptName;
 var showAllProbs = false;
@@ -76,7 +78,8 @@ function filter() {
     }
     console.log("Concepts added to students.");
     analyzeButton.style.display = "none";
-    document.getElementById("CSVfile").style.display = "block";document.getElementById("toggleChangesButton").style.display = "inline";
+    document.getElementById("CSVfile").style.display = "block";
+    document.getElementById("toggleChangesButton").style.display = "inline";
     document.getElementById("reversalsButton").style.display = "inline";
     document.getElementById("singleStudentChalButton").style.display = "none";
     showConcepts();

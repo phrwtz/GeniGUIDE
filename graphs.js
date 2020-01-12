@@ -1,4 +1,4 @@
-function makeTwoCohortBarGraph(results1, results2) {
+function makeTwoCohortTargetMatchGraph(results1, results2) {
     var myDiv = document.getElementById("graphDiv");
     var Trace = Object,
         trace1 = new Trace(),

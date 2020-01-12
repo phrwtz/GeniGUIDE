@@ -217,9 +217,9 @@
     <div id="graphDiv" style="display:block" width="300" px height="300px">
     </div>
     <p id="infoPara" style="margin-left: 20px">
-        <table id="eggTable" style="display:none" width="90%">
+        <table id="eggDropTable" style="display:none" width="90%">
             <thead>
-                <tr id="eggHeaderRow">
+                <tr id="eggDropHeaderRow">
                     <th>
                         Challenge
                     </th>
@@ -227,18 +227,18 @@
                         Students
                     </th>
                     <th>
-                        Eggs rejected per student
+                        Rejected eggs/student
                     </th>
                     <th>
-                        Hints per student
+                        Hints/student
                     </th>
                 </tr>
                 </tr>
             </thead>
-            <tbody id="eggBody">
+            <tbody id="eggDropBody">
             </tbody>
         </table>
-        <table id="challengeTable" style="display:none" width="90%">
+        <table id="targetMatchTable" style="display:none" width="90%">
             <thead>
                 <tr id="chalHeaderRow">
                     <th>
@@ -273,13 +273,36 @@
                     </th>
                 </tr>
             </thead>
-            <tbody id="challengeBody">
+            <tbody id="targetMatchBody">
             </tbody>
         </table>
 
-        <table id="comparisonTable" style="display:none" width="90%">
+        <table id="eggDropCompTable" style="display:none" width="90%">
             <thead>
-                <tr id="compHeaderRow">
+                <tr id="eggDropCompHeaderRow">
+                    <th>
+                        Challenge
+                    </th>
+                    <th>
+                        Cohort
+                    </th>
+                    <th>
+                        Students
+                    </th>
+                    <th>
+                        Rejected eggs/Student
+                    </th>
+                    <th>
+                        Hints/Student
+                    </th>
+                    </head>
+            <tbody id="eggDropCompBody">
+            </tbody>
+        </table>
+
+        <table id="targetMatchCompTable" style="display:none" width="90%">
+            <thead>
+                <tr id="targetMatchCompHeaderRow">
                     <th>
                         Challenge
                     </th>
@@ -314,7 +337,7 @@
                         Total Remediations
                     </th>
                     </head>
-            <tbody id="comparisonBody">
+            <tbody id="targetMatchCompBody">
             </tbody>
         </table>
 
@@ -610,18 +633,27 @@
     </script>
 
     <script>
-        var chalTable = document.getElementById("comparisonTable");
-        var compTable = document.getElementById("challengeTable");
-        var chalFilter1 = document.getElementById("chalFilter1");
-        var sliderTable = document.getElementById("sliderTable");
-        var maxSlider1 = document.getElementById("maxrange1");
-        var minSlider1 = document.getElementById("minrange1");
-        var maxOutput1 = document.getElementById("maxPara1");
-        var minOutput1 = document.getElementById("minPara1");
-        var maxSlider2 = document.getElementById("maxrange2");
-        var minSlider2 = document.getElementById("minrange2");
-        var maxOutput2 = document.getElementById("maxPara2");
-        var minOutput2 = document.getElementById("minPara2");
+        //Hint tables and filter controls
+        var eggDropTable = document.getElementById("eggDropTable"),
+            eggDropBody = document.getElementById("eggDropBody"),
+            targetMatchTable = document.getElementById("targetMatchTable"),
+            targetMatchBody = document.getElementById("targetMatchBody"),
+            eggDropCompTable = document.getElementById("eggDropCompTable"),
+            eggDropCompBody = document.getElementById("eggDropCompBody"),
+            targetMatchCompTable = document.getElementById("targetMatchCompTable"),
+            targetMatchCompBody = document.getElementById("targetMatchCompBody"),
+            chalFilter1 = document.getElementById("chalFilter1"),
+            chalFilter2 = document.getElementById("chalFilter1"),
+            sliderTable = document.getElementById("sliderTable"),
+            maxSlider1 = document.getElementById("maxrange1"),
+            minSlider1 = document.getElementById("minrange1"),
+            maxOutput1 = document.getElementById("maxPara1"),
+            minOutput1 = document.getElementById("minPara1"),
+            maxSlider2 = document.getElementById("maxrange2"),
+            minSlider2 = document.getElementById("minrange2"),
+            maxOutput2 = document.getElementById("maxPara2"),
+            minOutput2 = document.getElementById("minPara2");
+        var graphDiv = document.getElementById("graphDiv");
         maxSlider1.oninput = function () {
             maxOutput1.innerHTML = "Cohort 1 maximum = " + this.value;
         }

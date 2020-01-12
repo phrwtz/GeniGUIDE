@@ -178,8 +178,6 @@ function getTargetMatchResults(filteredStudents) {
     });
 }
 
-
-
 function downloadTable(table) {
     var hintsTable = document.getElementById("hintsTable");
     var hintsCSV = tableToCSV(hintsTable);
@@ -426,7 +424,7 @@ function makeHintGraph() {
                 .then(getTargetMatchResults);
             Promise.all([cr1, cr2]).then(function (values) {
                 makeTargetMatchCompTable(values[0], values[1]);
-                makeTwoCohortBarGraph(values[0], values[1]);
+                makeTwoCohortTargetMatchGraph(values[0], values[1]);
             });
         }
     } else if (challengeType === "eggDrop") {
@@ -443,28 +441,28 @@ function makeHintGraph() {
             var cr2 = filterStudents(filter2, max2, min2)
                 .then(getEggdropResults);
             Promise.all([cr1, cr2]).then(function (values) {
-                console.log("Egg drop challenge results are in for two cohorts!");
+                makeEggDropCompTable(values[0], values[1]);
             });
         }
     }
 }
 
-function setUIVisibility(graphType, filter1, filter2) {
-    var chalTable = document.getElementById("challengeTable");
-    var compTable = document.getElementById("comparisonTable");
-    var myDiv = document.getElementById("graphDiv");
-    var slideDiv1 = document.getElementById("slideDiv1");
-    var slideDiv2 = document.getElementById("slideDiv2");
-    var chalFilter1 = document.getElementById("chalFilter1");
-    var chalFilter2 = document.getElementById("chalFilter2");
-    var maxSlider1 = document.getElementById("maxrange1");
-    var minSlider1 = document.getElementById("minrange1");
+function setUIVisibility(challengeType, graphType, filter1, filter2) {
     setFilterParameters(filter1, filter2);
+    if (challengeType === "targetMatch") {
+        eggDropTable.style.display = "none";
+        eggDropCompTable.style.display = "none";
+    } else if (challengeType === "eggDrop") {
+        targetMatchTable.style.display = "none";
+        targetMatchCompTable.style.display = "none";
+    }
     switch (graphType) {
         case "null":
             graphDiv.style.display = "none";
-            chalTable.style.display = "none";
-            compTable.style.display = "none";
+            targetMatchTable.style.display = "none";
+            targetMatchCompTable.style.display = "none";
+            eggDropTable.style.display = "none";
+            eggDropCompTable.style.display = "none";
             sliderTable.style.display = "none";
             maxSlider1.style.display = "none";
             maxOutput1.style.display = "none";
@@ -475,9 +473,10 @@ function setUIVisibility(graphType, filter1, filter2) {
             minSlider2.style.display = "none";
             minOutput2.style.display = "none";
             break;
+        //This is where I left off
         case "singleCohort":
             sliderTable.style.display = "none"; //Set visible later
-            compTable.style.display = "none";
+            targetMatchCompTable.style.display = "none";
             maxSlider2.style.display = "none";
             maxOutput2.style.display = "none";
             minSlider2.style.display = "none";
@@ -487,10 +486,12 @@ function setUIVisibility(graphType, filter1, filter2) {
                 chalFilter1.style.display = "block";
                 chalFilter2.style.display = "none";
                 graphDiv.style.display = "none";
-                chalTable.style.display = "none";
+                targetMatchTable.style.display = "none";
+                eggDropTable.style.display = "none";
             } else {
                 graphDiv.style.display = "block";
-                chalTable.style.display = "block";
+                targetMatchTable.style.display = "block";
+                eggDropTable.style.display = "block";
             }
             if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
                 sliderTable.style.display = "block";
@@ -504,9 +505,9 @@ function setUIVisibility(graphType, filter1, filter2) {
             break;
         case "twoCohorts":
             graphDiv.style.display = "none";
-            chalTable.style.display = "none";
+            targetMatchTable.style.display = "none";
             sliderTable.style.display = "none"; //Set visible later
-            compTable.style.display = "block";
+            targetMatchCompTable.style.display = "block";
             chalFilter1.style.display = "block";
             chalFilter2.style.display = "block";
             maxSlider2.style.display = "block";
@@ -516,11 +517,11 @@ function setUIVisibility(graphType, filter1, filter2) {
             if ((filter1 === "null") || (chalFilter2 === "null")) {
                 infoPara.style.display = "none";
                 graphDiv.style.display = "none";
-                compTable.style.display = "none";
+                targetMatchCompTable.style.display = "none";
             } else {
                 infoPara.style.display = "block";
                 graphDiv.style.display = "block";
-                compTable.style.display = "block";
+                targetMatchCompTable.style.display = "block";
             }
             if ((filter1 === "filter by prescore") || (filter1 === "filter by postscore") || (filter1 === "filter by gain")) {
                 sliderTable.style.display = "block";
@@ -547,6 +548,8 @@ function setUIVisibility(graphType, filter1, filter2) {
                 minOutput2.style.display = "none";
             }
     }
+}
+
 }
 
 function filterStudents(filterValue, maxValue, minValue) {
