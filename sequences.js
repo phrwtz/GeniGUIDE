@@ -19,8 +19,18 @@ var targetMatchArray = [ //Includes egg drop
     "allele-targetMatch-hidden-harderTraits",
     "allele-targetMatch-hidden-harderTraits2"
 ];
-var eggDropArray = ["eggDrop-wings", "eggDrop-limbs", "eggDrop-horns", "eggDrop-armor", "eggDrop-tail", "eggDrop-noseSpike"];
-var gameteArray = ["gamete-5drakes-starterTraits", "gamete-5drakes-starterTraits2", "gamete-targetMatch-starterTraits", "gamete-targetMatch-starterTraits2", "gamete-targetMatch-starterTraits3", "gamete-selectSpermEgg-starterTraits", "gamete-selectSpermEgg-starterTraits2", "gamete-selectSpermEgg-starterTraitsl-bothParents", "gamete-selectSpermEgg-starterTraits-bothParents2", "gamete-selectSpermEgg-harderTraits", "gamete-selectSpermEgg-harderTraits-bothParents"];
+var eggDropArray = [
+    "eggDrop-wings", "eggDrop-limbs", "eggDrop-horns", "eggDrop-armor", "eggDrop-tail", "eggDrop-noseSpike"];
+var gameteArray = [
+    "gamete-targetMatch-starterTraits", "gamete-targetMatch-starterTraits2", "gamete-targetMatch-starterTraits3", "gamete-selectSpermEgg-starterTraits", "gamete-selectSpermEgg-starterTraits2", "gamete-selectSpermEgg-starterTraits-bothParents", "gamete-selectSpermEgg-starterTraits-bothParents2", "gamete-selectSpermEgg-harderTraits", "gamete-selectSpermEgg-harderTraits-bothParents"];
+var clutchArray = [
+    "clutch-5drakes-starterTraits",
+    "clutch-5drakes-starterTraits2",
+    "clutch-5drakes-starterTraits3",
+    "clutch-5drakes-intermediateTraits",
+    "clutch-5drakes-intermediateTraits2",
+    "clutch-5drakes-harderTraits-bothParents",
+    "clutch-5drakes-harderTraits-bothParents2"];
 
 //For each egg drop challenge, run through the filtered students and count up all the hints they receive. Return a promise since the process may take a while.
 function getEggdropResults(filteredStudents) {
