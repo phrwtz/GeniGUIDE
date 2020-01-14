@@ -90,6 +90,55 @@ function makeTwoCohortEggDropGraph(results1, results2) {
     Plotly.newPlot(myDiv, data, layout);
 }
 
+function makeTwoCohortGameteGraph(results1, results2) {
+    var myDiv = document.getElementById("graphDiv");
+    var Trace = Object,
+        trace1 = new Trace(),
+        trace2 = new Trace(),
+        result1, result2,
+        hints1, hints2,
+        nameArray1, nameArray2,
+        shortName1, shortName2,
+        myOption1 = chalFilter1.value,
+        myOption2 = chalFilter2.value;
+    data = [],
+        layout = {};
+    trace1.x = [];
+    trace1.y = [];
+    trace1.type = 'bar';
+    trace1.name = "Cohort 1";
+    trace2.x = [];
+    trace2.y = [];
+    trace2.type = 'bar';
+    trace2.name = "Cohort 2";
+    for (let i = 0; i < results1.length; i++) {
+        result1 = results1[i];
+        hints1 = result1.hints;
+        nameArray1 = result1.name.split("-");
+        nameArray1.shift();
+        shortName1 = nameArray1.join("-");
+        result2 = results2[i];
+        hints2 = result2.hints;
+        nameArray2 = result2.name.split("-");
+        nameArray2.shift();
+        shortName2 = nameArray2.join("-");
+        trace1.x.push(shortName1);
+        trace2.x.push(shortName2);
+        trace1.y.push(hints1);
+        trace2.y.push(hints2);
+    }
+    data = [trace1, trace2];
+    layout = {
+        barmode: 'group',
+        title: 'Hints per gamete challenge per student<br>' + myOption1 + ", " + myOption2,
+        yaxis: {
+            range: "auto"
+        }
+    };
+    myDiv.style.display = "block";
+    Plotly.newPlot(myDiv, data, layout);
+}
+
 function makeSingleTargetMatchGraph(challengeResultsArray) {
     var myDiv = document.getElementById("graphDiv"),
         myOption1 = chalFilter1.value;
@@ -163,6 +212,42 @@ function makeSingleEggDropGraph(challengeResultsArray) {
     layout = {
         barmode: 'group',
         title: 'Hints per egg-drop challenge per student<br>' + myOption1,
+        yaxis: {
+            range: "auto"
+        }
+    };
+    myDiv.style.display = "block";
+    Plotly.newPlot(myDiv, data, layout);
+}
+
+function makeSingleGameteGraph(challengeResultsArray) {
+    var myDiv = document.getElementById("graphDiv"),
+        myOption1 = chalFilter1.value;
+    var Trace = Object,
+        trace = new Trace(),
+        challengeResult,
+        challengeName,
+        nameArray,
+        shortName,
+        data = [],
+        layout = {};
+    trace.x = [];
+    trace.y = [];
+    trace.type = 'bar';
+    trace.name = "Hints";
+    for (let i = 0; i < challengeResultsArray.length; i++) {
+        challengeResult = challengeResultsArray[i];
+        challengeName = challengeResult.name;
+        nameArray = challengeName.split("-");
+        nameArray.shift();
+        shortName = nameArray.join("-");
+        trace.x.push(shortName);
+        trace.y.push(challengeResult.hints);
+    }
+    data = [trace];
+    layout = {
+        barmode: 'group',
+        title: 'Hints per gamete challenge per student<br>' + myOption1,
         yaxis: {
             range: "auto"
         }

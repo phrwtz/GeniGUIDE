@@ -91,6 +91,9 @@
         <option value="eggDrop">
             Egg drop
         </option>
+        <option value="gamete">
+            Gamete
+        </option>
     </select>
 
     <div id="filterDiv">
@@ -219,6 +222,24 @@
     <div id="graphDiv" style="display:block" width="300" px height="300px">
     </div>
     <p id="infoPara" style="margin-left: 20px">
+        <table id="gameteTable" style="display:none" width="90%">
+            <thead>
+                <tr id="gameteHeaderRow">
+                    <th>
+                        Challenge
+                    </th>
+                    <th>
+                        Students
+                    </th>
+                    <th>
+                        Hints/student
+                    </th>
+                </tr>
+                </tr>
+            </thead>
+            <tbody id="gameteBody">
+            </tbody>
+        </table>
         <table id="eggDropTable" style="display:none" width="90%">
             <thead>
                 <tr id="eggDropHeaderRow">
@@ -299,6 +320,26 @@
                     </th>
                     </head>
             <tbody id="eggDropCompBody">
+            </tbody>
+        </table>
+
+        <table id="gameteCompTable" style="display:none" width="90%">
+            <thead>
+                <tr id="gameteCompHeaderRow">
+                    <th>
+                        Challenge
+                    </th>
+                    <th>
+                        Cohort
+                    </th>
+                    <th>
+                        Students
+                    </th>
+                    <th>
+                        Hints/Student
+                    </th>
+                    </head>
+            <tbody id="gameteCompBody">
             </tbody>
         </table>
 
@@ -638,6 +679,7 @@
         //Hint tables and filter controls
         var eggDropTable = document.getElementById("eggDropTable"),
             eggDropBody = document.getElementById("eggDropBody"),
+            gameteBody = document.getElementById("gameteBody"),
             targetMatchTable = document.getElementById("targetMatchTable"),
             targetMatchBody = document.getElementById("targetMatchBody"),
             eggDropCompTable = document.getElementById("eggDropCompTable"),

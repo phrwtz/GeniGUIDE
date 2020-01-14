@@ -1,25 +1,3 @@
-
-
-var clutchArray = [
-    "clutch-5drakes-starterTraits",
-    "clutch-5drakes-starterTraits2",
-    "clutch-5drakes-starterTraits3",
-    "clutch-5drakes-intermediateTraits",
-    "clutch-5drakes-intermediateTraits2",
-    "clutch-5drakes-harderTraits-bothParents",
-    "clutch-5drakes-harderTraits-bothParents2"];
-
-
-
-
-
-function downloadTable(table) {
-    var hintsTable = document.getElementById("hintsTable");
-    var hintsCSV = tableToCSV(hintsTable);
-    filename = "MC3PA_hints_data.csv";
-    saveData()(hintsCSV, filename);
-}
-
 //Returns an array of all the actions <student> took while engaged in <activity></activity>
 function filterActions(studentId, activity) {
     var arr = [],
@@ -64,7 +42,7 @@ function checkoutSelectedStudent() {
     }
 }
 
-//Returns an array. The first element is itself an array of tries by the student with <studentId> on <thisActivity>; the second element is the number of remdiations the student had on the activity.
+//Returns an array. The first element is an array of tries by the student with <studentId> on <thisActivity>; the second element is the number of remdiations the student had on the activity.
 function checkout(studentId, thisActivity) {
     var thisStudent = findStudent(studentId),
         tries = [],
@@ -280,6 +258,24 @@ function makeHintGraph() {
                 makeTwoCohortEggDropGraph(values[0], values[1])
             });
         }
+    } else if (challengeType === "gamete") {
+        if (graphType === "singleCohort") {
+            filterStudents(filter1, max1, min1)
+                .then(getGameteResults)
+                .then(function (result) {
+                    makeGameteTable(result);
+                    makeSingleGameteGraph(result);
+                });
+        } else if (graphType === "twoCohorts") {
+            var cr1 = filterStudents(filter1, max1, min1)
+                .then(getGameteResults)
+            var cr2 = filterStudents(filter2, max2, min2)
+                .then(getGameteResults);
+            Promise.all([cr1, cr2]).then(function (values) {
+                makeGameteCompTable(values[0], values[1]);
+                makeTwoCohortGameteGraph(values[0], values[1])
+            });
+        }
     }
 }
 
@@ -306,18 +302,24 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     targetMatchCompTable.style.display = "none";
                     eggDropTable.style.display = "none";
                     eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
                     break;
                 case "singleCohort":
                     targetMatchTable.style.display = "block";
                     targetMatchCompTable.style.display = "none";
                     eggDropTable.style.display = "none";
                     eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
                     break;
                 case "twoCohorts":
                     targetMatchTable.style.display = "none";
                     targetMatchCompTable.style.display = "block";
                     eggDropTable.style.display = "none";
                     eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
                     break;
             }
             break;
@@ -329,18 +331,53 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     targetMatchCompTable.style.display = "none";
                     eggDropTable.style.display = "none";
                     eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
                     break;
                 case "singleCohort":
                     targetMatchTable.style.display = "none";
                     targetMatchCompTable.style.display = "none";
                     eggDropTable.style.display = "block";
                     eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
                     break;
                 case "twoCohorts":
                     targetMatchTable.style.display = "none";
                     targetMatchCompTable.style.display = "none";
                     eggDropTable.style.display = "none";
                     eggDropCompTable.style.display = "block";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
+                    break;
+            }
+            break;
+        case "gamete":
+            filterDiv.style.display = "block";
+            switch (graphType) {
+                case "null":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
+                    break;
+                case "singleCohort":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "block";
+                    gameteCompTable.style.display = "none";
+                    break;
+                case "twoCohorts":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "block";
                     break;
             }
             break;
@@ -638,4 +675,11 @@ function findFutureProbs() { //Goes through all the actions for every student, s
             console.log("Student " + i + " has no actions!");
         }
     }
+}
+
+function downloadTable(table) {
+    var hintsTable = document.getElementById("hintsTable");
+    var hintsCSV = tableToCSV(hintsTable);
+    filename = "MC3PA_hints_data.csv";
+    saveData()(hintsCSV, filename);
 }
