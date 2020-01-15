@@ -94,6 +94,9 @@
         <option value="gamete">
             Gamete
         </option>
+        <option value="clutch">
+            Clutch
+        </option>
     </select>
 
     <div id="filterDiv">
@@ -222,6 +225,24 @@
     <div id="graphDiv" style="display:block" width="300" px height="300px">
     </div>
     <p id="infoPara" style="margin-left: 20px">
+        <table id="clutchTable" style="display:none" width="90%">
+            <thead>
+                <tr id="clutchHeaderRow">
+                    <th>
+                        Challenge
+                    </th>
+                    <th>
+                        Students
+                    </th>
+                    <th>
+                        Hints/student
+                    </th>
+                </tr>
+                </tr>
+            </thead>
+            <tbody id="clutchBody">
+            </tbody>
+        </table>
         <table id="gameteTable" style="display:none" width="90%">
             <thead>
                 <tr id="gameteHeaderRow">
@@ -342,7 +363,25 @@
             <tbody id="gameteCompBody">
             </tbody>
         </table>
-
+        <table id="clutchCompTable" style="display:none" width="90%">
+            <thead>
+                <tr id="clutchCompHeaderRow">
+                    <th>
+                        Challenge
+                    </th>
+                    <th>
+                        Cohort
+                    </th>
+                    <th>
+                        Students
+                    </th>
+                    <th>
+                        Hints/Student
+                    </th>
+                    </head>
+            <tbody id="clutchCompBody">
+            </tbody>
+        </table>
         <table id="targetMatchCompTable" style="display:none" width="90%">
             <thead>
                 <tr id="targetMatchCompHeaderRow">
@@ -677,15 +716,22 @@
 
     <script>
         //Hint tables and filter controls
-        var eggDropTable = document.getElementById("eggDropTable"),
-            eggDropBody = document.getElementById("eggDropBody"),
-            gameteBody = document.getElementById("gameteBody"),
-            targetMatchTable = document.getElementById("targetMatchTable"),
+        var targetMatchTable = document.getElementById("targetMatchTable"),
             targetMatchBody = document.getElementById("targetMatchBody"),
-            eggDropCompTable = document.getElementById("eggDropCompTable"),
-            eggDropCompBody = document.getElementById("eggDropCompBody"),
             targetMatchCompTable = document.getElementById("targetMatchCompTable"),
             targetMatchCompBody = document.getElementById("targetMatchCompBody"),
+            eggDropTable = document.getElementById("eggDropTable"),
+            eggDropBody = document.getElementById("eggDropBody"),
+            eggDropCompTable = document.getElementById("eggDropCompTable"),
+            eggDropCompBody = document.getElementById("eggDropCompBody"),
+            gameteTable = document.getElementById("gameteTable"),
+            gameteBody = document.getElementById("gameteBody"),
+            gameteCompTable = document.getElementById("gameteCompTable"),
+            gameteCompBody = document.getElementById("gameteCompBody"),
+            clutchTable = document.getElementById("clutchTable"),
+            clutchBody = document.getElementById("clutchBody"),
+            clutchCompTable = document.getElementById("clutchCompTable"),
+            clutchCompBody = document.getElementById("clutchCompBody"),
             filterDiv = document.getElementById("filterDiv");
         chalFilter1 = document.getElementById("chalFilter1"),
             chalFilter2 = document.getElementById("chalFilter2"),

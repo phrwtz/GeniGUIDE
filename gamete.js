@@ -10,7 +10,7 @@ function describeGameteAction(action) {
             var level = parseInt(action.parameters.level) + 1,
                 mission = parseInt(action.parameters.mission) + 1,
                 challenge = parseInt(action.parameters.challenge) + 1;
-            description = "Level " + level + ", mission " + mission + " challenge " + challenge;
+            description = "Level " + level + ", mission " + mission + ", challenge " + challenge;
             break;
         case "Guide hint received":
             var data = action.parameters.data,
@@ -18,11 +18,12 @@ function describeGameteAction(action) {
                 score = Math.round(1000 * parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0])) / 1000,
                 trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0],
                 message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0],
-                level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
-            if (level != 1) {
-                console.log("Hint level for gamete challenge ≠ 1")
+                hintLevel = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
+            if (hintLevel != 1) {
+                console.log("Hint level for gamete challenge = " + hintLevel);
             }
-            description = "Level " + level + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";
+            description = "Level " + hintLevel + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";
+            break;
     }
     return description;
 }
@@ -34,8 +35,17 @@ function getGameteResults(filteredStudents) {
             numStudents = 0,
             thisStudent,
             thisActivity,
-            studentHints,
-            activityHints;
+            studentLevel1Hints,
+            studentLevel2Hints,
+            studentLevel3Hints,
+            activityLevel1Hints,
+            activityLevel2Hints,
+            activityLevel3Hints,
+            hintScoreArray = [],
+            hintScoreMean,
+            hintScoreStdDev,
+            hintScoreMeanStdDev = [],
+            totalRemediations;
         //Start new activity
         for (let j = 0; j < gameteArray.length; j++) {
             numStudents = 0;

@@ -32,8 +32,12 @@ function showActions() {
             myAction = acts[k];
             if (targetMatchArray.includes(myAction.activity)) {
                 description = describeTargetMatch(myAction);
-            } else if (gameteArray.includes(myAction.activity)) {
+            } else if (eggDropArray.includes(myAction.activity)) {
+                description = describeEggDropAction(myAction);
+            }  else if (gameteArray.includes(myAction.activity)) {
                 description = describeGameteAction(myAction);
+            }  else if (clutchArray.includes(myAction.activity)) {
+                description = describeClutchAction(myAction);
             } else {
                 description = "";
             }

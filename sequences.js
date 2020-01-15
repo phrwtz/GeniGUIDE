@@ -203,24 +203,20 @@ function findActionsByActivity(studentId, activityName) {
 
 function makeHintGraph() {
     document.getElementById("graphType").style.display = "block";
-    var chalTable = document.getElementById("challengeTable");
-    var compTable = document.getElementById("comparisonTable");
     var myDiv = document.getElementById("graphDiv");
     var chalFilter1 = document.getElementById("chalFilter1");
     var chalFilter2 = document.getElementById("chalFilter2");
     var maxSlider1 = document.getElementById("maxrange1");
     var minSlider1 = document.getElementById("minrange1");
-    var graphTypeSelect = document.getElementById("graphType"),
-        graphType = graphTypeSelect.value,
-        filter1 = chalFilter1.value,
+    var challengeType = document.getElementById("challengeType").value;
+    var graphType = document.getElementById("graphType").value;
+    var filter1 = chalFilter1.value,
         filter2 = chalFilter2.value,
         max1 = parseInt(maxSlider1.value),
         min1 = parseInt(minSlider1.value),
         max2 = parseInt(maxSlider2.value),
         min2 = parseInt(minSlider2.value),
         fs1, fs2, cr1, cr2;
-    var challengeTypeSelect = document.getElementById("challengeType"),
-        challengeType = challengeTypeSelect.value;
     setUIVisibility(challengeType, graphType, filter1, filter2);
     if (challengeType === "targetMatch") {
         if (graphType === "singleCohort") {
@@ -276,13 +272,29 @@ function makeHintGraph() {
                 makeTwoCohortGameteGraph(values[0], values[1])
             });
         }
+    } else if (challengeType === "clutch") {
+        if (graphType === "singleCohort") {
+            filterStudents(filter1, max1, min1)
+                .then(getClutchResults)
+                .then(function (result) {
+                    makeClutchTable(result);
+                    makeSingleClutchGraph(result);
+                });
+        } else if (graphType === "twoCohorts") {
+            var cr1 = filterStudents(filter1, max1, min1)
+                .then(getClutchResults)
+            var cr2 = filterStudents(filter2, max2, min2)
+                .then(getClutchResults);
+            Promise.all([cr1, cr2]).then(function (values) {
+                makeClutchCompTable(values[0], values[1]);
+                makeTwoCohortClutchGraph(values[0], values[1])
+            });
+        }
     }
 }
 
 function setUIVisibility(challengeType, graphType, filter1, filter2) {
     setFilterParameters(filter1, filter2);
-    chalFilter1.style.display = "none";
-    chalFilter2.style.display = "none";
     //set table visibility according to challenge and graph type
     switch (challengeType) {
         case "null":
@@ -290,6 +302,10 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
             targetMatchCompTable.style.display = "none";
             eggDropTable.style.display = "none";
             eggDropCompTable.style.display = "none";
+            gameteTable.style.display = "none";
+            gameteCompTable.style.display = "none";
+            clutchTable.style.display = "none";
+            clutchCompTable.style.display = "none";
             graphDiv.style.display = "none";
             infoPara.style.display = "none";
             filterDiv.style.display = "none";
@@ -304,6 +320,8 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     eggDropCompTable.style.display = "none";
                     gameteTable.style.display = "none";
                     gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
                     break;
                 case "singleCohort":
                     targetMatchTable.style.display = "block";
@@ -312,6 +330,8 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     eggDropCompTable.style.display = "none";
                     gameteTable.style.display = "none";
                     gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
                     break;
                 case "twoCohorts":
                     targetMatchTable.style.display = "none";
@@ -320,6 +340,8 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     eggDropCompTable.style.display = "none";
                     gameteTable.style.display = "none";
                     gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
                     break;
             }
             break;
@@ -333,6 +355,8 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     eggDropCompTable.style.display = "none";
                     gameteTable.style.display = "none";
                     gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
                     break;
                 case "singleCohort":
                     targetMatchTable.style.display = "none";
@@ -341,6 +365,8 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     eggDropCompTable.style.display = "none";
                     gameteTable.style.display = "none";
                     gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
                     break;
                 case "twoCohorts":
                     targetMatchTable.style.display = "none";
@@ -349,6 +375,8 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     eggDropCompTable.style.display = "block";
                     gameteTable.style.display = "none";
                     gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
                     break;
             }
             break;
@@ -362,6 +390,8 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     eggDropCompTable.style.display = "none";
                     gameteTable.style.display = "none";
                     gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
                     break;
                 case "singleCohort":
                     targetMatchTable.style.display = "none";
@@ -370,6 +400,8 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     eggDropCompTable.style.display = "none";
                     gameteTable.style.display = "block";
                     gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
                     break;
                 case "twoCohorts":
                     targetMatchTable.style.display = "none";
@@ -378,9 +410,45 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     eggDropCompTable.style.display = "none";
                     gameteTable.style.display = "none";
                     gameteCompTable.style.display = "block";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
                     break;
             }
-            break;
+            case "clutch":
+                filterDiv.style.display = "block";
+                switch (graphType) {
+                    case "null":
+                        targetMatchTable.style.display = "none";
+                        targetMatchCompTable.style.display = "none";
+                        eggDropTable.style.display = "none";
+                        eggDropCompTable.style.display = "none";
+                        gameteTable.style.display = "none";
+                        gameteCompTable.style.display = "none";
+                        clutchTable.style.display = "none";
+                        clutchCompTable.style.display = "none";
+                        break;
+                    case "singleCohort":
+                        targetMatchTable.style.display = "none";
+                        targetMatchCompTable.style.display = "none";
+                        eggDropTable.style.display = "none";
+                        eggDropCompTable.style.display = "none";
+                        gameteTable.style.display = "none";
+                        gameteCompTable.style.display = "none";
+                        clutchTable.style.display = "block";
+                        clutchCompTable.style.display = "none";
+                        break;
+                    case "twoCohorts":
+                        targetMatchTable.style.display = "none";
+                        targetMatchCompTable.style.display = "none";
+                        eggDropTable.style.display = "none";
+                        eggDropCompTable.style.display = "none";
+                        gameteTable.style.display = "none";
+                        gameteCompTable.style.display = "none";
+                        clutchTable.style.display = "none";
+                        clutchCompTable.style.display = "block";
+                        break;
+                }
+                break;
     }
     //Set graph type selector and slider visibility according to graph type
     switch (graphType) {
