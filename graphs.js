@@ -113,12 +113,12 @@ function makeTwoCohortGameteGraph(results1, results2) {
     trace2.name = "Cohort 2";
     for (let i = 0; i < results1.length; i++) {
         result1 = results1[i];
-        hints1 = result1.hints;
+        hints1 = result1.hintScoreMean;
         nameArray1 = result1.name.split("-");
         nameArray1.shift();
         shortName1 = nameArray1.join("-");
         result2 = results2[i];
-        hints2 = result2.hints;
+        hints2 = result2.hintScoreMean;
         nameArray2 = result2.name.split("-");
         nameArray2.shift();
         shortName2 = nameArray2.join("-");
@@ -267,30 +267,43 @@ function makeSingleGameteGraph(challengeResultsArray) {
     var myDiv = document.getElementById("graphDiv"),
         myOption1 = chalFilter1.value;
     var Trace = Object,
-        trace = new Trace(),
-        challengeResult,
-        challengeName,
+        trace1 = new Trace(),
+        trace2 = new Trace(),
+        trace3 = new Trace(),
         nameArray,
+        challengeResult,
         shortName,
         data = [],
         layout = {};
-    trace.x = [];
-    trace.y = [];
-    trace.type = 'bar';
-    trace.name = "Hints";
+
+    trace1.x = [];
+    trace1.y = [];
+    trace1.type = 'bar';
+    trace1.name = "Level 1";
+    trace2.x = [];
+    trace2.y = [];
+    trace2.type = 'bar';
+    trace2.name = "Level 2";
+    trace3.x = [];
+    trace3.y = [];
+    trace3.type = 'bar';
+    trace3.name = "Level 3";
     for (let i = 0; i < challengeResultsArray.length; i++) {
         challengeResult = challengeResultsArray[i];
-        challengeName = challengeResult.name;
-        nameArray = challengeName.split("-");
+        nameArray = challengeResult.name.split("-");
         nameArray.shift();
         shortName = nameArray.join("-");
-        trace.x.push(shortName);
-        trace.y.push(challengeResult.hints);
+        trace1.x.push(shortName);
+        trace2.x.push(shortName);
+        trace3.x.push(shortName);
+        trace1.y.push(challengeResult.level1Hints);
+        trace2.y.push(challengeResult.level2Hints);
+        trace3.y.push(challengeResult.level3Hints);
     }
-    data = [trace];
+    data = [trace1, trace2, trace3];
     layout = {
         barmode: 'group',
-        title: 'Hints per gamete challenge per student<br>' + myOption1,
+        title: 'Average hint scores per gamete challenge<br>' + myOption1,
         yaxis: {
             range: "auto"
         }
@@ -341,50 +354,6 @@ function mean(array) {
         sum += array[i];
     }
     return sum / array.length;
-}
-
-function makeChallengeResultsBoxPlot(challengeResultsArray) {
-    var myDiv = document.getElementById("graphDiv"),
-        mySelect = document.getElementById("chalFilter"),
-        maxSlider = document.getElementById("maxrange"),
-        minSlider = document.getElementById("minrange"),
-        maxGain = parseInt(maxSlider.value),
-        minGain = parseInt(minSlider.value),
-        myOption = mySelect.options[mySelect.selectedIndex].text;
-    if (myOption == "Set filter") {
-        myOption = "Gains between " + minGain + " and " + maxGain;
-    }
-
-    var Trace = Object,
-        trace = new Trace(),
-        challengeResult,
-        challengeName,
-        challengeType,
-        shortName,
-        data = [],
-        layout = {};
-
-    for (let i = 0; i < challengeResultsArray.length; i++) {
-        challengeResult = challengeResultsArray[i];
-        challengeName = challengeResult.name.split("-")[3];
-        challengeType = challengeResult.name.split("-")[2];
-        shortName = challengeType + "-" + challengeName;
-        trace = {
-            y: challengeResult.hintScores,
-            type: 'box',
-            name: shortName,
-            marker: {
-                color: 'rgb(10, 140, 288)'
-            },
-            boxpoints: 'all',
-            boxmean: 'true'
-        };
-        data.push(trace);
-    }
-    layout = {
-        title: 'Challenge Box Plot'
-    };
-    Plotly.newPlot(myDiv, data, layout);
 }
 
 function makeGraph() {

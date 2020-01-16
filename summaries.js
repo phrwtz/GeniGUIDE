@@ -1,4 +1,30 @@
-
+//Return an array of level 1, level 2, and level 3 hints received by <student> on <challenge> 
+function parseHints(student, challenge) {
+    var level1Hints = 0,
+        level2Hints = 0,
+        level3Hints = 0,
+        thisHint;
+    if (student.activitiesByName[challenge]) {
+        if (student.activitiesByName[challenge].hints) {
+            var hints = student.activitiesByName[challenge].hints;
+            for (i = 0; i < hints.length; i++) {
+                thisHint = hints[i];
+                switch (thisHint.level) {
+                    case 1:
+                        level1Hints++;
+                        break;
+                    case 2:
+                        level2Hints++;
+                        break;
+                    case 3:
+                        level3Hints++;
+                        break;
+                }
+            }
+        }
+    }
+    return [level1Hints, level2Hints, level3Hints];
+}
 
 
 function summarizeHints(students) {

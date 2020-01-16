@@ -197,8 +197,6 @@ function getTargetMatchResults(filteredStudents) {
 }
 
 function makeTargetMatchTable(challengeResultsArray) {
-    targetMatchTable.style.display = "block";
-    eggDropTable.style.display = "none";
     var challengeResult,
         chalRow,
         chalCell;
@@ -254,7 +252,7 @@ function makeTargetMatchCompTable(resultArray1, resultArray2) {
     var compTable = document.getElementById("targetMatchCompTable"),
         compBody = document.getElementById("targetMatchCompBody");
     var result1, result2;
-    var compRow, compCell1, compCell2, compCell3, compCell4, compCell5;
+    var compRow, compCell1, compCell2, compCell3, compCell4, compCell5, compCell6, compCell7, compCell8, compCell9, compCell10, compCell11;
     clear(compBody);
     compTable.style.display = "block";
     for (let i = 0; i < resultArray1.length; i++) {

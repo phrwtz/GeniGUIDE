@@ -414,41 +414,42 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     clutchCompTable.style.display = "none";
                     break;
             }
-            case "clutch":
-                filterDiv.style.display = "block";
-                switch (graphType) {
-                    case "null":
-                        targetMatchTable.style.display = "none";
-                        targetMatchCompTable.style.display = "none";
-                        eggDropTable.style.display = "none";
-                        eggDropCompTable.style.display = "none";
-                        gameteTable.style.display = "none";
-                        gameteCompTable.style.display = "none";
-                        clutchTable.style.display = "none";
-                        clutchCompTable.style.display = "none";
-                        break;
-                    case "singleCohort":
-                        targetMatchTable.style.display = "none";
-                        targetMatchCompTable.style.display = "none";
-                        eggDropTable.style.display = "none";
-                        eggDropCompTable.style.display = "none";
-                        gameteTable.style.display = "none";
-                        gameteCompTable.style.display = "none";
-                        clutchTable.style.display = "block";
-                        clutchCompTable.style.display = "none";
-                        break;
-                    case "twoCohorts":
-                        targetMatchTable.style.display = "none";
-                        targetMatchCompTable.style.display = "none";
-                        eggDropTable.style.display = "none";
-                        eggDropCompTable.style.display = "none";
-                        gameteTable.style.display = "none";
-                        gameteCompTable.style.display = "none";
-                        clutchTable.style.display = "none";
-                        clutchCompTable.style.display = "block";
-                        break;
-                }
-                break;
+            break;
+        case "clutch":
+            filterDiv.style.display = "block";
+            switch (graphType) {
+                case "null":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "none";
+                    break;
+                case "singleCohort":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "block";
+                    clutchCompTable.style.display = "none";
+                    break;
+                case "twoCohorts":
+                    targetMatchTable.style.display = "none";
+                    targetMatchCompTable.style.display = "none";
+                    eggDropTable.style.display = "none";
+                    eggDropCompTable.style.display = "none";
+                    gameteTable.style.display = "none";
+                    gameteCompTable.style.display = "none";
+                    clutchTable.style.display = "none";
+                    clutchCompTable.style.display = "block";
+                    break;
+            }
+            break;
     }
     //Set graph type selector and slider visibility according to graph type
     switch (graphType) {

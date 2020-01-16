@@ -233,6 +233,7 @@ function parseJSON(myTeacher) {
                         myActivity.hintReceived = true;
                         myStudent.hintReceived = true;
                         myClass.hintReceived = true;
+                        myActivity.hints.push(parseHint(myRow));
                         myStudent.hints.push(parseHint(myRow));
                     } else if (myEvent.name == "Guide-remediation-requested") {
                         myActivity.remediationRequested = true;
