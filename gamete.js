@@ -183,6 +183,6 @@ function makeGameteCompTable(resultArray1, resultArray2) {
         compCell3.innerHTML = result2.level1Hints;
         compCell4.innerHTML = result2.level2Hints;
         compCell5.innerHTML = result2.level3Hints;
-        compCell6.innerHTML = result2.hintScoreMean + " " + String.fromCharCode(177) + " " + result1.hintScoreStdErr;
+        compCell6.innerHTML = result2.hintScoreMean + " " + String.fromCharCode(177) + " " + result2.hintScoreStdErr;
     }
 }
