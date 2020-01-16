@@ -307,7 +307,6 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
             clutchTable.style.display = "none";
             clutchCompTable.style.display = "none";
             graphDiv.style.display = "none";
-            infoPara.style.display = "none";
             filterDiv.style.display = "none";
             break;
         case "targetMatch":
@@ -322,6 +321,7 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     gameteCompTable.style.display = "none";
                     clutchTable.style.display = "none";
                     clutchCompTable.style.display = "none";
+                    graphDiv.style.display = "none";
                     break;
                 case "singleCohort":
                     targetMatchTable.style.display = "block";
@@ -357,6 +357,7 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     gameteCompTable.style.display = "none";
                     clutchTable.style.display = "none";
                     clutchCompTable.style.display = "none";
+                    graphDiv.style.display = "none";
                     break;
                 case "singleCohort":
                     targetMatchTable.style.display = "none";
@@ -392,6 +393,7 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     gameteCompTable.style.display = "none";
                     clutchTable.style.display = "none";
                     clutchCompTable.style.display = "none";
+                    graphDiv.style.display = "none";
                     break;
                 case "singleCohort":
                     targetMatchTable.style.display = "none";
@@ -427,6 +429,7 @@ function setUIVisibility(challengeType, graphType, filter1, filter2) {
                     gameteCompTable.style.display = "none";
                     clutchTable.style.display = "none";
                     clutchCompTable.style.display = "none";
+                    graphDiv.style.display = "none";
                     break;
                 case "singleCohort":
                     targetMatchTable.style.display = "none";
