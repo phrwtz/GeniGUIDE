@@ -30,6 +30,10 @@ function describeClutchAction(action) {
             }
             description = "Level " + hintLevel + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";
             break;
+        case "Drake submitted":
+            var correct = (action.parameters.correct === "true");
+            var correctStr = (correct ? "Correct" : "Wrong");
+            description = correctStr + " drake submitted.";
     }
     return description;
 }
