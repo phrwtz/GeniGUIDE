@@ -26,7 +26,7 @@ function describeClutchAction(action) {
                 message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0],
                 hintLevel = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
             if (hintLevel != 1) {
-                console.log("Hint level for clutch challenge = " + hintLevel);
+                //            console.log("Hint level for clutch challenge = " + hintLevel);
             }
             description = "Level " + hintLevel + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";
             break;
@@ -34,6 +34,23 @@ function describeClutchAction(action) {
             var correct = (action.parameters.correct === "true");
             var correctStr = (correct ? "Correct" : "Wrong");
             description = correctStr + " drake submitted.";
+            break;
+        case "Allele changed":
+            description = "Allele changed from " + action.parameters.previousAllele + " to " + action.parameters.newAllele + ".";
+            break;
+        case "Clutch bred":
+            description = "Clutch bred; clutch size is " + action.parameters.clutchSize + ".";
+            break;
+        case "Entered challenge from room":
+            description = "Entered challenge.";
+            break;
+        case "Challenge completed":
+            description = "Challenge completed.";
+            break;
+        case "ITS Data Updated":
+            description = action.parameters.studentModel;
+            break;
+
     }
     return description;
 }
@@ -194,5 +211,24 @@ function makeClutchCompTable(resultArray1, resultArray2) {
         compCell4.innerHTML = result2.level2Hints;
         compCell5.innerHTML = result2.level3Hints;
         compCell6.innerHTML = result2.hintScoreMean + " " + String.fromCharCode(177) + " " + result2.hintScoreStdErr;
+    }
+}
+
+function checkoutClutchBothParentsHints() {
+    for (student of students) {
+        if (student) {
+            if (student.activitiesByName[
+                    "clutch-5drakes-harderTraits-bothParents"]) {
+                var numHints = student.activitiesByName[
+                    "clutch-5drakes-harderTraits-bothParents"].hints.length;
+                console.log("Student " + student.id + " of class " + student.class.id + " got " + numHints + " hints on both parents challenge.")
+            }
+            if (student.activitiesByName[
+                    "clutch-5drakes-harderTraits-bothParents2"]) {
+                var numHints = student.activitiesByName[
+                    "clutch-5drakes-harderTraits-bothParents2"].hints.length;
+                console.log("Student " + student.id + " of class " + student.class.id + " got " + numHints + " hints on both parents 2 challenge.")
+            }
+        }
     }
 }
