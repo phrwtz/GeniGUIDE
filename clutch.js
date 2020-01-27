@@ -36,7 +36,23 @@ function describeClutchAction(action) {
             description = correctStr + " drake submitted.";
             break;
         case "Allele changed":
-            description = "Allele changed from " + action.parameters.previousAllele + " to " + action.parameters.newAllele + ".";
+            var side = action.parameters.side,
+                index = action.parameters.index,
+                previousAllele = action.parameters.previousAllele,
+                newAllele = action.parameters.newAllele;
+            if (index == "0") {
+                description = "Allele changed on mother drake, side " +
+                    side + ". Allele changed from " + previousAllele + " to " +
+                    newAllele + ".";
+            } else if (index == "1") {
+                description = "Allele changed on father drake, side " +
+                    side + ". Allele changed from " + previousAllele + " to " +
+                    newAllele + ".";
+            } else {
+                description = "Allele changed on side " +
+                    side + " from " + previousAllele + " to " +
+                    newAllele + ".";
+            }
             break;
         case "Clutch bred":
             description = "Clutch bred; clutch size is " + action.parameters.clutchSize + ".";
@@ -221,13 +237,17 @@ function checkoutClutchBothParentsHints() {
                     "clutch-5drakes-harderTraits-bothParents"]) {
                 var numHints = student.activitiesByName[
                     "clutch-5drakes-harderTraits-bothParents"].hints.length;
-                console.log("Student " + student.id + " of class " + student.class.id + " got " + numHints + " hints on both parents challenge.")
+                if (numHints > 50) {
+                    console.log("Student " + student.id + " of teacher " + student.teacher.id + " of class " + student.class.id + " got " + numHints + " hints on both parents challenge.");
+                }
             }
             if (student.activitiesByName[
                     "clutch-5drakes-harderTraits-bothParents2"]) {
                 var numHints = student.activitiesByName[
                     "clutch-5drakes-harderTraits-bothParents2"].hints.length;
-                console.log("Student " + student.id + " of class " + student.class.id + " got " + numHints + " hints on both parents 2 challenge.")
+                if (numHints > 50) {
+                    console.log("Student " + student.id + " of teacher " + student.teacher.id + ", class " + student.class.id + " got " + numHints + " hints on both parents 2 challenge.");
+                }
             }
         }
     }
