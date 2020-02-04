@@ -63,14 +63,21 @@
     <h2>Parse Geniventure JSON log files</h2>
     <div id="JSONfiles" style="display:block">
         Input Teachers files
-        <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
+        <input type="file" id="fileInput" multiple onchange="openFiles(event)"> </input>
+        <br><br>
+        Input pre-test files
+        <input type="file" id="fileInput" multiple onchange="openPreTestFile(event)"> </input>
+        <br><br>
+        Input post-test files
+        <input type="file" id="fileInput" multiple onchange="openPostTestFile(event)"> </input>
+        <br><br>
     </div>
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">
         Analyze
     </button>
     <div id="CSVfile" style="display:none">
         Input Students file
-        <input type="file" id="csvInput" onchange="openCSVFile(event)"> <br><br>
+        <input type="file" id="csvInput" onchange="openPrePostFile(event)"> <br><br>
     </div>
     <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
         challenge file
@@ -225,7 +232,7 @@
     <div id="graphDiv" style="display:block" width="300" px height="300px">
     </div>
     <p id="infoPara" style="margin-left: 20px">
-       
+
         <table id="clutchTable" style="display:none" width="90%">
             <thead>
                 <tr id="clutchHeaderRow">
@@ -679,79 +686,6 @@
     </div>
 
     <script>
-        var fileCount = 0;
-
-        function openFiles(evt) {
-            var files = evt.target.files; // FileList object
-            for (var i = 0, f; f = files[i]; i++) {
-                var reader = new FileReader();
-                reader.onerror = function (err) {
-                    console.log(err);
-                }
-                //closure to capture the file information
-                reader.onloadend = function (f) {
-                    return function (e) {
-                        fileCount++;
-                        if (fileCount >= files.length - 1) {
-                            document.getElementById("JSONfiles").style.display = "none";
-                            document.getElementById("analyzeButton")
-                                .style.display = "block";
-                            document.getElementById("fileInput").disabled =
-                                true;
-                            document.getElementById("analyzeButton").style.display = "block";
-                        }
-                        var myTeacher = new Object;
-                        var myName = f.name.split(".")[0];
-                        myTeacher.id = myName;
-                        myTeacher.data = e.target.result;
-                        teachersArray.push(myTeacher);
-                        console.log("File " + myName + " loaded.");
-                    }
-                }(f);
-                reader.readAsText(f);
-            }
-        }
-
-        function openCSVFile(evt) {
-            var file = evt.target.files[0];
-            var reader = new FileReader();
-            reader.onerror = function (err) {
-                console.log(err);
-            }
-            reader.onloadend = function (file) {
-                return function (e) {
-                    let csvStr = e.target.result;
-                    let csvArr = Papa.parse(csvStr);
-                    let data = csvArr.data;
-                    let header = data[0];
-                    for (let i = 1; i < data.length; i++) {
-                        dataRow = data[i];
-                        ppStudent = new Object;
-                        for (let j = 0; j < dataRow.length; j++) {
-                            ppStudent[header[j]] = dataRow[j]
-                        }
-                        ppStudents.push(ppStudent);
-                    }
-                    for (let k = 0; k < ppStudents.length; k++) {
-                        let thisPpStudent = ppStudents[k];
-                        let thisStudent = studentsObj[thisPpStudent.UserID];
-                        if (thisStudent) {
-                            thisStudent.score_pre = parseInt(thisPpStudent.score_pre);
-                            thisStudent.score_post = parseInt(thisPpStudent.score_post);
-                            thisStudent.prepost_gain =
-                                parseInt(thisPpStudent.prepost_gain);
-                            //console.log("Student " + thisStudent.id + " had a pre-test score of " +  thisPpStudent    .score_pre + " and a post-test score of " + thisPpStudent.score_post +  " for an effect size of " + (thisPpStudent.prepost_gain);
-                        }
-                    }
-                    document.getElementById("CSVfile").style.display = "none";
-                    document.getElementById("challengeType").style.display = "block";
-                }(file);
-            }
-            reader.readAsText(file);
-        }
-    </script>
-
-    <script>
         //Hint tables and filter controls
         var targetMatchTable = document.getElementById("targetMatchTable"),
             targetMatchBody = document.getElementById("targetMatchBody"),
@@ -797,6 +731,7 @@
     </script>
 
     <script src="parse-file.js"></script>
+    <script src="files.js"></script>
     <script src="utils.js"></script>
     <script src="sequences.js"></script>
     <script src="papaparse.js"></script>

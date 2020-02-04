@@ -2,6 +2,8 @@
 var teachersArray = []; //filled by openFiles function when files are read.
 var teacherIds = [];
 var ppStudents = []; //An array of student objects with ids and pre and post scores (obtained from Danielle's file). Note: not all students are contained in this array).
+var preStudents = []; //An array of student objects with ids and pre scores obtained from the log puller from September, 2019 through January, 2020.
+var postStudents = []; //An array of student objects with ids and post scores obtained from the log puller from September, 2019 through January, 2020.
 var teachersPara = document.getElementById("teachers");
 var classesPara = document.getElementById("classes");
 var studentsPara = document.getElementById("students");
