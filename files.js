@@ -15,8 +15,6 @@ function openFiles(evt) {
                     document.getElementById("JSONfiles").style.display = "none";
                     document.getElementById("analyzeButton").style.display = "block";
                     document.getElementById("fileInput").disabled = true;
-                    document.getElementById("analyzeButton").style.display = "block";
-                }
                 var myTeacher = new Object();
                 var myName = f.name.split(".")[0];
                 myTeacher.id = myName;
@@ -24,7 +22,12 @@ function openFiles(evt) {
                 teachersArray.push(myTeacher);
                 console.log("File " + myName + " loaded.");
             };
-        })(f);
+            }) (f);
+            reader.onloadstart = (function (f) {
+                return function (e) {
+                    console.log("File " + myName + " being loaded. Please wait.");  
+                }
+            })
         reader.readAsText(f);
     }
 }
