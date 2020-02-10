@@ -10,24 +10,42 @@ function openFiles(evt) {
         //closure to capture the file information
         reader.onloadend = (function (f) {
             return function (e) {
+                let today = new Date();
+                let time = today.getMinutes() + ":" + today.getSeconds() + "." + today.getMilliseconds();
                 fileCount++;
-                if (fileCount >= files.length - 1) {
-                    document.getElementById("JSONfiles").style.display = "none";
-                    document.getElementById("analyzeButton").style.display = "block";
-                    document.getElementById("fileInput").disabled = true;
                 var myTeacher = new Object();
                 var myName = f.name.split(".")[0];
                 myTeacher.id = myName;
                 myTeacher.data = e.target.result;
                 teachersArray.push(myTeacher);
-                console.log("File " + myName + " loaded.");
-            };
-            }) (f);
-            reader.onloadstart = (function (f) {
-                return function (e) {
-                    console.log("File " + myName + " being loaded. Please wait.");  
+                console.log("File " + f.name + " has finished loading " + e.loaded + " bytes at " + time + ". The data field is " + e.target.result.length + " long.");
+                if (fileCount >= files.length - 1) {
+                    document.getElementById("JSONfiles").style.display = "none";
+                    document.getElementById("analyzeButton").style.display = "block";
+                    document.getElementById("fileInput").disabled = true;
                 }
-            })
+            }
+        })(f);
+
+        reader.onloadstart = (function (f) {
+            return function (e) {
+                let today = new Date();
+                let time = today.getMinutes() + ":" + today.getSeconds() + "." + today.getMilliseconds();;
+                console.log("File " + f.name + " has started to load at " + time + ".");
+            }
+        })(f);
+
+        reader.onprogress = (function (f) {
+            return function (e) {
+                let today = new Date();
+                let time = today.getMinutes() + ":" + today.getSeconds() + "." + today.getMilliseconds();;
+                console.log("File " + f.name + " has loaded " + e.loaded + " bytes out of " + e.total + " at " + time + ". the data field is " + e.target.result.length + " long.");
+         //       if (e.target.result.length == 0) {
+         //           console.log("Stop!");
+         //       }
+            }
+        })(f);
+
         reader.readAsText(f);
     }
 }
