@@ -35,16 +35,17 @@ function openFiles(evt) {
             }
         })(f);
 
-        reader.onprogress = (function (f) {
+        /* reader.onprogress = (function (f) {
             return function (e) {
                 let today = new Date();
                 let time = today.getMinutes() + ":" + today.getSeconds() + "." + today.getMilliseconds();;
                 console.log("File " + f.name + " has loaded " + e.loaded + " bytes out of " + e.total + " at " + time + ". the data field is " + e.target.result.length + " long.");
-         //       if (e.target.result.length == 0) {
-         //           console.log("Stop!");
-         //       }
+                if (e.target.result.length == 0) {
+                    console.log("Stop!");
+                }
             }
-        })(f);
+        })(f); */
+        
 
         reader.readAsText(f);
     }
