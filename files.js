@@ -45,7 +45,7 @@ function openFiles(evt) {
                 }
             }
         })(f); */
-        
+
 
         reader.readAsText(f);
     }
@@ -270,4 +270,111 @@ function findPrePostStudents(preStudents, postStudents) {
         " took both."
     );
     return prePostArray;
+}
+
+// Make a csv file with one row for each student who took both the pre-test and the post-test with headings for the student's id, teacher, pre-test score, post-test score, and number of hints at levels 1 through 3 received for each group of target match challenges.
+
+function makeSummaryFile() {
+    let fileStr = "ID, teacher, pre-score, post-score, simpleDomLevel1Hints, simpleDomLevel2Hints, simpleDomLevel3Hints, armorHornsLevel1Hints, armorHornsLevel2Hints, armorHornsLevel3Hints, colorsLevel1Hints, colorsLevel2Hints, colorsLevel3Hints, harderTraitsLevel1Hints, harderTraitsLevel2Hints, harderTraitsLevel3Hints";
+    let prePostStudents = getPrePostStudents();
+    let hintsArray = [];
+    let newRow = "";
+    for (student of prePostStudents) {
+        hintsArray = getHintsByChallengeType(student);
+        newRow = makeSummaryFileRow(student, hintsArray);
+        fileStr += newRow;
+    }
+    downloadSummaryFile(fileStr);
+}
+
+function downloadSummaryFile(fileStr) {
+    let fileName = "summary file";
+    saveData()(fileStr, fileName);
+}
+
+function makeSummaryFileRow(student, hintsArray) {
+    let newRow = "\n";
+    newRow += student.id + "," + student.teacher.id + "," + student.score_pre + "," + student.score_post + "," + hintsArray[0][0] + "," + hintsArray[0][1] + "," + hintsArray[0][2] + "," + hintsArray[1][0] + "," + hintsArray[1][1] + "," + hintsArray[1][2] + "," + hintsArray[2][0] + "," + hintsArray[2][1] + "," + hintsArray[2][2] + "," + hintsArray[3][0] + "," + hintsArray[3][1] + "," + hintsArray[3][2];
+    return newRow;
+}
+
+//Count the number of hints at levels 1 through 3 received by <student> for each group of target match challenges
+function getHintsByChallengeType(student) {
+    let simpleDomArray = [
+        "allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2"
+    ];
+    let armorHornsArray = [
+        "allele-targetMatch-visible-armorHorns",
+        "allele-targetMatch-visible-armorHorns2",
+        "allele-targetMatch-visible-armorHorns3",
+        "allele-targetMatch-hidden-armorHorns",
+        "allele-targetMatch-hidden-armorHorns2",
+        "allele-targetMatch-hidden-armorHorns3"
+    ];
+    let simpleColorsArray = [
+        "allele-targetMatch-visible-simpleColors",
+        "allele-targetMatch-visible-simpleColors2",
+        "allele-targetMatch-visible-simpleColors3",
+        "allele-targetMatch-visible-simpleColors4",
+        "allele-targetMatch-visible-simpleColors5",
+        "allele-targetMatch-hidden-simpleColors",
+        "allele-targetMatch-hidden-simpleColors2",
+        "allele-targetMatch-hidden-simpleColors3"
+    ];
+    let harderTraitsArray = [
+        "allele-targetMatch-visible-harderTraits",
+        "allele-targetMatch-visible-harderTraits2",
+        "allele-targetMatch-hidden-harderTraits",
+        "allele-targetMatch-hidden-harderTraits2"
+    ];
+    let challengesArray = [];
+    let hintsArray = [];
+    let hints = [];
+    challengesArray.push(simpleDomArray);
+    challengesArray.push(armorHornsArray);
+    challengesArray.push(simpleColorsArray);
+    challengesArray.push(harderTraitsArray);
+    let prePostStudents = getPrePostStudents();
+    for (let i = 0; i < challengesArray.length; i++) {
+        challenges = challengesArray[i];
+        hints = getHints(student, challenges);
+        hintsArray[i] = hints;
+        //     console.log("Student " + student.id + " had " + hints[0] + " level 1 hints, " + hints[1] + " level 2 hints, and " + hints[2] + " level 3 hints on the " + challenges[0] + "challenges.");
+    }
+    return hintsArray;
+}
+
+//Return an array with the total level 1, level 2, and level 3 hints received by <student> on any of the challenges in the array <challenges>
+function getHints(student, challenges) {
+    hints = [];
+    levelHints = [0, 0, 0];
+    for (thisChallenge of challenges) {
+        if (student.activitiesByName[thisChallenge]) {
+            hints = student.activitiesByName[thisChallenge].hints;
+            for (thisHint of hints) {
+                index = thisHint.level - 1;
+                levelHints[index]++;
+            }
+        } else {
+            console.log("Student " + student.id + " didn't do challenge " + thisChallenge + ".");
+            levelHints[0] = "n/a";
+            levelHints[1] = "n/a";
+            levelHints[2] = "n/a";
+        };
+    }
+    return levelHints;
+}
+
+//Return an array of all students who took both the pre-test and the post-test
+function getPrePostStudents() {
+    let prePostStudents = [];
+    for (let i = 0; i < students.length; i++) {
+        thisStudent = students[i];
+        if (thisStudent.score_pre > 0) {
+            if (thisStudent.score_post > 0) {
+                prePostStudents.push(thisStudent);
+            }
+        }
+    }
+    return prePostStudents;
 }

@@ -1,4 +1,4 @@
-var targetMatchArray = [ //Includes egg drop
+var targetMatchArray = [
     "allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2",
     "allele-targetMatch-visible-armorHorns",
     "allele-targetMatch-visible-armorHorns2",

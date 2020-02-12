@@ -229,7 +229,7 @@ function makeSingleTargetMatchGraph(challengeResultsArray) {
     data = [trace1, trace2, trace3];
     layout = {
         barmode: 'group',
-        title: 'Average hint scores per target-match challenge<br>' + myOption1,
+        title: 'Average hints per target-match challenge<br>' + myOption1,
         yaxis: {
             range: "auto"
         }
