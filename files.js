@@ -275,7 +275,7 @@ function findPrePostStudents(preStudents, postStudents) {
 // Make a csv file with one row for each student who took both the pre-test and the post-test with headings for the student's id, teacher, pre-test score, post-test score, and number of hints at levels 1 through 3 received for each group of target match challenges.
 
 function makeSummaryFile() {
-    let fileStr = "ID, teacher, pre-score, post-score, simpleDomLevel1Hints, simpleDomLevel2Hints, simpleDomLevel3Hints, armorHornsLevel1Hints, armorHornsLevel2Hints, armorHornsLevel3Hints, colorsLevel1Hints, colorsLevel2Hints, colorsLevel3Hints, harderTraitsLevel1Hints, harderTraitsLevel2Hints, harderTraitsLevel3Hints";
+    let fileStr = "student, teacher, class, pre-score, post-score, DomLevel1, DomLevel2, DomLevel3, armorHornsLevel1, armorHornsLevel2, armorHornsLevel3, colorLevel1, colorLevel2, colorLevel3, harderLevel1, harderLevel2, harderLevel3";
     let prePostStudents = getPrePostStudents();
     let hintsArray = [];
     let newRow = "";
@@ -294,7 +294,7 @@ function downloadSummaryFile(fileStr) {
 
 function makeSummaryFileRow(student, hintsArray) {
     let newRow = "\n";
-    newRow += student.id + "," + student.teacher.id + "," + student.score_pre + "," + student.score_post + "," + hintsArray[0][0] + "," + hintsArray[0][1] + "," + hintsArray[0][2] + "," + hintsArray[1][0] + "," + hintsArray[1][1] + "," + hintsArray[1][2] + "," + hintsArray[2][0] + "," + hintsArray[2][1] + "," + hintsArray[2][2] + "," + hintsArray[3][0] + "," + hintsArray[3][1] + "," + hintsArray[3][2];
+    newRow += student.id + "," + student.teacher.id + "," + student.class.id + "," + student.score_pre + "," + student.score_post + "," + hintsArray[0][0] + "," + hintsArray[0][1] + "," + hintsArray[0][2] + "," + hintsArray[1][0] + "," + hintsArray[1][1] + "," + hintsArray[1][2] + "," + hintsArray[2][0] + "," + hintsArray[2][1] + "," + hintsArray[2][2] + "," + hintsArray[3][0] + "," + hintsArray[3][1] + "," + hintsArray[3][2];
     return newRow;
 }
 
