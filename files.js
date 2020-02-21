@@ -275,7 +275,7 @@ function findPrePostStudents(preStudents, postStudents) {
 // Make a csv file with one row for each student who took both the pre-test and the post-test with headings for the student's id, teacher, pre-test score, post-test score, and number of hints at levels 1 through 3 received for each group of target match challenges.
 
 function makeSummaryFile() {
-    let fileStr = "student, teacher, class, pre-score, post-score, DomLevel1, DomLevel2, DomLevel3, armorHornsLevel1, armorHornsLevel2, armorHornsLevel3, colorLevel1, colorLevel2, colorLevel3, harderLevel1, harderLevel2, harderLevel3";
+    let fileStr = "student, teacher, class, pre-score, post-score, gain, domLevel1, domLevel2, domLevel3, domScore, armorHornsLevel1, armorHornsLevel2, armorHornsLevel3, armorHornsScore, colorLevel1, colorLevel2, colorLevel3, colorScore, harderLevel1, harderLevel2, harderLevel3, harderScore";
     let prePostStudents = getPrePostStudents();
     let hintsArray = [];
     let newRow = "";
@@ -293,8 +293,13 @@ function downloadSummaryFile(fileStr) {
 }
 
 function makeSummaryFileRow(student, hintsArray) {
+    let gain = student.score_post -student.score_pre;
+    let domScore = hintsArray[0][0] + 2 * hintsArray[0][1] + 3 * hintsArray[0][2];
+    let armorHornsScore = hintsArray[1][0] + 2 * hintsArray[1][1] + 3 * hintsArray[1][2];
+    let colorScore = hintsArray[2][0] + 2 * hintsArray[2][1] + 3 * hintsArray[2][2];
+    let harderScore = hintsArray[3][0] + 2 * hintsArray[3][1] + 3 * hintsArray[3][2];
     let newRow = "\n";
-    newRow += student.id + "," + student.teacher.id + "," + student.class.id + "," + student.score_pre + "," + student.score_post + "," + hintsArray[0][0] + "," + hintsArray[0][1] + "," + hintsArray[0][2] + "," + hintsArray[1][0] + "," + hintsArray[1][1] + "," + hintsArray[1][2] + "," + hintsArray[2][0] + "," + hintsArray[2][1] + "," + hintsArray[2][2] + "," + hintsArray[3][0] + "," + hintsArray[3][1] + "," + hintsArray[3][2];
+    newRow += student.id + "," + student.teacher.id + "," + student.class.id + "," + student.score_pre + "," + student.score_post + "," + gain + "," + hintsArray[0][0] + "," + hintsArray[0][1] + "," + hintsArray[0][2] + "," + domScore + "," + hintsArray[1][0] + "," + hintsArray[1][1] + "," + hintsArray[1][2] + "," + armorHornsScore + "," + hintsArray[2][0] + "," + hintsArray[2][1] + "," + hintsArray[2][2] + "," + colorScore + "," + hintsArray[3][0] + "," + hintsArray[3][1] + "," + hintsArray[3][2] + "," + harderScore;
     return newRow;
 }
 

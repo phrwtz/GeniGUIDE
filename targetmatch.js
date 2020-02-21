@@ -71,13 +71,15 @@ function describeTargetMatch(action) {
     } else if (action.event === "Drake submitted") {
         target = action.parameters.target;
         selected = action.parameters.selected;
+        selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
         targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
-        (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
-        selectedSexInteger = selected.match(/(?<="sex"=>)([\d])/)[1];
+        (targetSexInteger == "1" ? targetSex = "FEMALE" : targetSex = "MALE");
+        selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
         (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
         targetPhenotype = target.match(/(?<="phenotype"=>{")([^}]+)/)[1];
         selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
         sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
+        selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
         correct = action.parameters.correct;
         (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>")
         description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + ". Submission is " + correctStr + ".<br>";

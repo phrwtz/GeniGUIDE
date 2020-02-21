@@ -631,3 +631,8 @@ function union(array1, array2) {
     }
     return returnArray;
 }
+
+//General purpose function for getting a phenotype string from an allele string and a sex
+function getPhenotype(alleles, sex, trait) {
+    return new BioLogica.Organism(BioLogica.Species.Drake, alleles, sex).phenotype;
+   }
