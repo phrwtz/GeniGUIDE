@@ -117,7 +117,7 @@ function checkout(studentId, thisActivity) {
                         if (thisTry.correct) {
                             thisTry.excessMoves = (movesForThisDrake - minimumMoves);
                         }
-                        thisTry.crystalColor = getCrystalColor(thisTry, thisAction);
+                        thisTry.crystalColor = getCrystalIndex(thisTry, thisAction);
                         //Check that crystalColor is defined. If it isn't, don't log this try and wait for another Navigated plus Entered room pair to start a new try.
                         if (thisTry.crystalColor) {
                             //If this submission was incorrect we stick with the same drake. We store the try and increment movesForThisDrake.
@@ -678,7 +678,7 @@ function setFilterParameters(filter1, filter2) {
     maxOutput2.innerHTML = "Cohort 2 maximum = " + maxSlider2.value;
 }
 
-function getCrystalColor(thisTry, thisAction) {
+function getCrystalIndex(thisTry, thisAction) {
     if (thisAction.parameters.correct == "false") {
         return 0;
     } else if (thisTry.excessMoves > 2) {

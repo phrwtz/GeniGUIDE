@@ -1,4 +1,4 @@
-var clutchArray = [
+const clutchArray = [
     "clutch-5drakes-starterTraits",
     "clutch-5drakes-starterTraits2",
     "clutch-5drakes-starterTraits3",

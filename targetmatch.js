@@ -1,4 +1,4 @@
-var targetMatchArray = [
+const targetMatchArray = [
     "allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2",
     "allele-targetMatch-visible-armorHorns",
     "allele-targetMatch-visible-armorHorns2",
@@ -20,6 +20,23 @@ var targetMatchArray = [
     "allele-targetMatch-hidden-harderTraits2"
 ];
 
+//Add up total target match moves to be reported for each drake submission event (and used to compute the crystal color for correct submissions). Sets the myStudent.targetMatchMoves to zero for each navigation event (which signals a new target match challenge) and adds 1 for each allele change or sex change event. Also sets myStudent.minimumTargetMatchMoves at each navigation event (which is where that is reported).
+function updateTargetMatchMoves(action) {
+    let myStudent = action.student;
+    switch (action.event) {
+        case "Allele changed":
+            myStudent.targetMatchMoves++;
+            break;
+        case "Sex changed":
+            myStudent.targetMatchMoves++;
+            break;
+        case "Navigated":
+            myStudent.targetMatchMoves = 0;
+            myStudent.minimumTargetMatchMoves = parseInt(action.parameters.goalMoves);
+            break;
+    }
+}
+
 //Add description to individual actions in target match array of challenges
 function describeTargetMatch(action) {
     var myFields = Object.keys(action),
@@ -35,62 +52,78 @@ function describeTargetMatch(action) {
         initialGenotype,
         initialSex,
         targetSex,
-        initialSexInteger,
         targetSexInteger,
-        targetPhenotype,
+        initialSexInteger,
+        ig,
         tg,
-        ig;
-    if (action.event === "Guide hint received") {
-        data = action.parameters.data;
-        conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
-        score = Math.round(1000 * parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0])) / 1000;
-        trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
-        message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
-        level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
-        description = "<pre>" + tab4 + "<b>Level " + level + "</b> hint received for <b>" + trait + ".<br>" + tab4 + "Message = </b>" + message + "<br>" + tab4 + "<b>Concept = </b>" + conceptId + ", <b>probability learned =</b> " + score + ".</pre>";
-    } else if (action.event === "Allele changed") {
-        chromosome = action.parameters.chromosome;
-        side = action.parameters.side;
-        previousAllele = action.parameters.previousAllele;
-        newAllele = action.parameters.newAllele;
-        description = "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>";
-    } else if (action.event === "Navigated") {
-        level = parseInt(action.parameters.level) + 1;
-        minimumMoves = parseInt(action.parameters.goalMoves);
-        mission = parseInt(action.parameters.mission) + 1;
-        targetGenotype = action.parameters.targetDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
-        initialGenotype = action.parameters.initialDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
-        //Get rid of that pesky comma and quotation mark at the end
-        tg = targetGenotype.slice(0, targetGenotype.length - 2);
-        ig = initialGenotype.slice(0, initialGenotype.length - 2);
-        targetSexInteger = action.parameters.targetDrake.match(/(?<="sex"=>)([\d])/)[1];
-        initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
-        (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
-        (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
-        description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + minimumMoves + ".<br>";
-    } else if (action.event === "Drake submitted") {
-        target = action.parameters.target;
-        selected = action.parameters.selected;
-        selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
-        targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
-        (targetSexInteger == "1" ? targetSex = "FEMALE" : targetSex = "MALE");
-        selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
-        (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
-        targetPhenotype = target.match(/(?<="phenotype"=>{")([^}]+)/)[1];
-        selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
-        sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
-        selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
-        correct = action.parameters.correct;
-        (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>")
-        description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + ". Submission is " + correctStr + ".<br>";
-    } else if (action.event === "Sex changed") {
-        (action.parameters.newSex == "1" ? description = "Changed sex from male to female." : description = "Changed sex from female to male.")
-    } else if (action.event === "ITS Data Updated") {
-        description = action.parameters.studentModel;
-    } else if (action.event === "Guide remediation requested") {
-        trait = action.parameters.attribute;
-        practice = action.parameters.practiceCriteria;
-        description = practice + " remediation has been called for on trait " + trait + ".<br>";
+        moveStr;
+    switch (action.event) {
+        case "Guide hint received":
+            data = action.parameters.data;
+            conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
+            score = Math.round(1000 * parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0])) / 1000;
+            trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
+            message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
+            level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
+            description = "<pre>" + tab4 + "<b>Level " + level + "</b> hint received for <b>" + trait + ".<br>" + tab4 + "Message = </b>" + message + "<br>" + tab4 + "<b>Concept = </b>" + conceptId + ", <b>probability learned =</b> " + score + ".</pre>";
+            break;
+        case "Allele changed":
+            chromosome = action.parameters.chromosome;
+            side = action.parameters.side;
+            previousAllele = action.parameters.previousAllele;
+            newAllele = action.parameters.newAllele;
+            action.student.targetMatchMoves++;
+            (action.student.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+            description = "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + action.student.targetMatchMoves + moveStr + " on this challenge so far.<br>";
+            break;
+        case "Sex changed":
+            action.student.targetMatchMoves++;
+            (action.student.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+            (action.parameters.newSex == "1" ? description = "Changed sex from male to female." : description = "Changed sex from female to male.<br>That's " + action.student.targetMatchMoves + moveStr + " on this challenge so far.<br>")
+            break;
+        case "Navigated":
+            level = parseInt(action.parameters.level) + 1;
+            minimumMoves = parseInt(action.parameters.goalMoves);
+            mission = parseInt(action.parameters.mission) + 1;
+            targetGenotype = action.parameters.targetDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
+            initialGenotype = action.parameters.initialDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
+            //Get rid of that pesky comma and quotation mark at the end
+            tg = targetGenotype.slice(0, targetGenotype.length - 2);
+            ig = initialGenotype.slice(0, initialGenotype.length - 2);
+            targetSexInteger = action.parameters.targetDrake.match(/(?<="sex"=>)([\d])/)[1];
+            initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
+            (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
+            (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
+            action.student.targetMatchMoves = 0;
+            action.student.minimumTargetMatchMoves = minimumMoves;
+            description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + minimumMoves + ".<br>Number of moves set to zero for this challenge<br>";
+            break;
+        case "Drake submitted":
+            let student = action.student;
+            let target = action.parameters.target;
+            let selected = action.parameters.selected;
+            let selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
+            targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
+            (targetSexInteger == "1" ? targetSex = "FEMALE" : targetSex = "MALE");
+            selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
+            (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
+            targetPhenotype = target.match(/(?<="phenotype"=>{")([^}]+)/)[1];
+            selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
+            let sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
+            let selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
+            let correct = action.parameters.correct;
+            (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
+            student.excessMoves = student.targetMatchMoves - student.minimumTargetMatchMoves;
+            crystalIndex = getCrystalIndex(action.student, action);
+            description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + student.targetMatchMoves + " moves taken. The minimum was " + student.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + crystalIndex;
+            break;
+        case "ITS Data Updated":
+            description = action.parameters.studentModel;
+            break;
+        case "Guide remediation requested":
+            trait = action.parameters.attribute;
+            practice = action.parameters.practiceCriteria;
+            description = practice + " remediation has been called for on trait " + trait + ".<br>";
     }
     return description;
 }

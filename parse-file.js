@@ -138,6 +138,8 @@ function parseJSON(myTeacher) {
             studentId = myRow.username;
             if (!myClass.studentsObj[studentId]) {
                 myStudent = new Object();
+                myStudent.targetMatchMoves = 0;
+                myStudent.minimumTargetMatchMoves = -1;
                 myStudent.id = studentId;
                 myStudent.class = myClass;
                 myStudent.actions = [];

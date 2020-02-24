@@ -1,4 +1,4 @@
-var eggDropArray = [
+const eggDropArray = [
     "eggDrop-wings", "eggDrop-limbs", "eggDrop-horns", "eggDrop-armor", "eggDrop-tail", "eggDrop-noseSpike"
 ];
 
