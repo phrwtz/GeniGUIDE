@@ -49,8 +49,11 @@ function describeTargetMatch(action) {
         tab4 = "&#9;",
         description = "",
         targetGenotype,
+        selectedGenotype,
         initialGenotype,
         initialSex,
+        target,
+        selected,
         targetSex,
         targetSexInteger,
         initialSexInteger,
@@ -72,18 +75,15 @@ function describeTargetMatch(action) {
             side = action.parameters.side;
             previousAllele = action.parameters.previousAllele;
             newAllele = action.parameters.newAllele;
-            action.student.targetMatchMoves++;
             (action.student.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
             description = "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + action.student.targetMatchMoves + moveStr + " on this challenge so far.<br>";
             break;
         case "Sex changed":
-            action.student.targetMatchMoves++;
             (action.student.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
             (action.parameters.newSex == "1" ? description = "Changed sex from male to female." : description = "Changed sex from female to male.<br>That's " + action.student.targetMatchMoves + moveStr + " on this challenge so far.<br>")
             break;
         case "Navigated":
             level = parseInt(action.parameters.level) + 1;
-            minimumMoves = parseInt(action.parameters.goalMoves);
             mission = parseInt(action.parameters.mission) + 1;
             targetGenotype = action.parameters.targetDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
             initialGenotype = action.parameters.initialDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
@@ -94,28 +94,25 @@ function describeTargetMatch(action) {
             initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
             (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
             (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
-            action.student.targetMatchMoves = 0;
-            action.student.minimumTargetMatchMoves = minimumMoves;
-            description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + minimumMoves + ".<br>Number of moves set to zero for this challenge<br>";
+            description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + action.student.minimumTargetMatchMoves + ".<br>Number of moves set to zero for this challenge<br>";
             break;
         case "Drake submitted":
-            let student = action.student;
-            let target = action.parameters.target;
-            let selected = action.parameters.selected;
-            let selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
+            target = action.parameters.target;
+            selected = action.parameters.selected;
+            selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
             targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
             (targetSexInteger == "1" ? targetSex = "FEMALE" : targetSex = "MALE");
             selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
             (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
             targetPhenotype = target.match(/(?<="phenotype"=>{")([^}]+)/)[1];
             selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
-            let sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
-            let selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
+            sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
+            selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
             let correct = action.parameters.correct;
             (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
-            student.excessMoves = student.targetMatchMoves - student.minimumTargetMatchMoves;
+            action.student.excessMoves = action.student.targetMatchMoves - action.student.minimumTargetMatchMoves;
             crystalIndex = getCrystalIndex(action.student, action);
-            description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + student.targetMatchMoves + " moves taken. The minimum was " + student.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + crystalIndex;
+            description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + action.student.targetMatchMoves + " moves taken. The minimum was " + action.student.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + crystalIndex;
             break;
         case "ITS Data Updated":
             description = action.parameters.studentModel;

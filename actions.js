@@ -31,7 +31,7 @@ function showActions() {
         for (var k = 0; k < acts.length; k++) {
             myAction = acts[k];
             if (targetMatchArray.includes(myAction.activity)) {
-   //             updateTargetMatchMoves(myAction);
+                updateTargetMatchMoves(myAction);
                 description = describeTargetMatch(myAction);
             } else if (eggDropArray.includes(myAction.activity)) {
                 description = describeEggDropAction(myAction);
