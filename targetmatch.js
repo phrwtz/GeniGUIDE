@@ -80,7 +80,8 @@ function describeTargetMatch(action) {
             break;
         case "Sex changed":
             (action.student.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-            (action.parameters.newSex == "1" ? description = "Changed sex from male to female." : description = "Changed sex from female to male.<br>That's " + action.student.targetMatchMoves + moveStr + " on this challenge so far.<br>")
+            (action.parameters.newSex == "1" ? description = "Changed sex from male to female." : description = "Changed sex from female to male.");
+            description = description + "<br>That makes " + action.student.targetMatchMoves + moveStr + " on this challenge so far.<br>";
             break;
         case "Navigated":
             level = parseInt(action.parameters.level) + 1;
@@ -112,7 +113,7 @@ function describeTargetMatch(action) {
             (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
             action.student.excessMoves = action.student.targetMatchMoves - action.student.minimumTargetMatchMoves;
             crystalIndex = getCrystalIndex(action.student, action);
-            description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + action.student.targetMatchMoves + " moves taken. The minimum was " + action.student.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + crystalIndex;
+            description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + action.student.targetMatchMoves + " moves taken. The minimum was " + action.student.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + crystalIndex + ".<br>";
             break;
         case "ITS Data Updated":
             description = action.parameters.studentModel;
