@@ -635,4 +635,52 @@ function union(array1, array2) {
 //General purpose function for getting a phenotype string from an allele string and a sex
 function getPhenotype(alleles, sex, trait) {
     return new BioLogica.Organism(BioLogica.Species.Drake, alleles, sex).phenotype;
-   }
+}
+
+//Returns an array of event objects in chronological order for a student and each challenge in targetMatchArray.
+function createEventList(studentIndex, challengeIndex) {
+    let stud = students[studentIndex];
+    let chal = targetMatchArray[challengeIndex];
+    let eNamesArr = [];
+    let startTime = 0;
+    if (stud.activitiesByName[chal]) {
+        let actionsArr = stud.activitiesByName[chal].actions;
+        startTime = actionsArr[0].unixTime;
+        for (act of actionsArr) {
+            if ((act.event != "ITS Data Updated") && (act.event != "Close notifications")) {
+                eNamesArr.push([act.event, Math.round((act.unixTime - startTime) / 1000), act]);
+            }
+        }
+        return eNamesArr;
+    } else return null;
+}
+
+function summarizeEventArray(arr) {
+    let inChal = false;
+    let drakeSub = false;
+    let moves = 0;
+    let startTime = 0;
+    for (ev of arr) {
+        switch (ev[0]) {
+            case "Entered challenge from room":
+                inChal = true;
+                drakeSub = false;
+                moves = 0;
+                startTime = 0;
+                break;
+            case "Allele changed":
+                moves++;
+                break;
+            case "Sex changed":
+                moves++;
+                break;
+            case "Challenge completed":
+                console.log("Challenge completed after " + (ev[1] - startTime) + " seconds and " + moves + " moves.");
+                startTime = ev[1];
+                break;
+                case "Challenge retried":
+                    console.log("Challenge retried after " + (ev[1] - startTime) + " seconds and " + moves + " moves.");
+                    break;
+        }
+    }
+}

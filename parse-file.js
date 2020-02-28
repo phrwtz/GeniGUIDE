@@ -83,6 +83,7 @@ function filter() {
     document.getElementById("reversalsButton").style.display = "inline";
     document.getElementById("singleStudentChalButton").style.display = "none";
     showConcepts();
+    updateTargetMatchForAllStudents(students);
     showTeachers();
     summarizeHints(students);
 }
@@ -181,7 +182,9 @@ function parseJSON(myTeacher) {
                     myActivity.eventIds = [];
                     myActivity.eventNames = [];
                     myActivity.startTime = new Date(myRow.time).getTime();
+                    myActivity.tries = [];
                     myActivity.actions = [];
+                    myActivity.actions.push(myRow);
                     myActivity.hints = [];
                     myActivity.hintReceived = false;
                     myActivity.remediationRequested = false;
@@ -207,6 +210,7 @@ function parseJSON(myTeacher) {
                     myClass = myTeacher.classesObj[classId];
                     myStudent = myClass.studentsObj[studentId];
                     myActivity = myStudent.activitiesByName[activityName];
+                    myActivity.actions.push(myRow);
                     if (!myActivity.eventsByName[eventName]) {
                         myEvent = new Object();
                         myEvent.actions = [];

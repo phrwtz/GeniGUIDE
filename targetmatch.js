@@ -20,26 +20,55 @@ const targetMatchArray = [
     "allele-targetMatch-hidden-harderTraits2"
 ];
 
-//Add up total target match moves to be reported for each drake submission event (and used to compute the crystal color for correct submissions). Sets the myStudent.targetMatchMoves to zero for each navigation event (which signals a new target match challenge) and adds 1 for each allele change or sex change event. Also sets myStudent.minimumTargetMatchMoves at each navigation event (which is where that is reported).
+//Go through all the students in <students> and look at all the actions for each. For each action that is in a target match challenge, add the appropriate info.
+function updateTargetMatchForAllStudents(students) {
+    for (student of students) {
+        for (action of student.actions) {
+            if (targetMatchArray.includes(action.activity)) {
+                updateTargetMatchMoves(action);
+                describeTargetMatch(action);
+            }
+        }
+    }
+}
+
 function updateTargetMatchMoves(action) {
     let myStudent = action.student;
+    let myActivity = myStudent.activitiesByName[action.activity];
     switch (action.event) {
         case "Allele changed":
-            myStudent.targetMatchMoves++;
+            action.targetMatchMoves++;
+            myTry.targetMatchMoves++;
             break;
         case "Sex changed":
-            myStudent.targetMatchMoves++;
+            action.targetMatchMoves++;
+            myTry.targetMatchMoves++;
             break;
         case "Navigated":
-            myStudent.targetMatchMoves = 0;
-            myStudent.minimumTargetMatchMoves = parseInt(action.parameters.goalMoves);
+            myTry = new Object;
+            myTry.actions = [];
+            action.targetMatchMoves = 0;
+            myTry.targetMatchMoves = 0;
+            action.minimumTargetMatchMoves = parseInt(action.parameters.goalMoves);
+            myTry.minimumTargetMatchMoves = parseInt(action.parameters.goalMoves);
+            myTry.actions.push(action);
+            myActivity.tries.push(myTry);
             break;
+        case "Drake submitted":
+            myTry.correct = action.parameters.correct;
+            myTry.excessMoves = myTry.targetMatchMoves - myTry.minimumTargetMatchMoves;
+            action.excessMoves = myTry.excessMoves;
+            action.crystalIndex = getCrystalIndex(myTry, action);
+            myTry.crystalIndex = action.crystalIndex;
+            myTry.actions.push(action);
     }
 }
 
 //Add description to individual actions in target match array of challenges
 function describeTargetMatch(action) {
     var myFields = Object.keys(action),
+        myActivity = action.student.activitiesByName[action.activity],
+        myTry = myActivity.tries[myActivity.tries.length - 1],
         data,
         conceptId,
         score,
@@ -68,20 +97,20 @@ function describeTargetMatch(action) {
             trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
             message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
             level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
-            description = "<pre>" + tab4 + "<b>Level " + level + "</b> hint received for <b>" + trait + ".<br>" + tab4 + "Message = </b>" + message + "<br>" + tab4 + "<b>Concept = </b>" + conceptId + ", <b>probability learned =</b> " + score + ".</pre>";
+            action.description = "<pre>" + tab4 + "<b>Level " + level + "</b> hint received for <b>" + trait + ".<br>" + tab4 + "Message = </b>" + message + "<br>" + tab4 + "<b>Concept = </b>" + conceptId + ", <b>probability learned =</b> " + score + ".</pre>";
             break;
         case "Allele changed":
             chromosome = action.parameters.chromosome;
             side = action.parameters.side;
             previousAllele = action.parameters.previousAllele;
             newAllele = action.parameters.newAllele;
-            (action.student.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-            description = "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + action.student.targetMatchMoves + moveStr + " on this challenge so far.<br>";
+            (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+            action.description = "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
             break;
         case "Sex changed":
-            (action.student.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+            (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
             (action.parameters.newSex == "1" ? description = "Changed sex from male to female." : description = "Changed sex from female to male.");
-            description = description + "<br>That makes " + action.student.targetMatchMoves + moveStr + " on this challenge so far.<br>";
+            action.description = description + "<br>That makes " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
             break;
         case "Navigated":
             level = parseInt(action.parameters.level) + 1;
@@ -95,35 +124,34 @@ function describeTargetMatch(action) {
             initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
             (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
             (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
-            description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + action.student.minimumTargetMatchMoves + ".<br>Number of moves set to zero for this challenge<br>";
+            action.description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + myTry.minimumTargetMatchMoves + ".<br>Number of moves reset to zero for this challenge<br>";
             break;
         case "Drake submitted":
             target = action.parameters.target;
             selected = action.parameters.selected;
             selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
             targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
-            (targetSexInteger == "1" ? targetSex = "FEMALE" : targetSex = "MALE");
+            (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
             selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
             (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
-            targetPhenotype = target.match(/(?<="phenotype"=>{")([^}]+)/)[1];
+            targetPhenotype = "\'" + target.match(/(?<="phenotype"=>{")([^}]+)/)[1] + "\'";
+            tp = targetPhenotype.match(/(?<="=>")([^"]+)/g);
             selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
             sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
             selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
+            sp = selectedOrg.phenotype.allCharacteristics;
             let correct = action.parameters.correct;
             (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
-            action.student.excessMoves = action.student.targetMatchMoves - action.student.minimumTargetMatchMoves;
-            crystalIndex = getCrystalIndex(action.student, action);
-            description = "Target phenotype = " + targetPhenotype + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + action.student.targetMatchMoves + " moves taken. The minimum was " + action.student.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + crystalIndex + ".<br>";
+            action.description = "Target phenotype = " + tp + "<br>Selected phenotype = " + sp + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + myTry.targetMatchMoves + " moves taken. The minimum was " + myTry.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + myTry.crystalIndex + ".<br>";
             break;
         case "ITS Data Updated":
-            description = action.parameters.studentModel;
+            action.description = action.parameters.studentModel;
             break;
         case "Guide remediation requested":
             trait = action.parameters.attribute;
             practice = action.parameters.practiceCriteria;
-            description = practice + " remediation has been called for on trait " + trait + ".<br>";
+            action.description = practice + " remediation has been called for on trait " + trait + ".<br>";
     }
-    return description;
 }
 
 //For each target match challenge, find the number of students who have any tries on the challenge, the average number of tries for those students for that challenge, and the average numerical crystal score for that challenge.

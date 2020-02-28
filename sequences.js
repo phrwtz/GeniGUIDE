@@ -693,7 +693,7 @@ function getCrystalIndex(thisTry, thisAction) {
                 return 2;
         }
     }
-    console.log("Something wrong with crystal color. Teacher = " + thisAction.student.teacher.id + ",class = " + thisAction.class.id + ", student = " + thisAction.student.id + ", action index + " + thisAction.index + ", " + thisTry.moves + " moves, " + thisTry.excessMoves + " excess moves.");
+    console.log("Something wrong with crystal color. Teacher = " + thisAction.student.teacher.id + ",class = " + thisAction.class_id + ", student = " + thisAction.student.id + ", action index + " + thisAction.index + ", " + thisTry.moves + " moves, " + thisTry.excessMoves + " excess moves.");
 }
 
 function getColorFromIndex(colorIndex) {
