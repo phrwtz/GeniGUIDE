@@ -35,33 +35,126 @@ function updateTargetMatchForAllStudents(students) {
 function updateTargetMatchMoves(action) {
     let myStudent = action.student;
     let myActivity = myStudent.activitiesByName[action.activity];
+    let tryObj = Object;
     switch (action.event) {
-        case "Allele changed":
-            action.targetMatchMoves++;
-            myTry.targetMatchMoves++;
-            break;
-        case "Sex changed":
-            action.targetMatchMoves++;
-            myTry.targetMatchMoves++;
-            break;
+        //Navigated events always mean a new myTry with a new drake. The targetMatchMoves property of the new myTry is set to zero, the minimumTargetMatchMoves value is recovered from the event, and the remediationInProgress flag is set to false (because the student has navigated out of remediation).
         case "Navigated":
-            myTry = new Object;
+            if ((myStudent.id == "273326") && (myActivity.name == "allele-targetMatch-visible-simpleDom")) {
+                console.log("stop");
+            }
+            //First check to see whether this navigated event happens very soon after another navigated event, in which case it's a computer glitch and the first action does not constitute a legitimate try. So that try should be popped off the tries array before starting a new one.
+            lastAction = myStudent.actions[action.index - 1];
+            if (typeof lastAction != "undefined") {
+                thisTime = action.unixTime;
+                lastTime = lastAction.unixTime;
+                if ((lastAction.event == "Navigated") && ((thisTime - lastTime) < 100)) {
+                    myActivity.tries.pop();
+                }
+            }
+            myTry = new tryObj();
+            myTry.startIndex = action.index;
+            myTry.newDrake = true;
             myTry.actions = [];
-            action.targetMatchMoves = 0;
-            myTry.targetMatchMoves = 0;
-            action.minimumTargetMatchMoves = parseInt(action.parameters.goalMoves);
-            myTry.minimumTargetMatchMoves = parseInt(action.parameters.goalMoves);
             myTry.actions.push(action);
+            myTry.drakeSubmitted = false;
+            myTry.remediationInProgress = false;
+            myTry.targetMatchMoves = 0;
+            myTry.minimumTargetMatchMoves = parseInt(action.parameters.goalMoves);
             myActivity.tries.push(myTry);
             break;
+
+            //Allele and sex changes are only counted if remediation is not in progress. If no drake has been submitted, they are treated as belonging to the current myTry and increment the targetMatchMoves property of that myTry. If a drake has been submitted on the current myTry then the change is considered the beginning of new myTry but with the same drake. The targetMatchMoves property of the old myTry is retained and used as the starting point for the new myTry. The minimumTargetMatchMoves property is transferred to the new myTry since the drake hasn't changed, but the drakeSubmitted property of the new myTry is set to false.
+        case "Allele changed":
+            if (!myTry.remediationInProgress) {
+                if (myTry.drakeSubmitted) {
+                    //Save values from old myTry
+                    targetMatchMoves = myTry.targetMatchMoves;
+                    minimumTargetMatchMoves = myTry.minimumTargetMatchMoves;
+                    remediationInProgress = myTry.remediationInProgress;
+                    //New myTry
+                    myTry = new tryObj();
+                    myTry.startIndex = action.index;
+                    myTry.newDrake = false;
+                    myTry.actions = [];
+                    myTry.actions.push(action);
+                    myTry.drakeSubmitted = false;
+                    myTry.targetMatchMoves = targetMatchMoves + 1;
+                    myTry.minimumTargetMatchMoves = minimumTargetMatchMoves;
+                    myTry.remediationInProgress = remediationInProgress;
+                    myActivity.tries.push(myTry);
+                    action.newTry = true;
+                } else {
+                    myTry.targetMatchMoves++;
+                    action.newTry = false;
+                }
+            }
+            break;
+        case "Sex changed":
+            if (!myTry.remediationInProgress) {
+                if (myTry.drakeSubmitted) {
+                    targetMatchMoves = myTry.targetMatchMoves;
+                    minimumTargetMatchMoves = myTry.minimumTargetMatchMoves;
+                    remediationInProgress = myTry.remediationInProgress;
+                    myTry = new tryObj();
+                    myTry.startIndex = action.index;
+                    myTry.newDrake = false;
+                    myTry.actions = [];
+                    myTry.actions.push(action);
+                    myTry.drakeSubmitted = false;
+                    myTry.targetMatchMoves = targetMatchMoves + 1;
+                    myTry.minimumTargetMatchMoves = minimumTargetMatchMoves;
+                    myTry.remediationInProgress = remediationInProgress;
+                    myActivity.tries.push(myTry);
+                    action.newTry = true;
+                } else {
+                    myTry.targetMatchMoves++;
+                    action.newTry = false;
+                }
+            }
+            break;
+        case "Started remediation":
+            myTry.remediationInProgress = true;
+            break;
+        case "Ended remediation":
+            myTry.remediationInProgress = false;
+            break;
         case "Drake submitted":
-            myTry.correct = action.parameters.correct;
-            myTry.excessMoves = myTry.targetMatchMoves - myTry.minimumTargetMatchMoves;
-            action.excessMoves = myTry.excessMoves;
-            action.crystalIndex = getCrystalIndex(myTry, action);
-            myTry.crystalIndex = action.crystalIndex;
-            myTry.actions.push(action);
+            if (!myTry.remediationInProgress) {
+                myTry.endIndex = action.index;
+                myTry.drakeSubmitted = true;
+                (action.parameters.correct === "true" ? myTry.correct = true : myTry.correct = false);
+                myTry.excessMoves = myTry.targetMatchMoves - myTry.minimumTargetMatchMoves;
+                action.excessMoves = myTry.excessMoves;
+                action.crystalIndex = getCrystalIndex(myTry, action);
+                myTry.crystalIndex = action.crystalIndex;
+                if (typeof myTry.actions == "undefined") {
+                    console.log("No actions for this try.")
+                }
+                myTry.actions.push(action);
+            }
     }
+}
+
+//Summarize all the tries on a particular challenge for a particular student
+function summarizeTries(studentIndex, challengeIndex) {
+    let outcomeStr = "";
+    let myTries = [];
+    student = students[studentIndex];
+    challenge = targetMatchArray[challengeIndex];
+    myTries = student.activitiesByName[challenge].tries;
+    console.log("This student tried " + myTries.length + " times on " + challenge + ".");
+    for (let i = 0; i < myTries.length; i++) {
+        myTry = myTries[i];
+        if (myTry.drakeSubmitted) {
+            if (myTry.correct) {
+                outcomeStr = "Student submitted a correct drake and earned " + myTry.crystalIndex + " points.";
+            } else outcomeStr = "Student submitted an incorrect drake."
+        } else {
+            outcomeStr = "Student retried without submitting a drake."
+        }
+        console.log("Try number " + i + " started on action " + myTry.startIndex + ". " + outcomeStr);
+    }
+    console.log("End of story");
 }
 
 //Add description to individual actions in target match array of challenges
@@ -89,6 +182,10 @@ function describeTargetMatch(action) {
         ig,
         tg,
         moveStr;
+    if (typeof myTry == "undefined") {
+        console.log("no Try defined");
+    }
+    action.description = "";
     switch (action.event) {
         case "Guide hint received":
             data = action.parameters.data;
@@ -97,7 +194,7 @@ function describeTargetMatch(action) {
             trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
             message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
             level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
-            action.description = "<pre>" + tab4 + "<b>Level " + level + "</b> hint received for <b>" + trait + ".<br>" + tab4 + "Message = </b>" + message + "<br>" + tab4 + "<b>Concept = </b>" + conceptId + ", <b>probability learned =</b> " + score + ".</pre>";
+            action.description += "<pre>" + tab4 + "<b>Level " + level + "</b> hint received for <b>" + trait + ".<br>" + tab4 + "Message = </b>" + message + "<br>" + tab4 + "<b>Concept = </b>" + conceptId + ", <b>probability learned =</b> " + score + ".</pre>";
             break;
         case "Allele changed":
             chromosome = action.parameters.chromosome;
@@ -105,12 +202,25 @@ function describeTargetMatch(action) {
             previousAllele = action.parameters.previousAllele;
             newAllele = action.parameters.newAllele;
             (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-            action.description = "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
+            (myActivity.tries.length == 1 ? triesStr = " myTry " : triesStr = " tries ");
+            action.description += "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
+            if (myTry.remediationInProgress) {
+                action.description += "Remediation in progress. Action doesn't count.<br>";
+            } else if (action.newTry) {
+                action.description += "This is the start of a new try with the same drake. " + myActivity.tries.length + triesStr + "so far.<br>";
+            }
             break;
         case "Sex changed":
             (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-            (action.parameters.newSex == "1" ? description = "Changed sex from male to female." : description = "Changed sex from female to male.");
-            action.description = description + "<br>That makes " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
+            (action.parameters.newSex == "1" ? action.description += "Changed sex from male to female." : action.description += "Changed sex from female to male.");
+            action.description += "<br>That makes " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
+            (myActivity.tries.length == 1 ? triesStr = " myTry " : triesStr = " tries ");
+            if (myTry.remediationInProgress) {
+                action.description += "Remediation in progress. Action doesn't count.<br>";
+            } else if (action.newTry) {
+                action.description += "This is the start of a new try with the same drake. " + myActivity.tries.length + triesStr + "so far.<br>";
+                break;
+            }
             break;
         case "Navigated":
             level = parseInt(action.parameters.level) + 1;
@@ -124,7 +234,9 @@ function describeTargetMatch(action) {
             initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
             (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
             (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
-            action.description = "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + myTry.minimumTargetMatchMoves + ".<br>Number of moves reset to zero for this challenge<br>";
+            action.description += "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + myTry.minimumTargetMatchMoves + ".<br>";
+            (myActivity.tries.length == 1 ? triesStr = " myTry " : triesStr = " tries ");
+            action.description += "This is the start of a new try with a new drake. " + myActivity.tries.length + triesStr + "so far.<br>";
             break;
         case "Drake submitted":
             target = action.parameters.target;
@@ -142,15 +254,19 @@ function describeTargetMatch(action) {
             sp = selectedOrg.phenotype.allCharacteristics;
             let correct = action.parameters.correct;
             (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
-            action.description = "Target phenotype = " + tp + "<br>Selected phenotype = " + sp + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + myTry.targetMatchMoves + " moves taken. The minimum was " + myTry.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + myTry.crystalIndex + ".<br>";
+            (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+            action.description += "Target phenotype = " + tp + "<br>Selected phenotype = " + sp + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + myTry.targetMatchMoves + moveStr + "  taken. The minimum was " + myTry.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + myTry.crystalIndex + ".<br>";
+            if (myTry.remediationInProgress) {
+                action.description += "Remediation in progress. Crystal index doesn't count.<br>";
+            }
             break;
         case "ITS Data Updated":
-            action.description = action.parameters.studentModel;
+            action.description += action.parameters.studentModel;
             break;
         case "Guide remediation requested":
             trait = action.parameters.attribute;
             practice = action.parameters.practiceCriteria;
-            action.description = practice + " remediation has been called for on trait " + trait + ".<br>";
+            action.description += practice + " remediation has been called for on trait " + trait + ".<br>";
     }
 }
 

@@ -49,7 +49,7 @@ function checkout(studentId, thisActivity) {
         remediations = 0, //Counts remediations for this activity
         thisAction,
         movesForThisDrake = 0,
-        inRemediation = false,
+        remediationInProgress = false,
         ev;
     for (var i = 0; i < thisStudent.actions.length; i++) {
         thisAction = thisStudent.actions[i];
@@ -59,7 +59,7 @@ function checkout(studentId, thisActivity) {
                 //Navigated events set up a new try and report the minimal moves parameter.
                 case 'Navigated':
                     thisTry = new Object();
-                    inRemediation = false;
+                    remediationInProgress = false;
                     thisTry.moves = 0;
                     thisTry.actions = [];
                     thisTry.actions.push(thisAction);
@@ -71,14 +71,14 @@ function checkout(studentId, thisActivity) {
                     break;
                     //Allele and sex changes get added as moves to thisTry and to moves for this drake, unless we're in remediation.
                 case ('Allele changed'):
-                    if (!inRemediation) {
+                    if (!remediationInProgress) {
                         thisTry.actions.push(thisAction);
                         thisTry.moves++;
                         movesForThisDrake++;
                     }
                     break;
                 case ('Sex changed'):
-                    if (!inRemediation) {
+                    if (!remediationInProgress) {
                         thisTry.actions.push(thisAction);
                         thisTry.moves++;
                         movesForThisDrake++;
@@ -86,7 +86,7 @@ function checkout(studentId, thisActivity) {
                     break;
                     //Hints don't interrupt tries so they just get added to the try in progress. They do happen during remediation, though, so we have to check for that.
                 case ('Guide hint received'):
-                    if (!inRemediation) {
+                    if (!remediationInProgress) {
                         thisTry.actions.push(thisAction);
                         data = thisAction.parameters.data;
                         level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
@@ -107,11 +107,11 @@ function checkout(studentId, thisActivity) {
                 case ('Started remediation'):
                     thisTry.actions.push(thisAction);
                     remediations++;
-                    inRemediation = true;
+                    remediationInProgress = true;
                     break;
                     //Drake submitted events end a try if one is in progress (i.e., if we're not in remediation). An incorrect submission increments the movesForThisDrake counter. The crystal color is calculated from the number of moves (zero for incorrect submissions, 1 for black, 2 for red, 3 for yellow, and 4 for blue). An incorrect submission normally leads to a new try with the same drake unless the student breaks out of the loop. We create a new try (initially with zero move) but don't reset the movesForThisDrake counter. If the student interferes with the normal control flow either the activity will change or a "Navigated" event will signal the arrival of a new drake. A correct submission gives the player a choice: "Try Again" or "Continue." "Try Again" produces a "Navigated" event (same activity but different drake). The "Continue" choice leads to a different challenge and won't be counted by this function.
                 case ('Drake submitted'):
-                    if (!inRemediation) {
+                    if (!remediationInProgress) {
                         thisTry.actions.push(thisAction);
                         (thisAction.parameters.correct == "true" ? thisTry.correct = true : thisTry.correct = false);
                         if (thisTry.correct) {
@@ -132,10 +132,10 @@ function checkout(studentId, thisActivity) {
                         } //If crystal color is bad, don't log the try
                     }
                     break;
-                    //For Ended remediation events just reset the inRemediation flag. If they're not followed by a Navigation event, which is the expected case, then we're still in the same try.
+                    //For Ended remediation events just reset the remediationInProgress flag. If they're not followed by a Navigation event, which is the expected case, then we're still in the same try.
                 case ('Ended remediation'):
                     thisTry.actions.push(thisAction);
-                    inRemediation = false;
+                    remediationInProgress = false;
                     break;
             }
         }
@@ -679,7 +679,9 @@ function setFilterParameters(filter1, filter2) {
 }
 
 function getCrystalIndex(thisTry, thisAction) {
-    if (thisAction.parameters.correct == "false") {
+    if (thisTry.remediationInProgress) {
+        return -1;
+    } else if (thisAction.parameters.correct == "false") {
         return 0;
     } else if (thisTry.excessMoves > 2) {
         return 1;
@@ -693,7 +695,7 @@ function getCrystalIndex(thisTry, thisAction) {
                 return 2;
         }
     }
-    console.log("Something wrong with crystal color. Teacher = " + thisAction.student.teacher.id + ",class = " + thisAction.class_id + ", student = " + thisAction.student.id + ", action index + " + thisAction.index + ", " + thisTry.moves + " moves, " + thisTry.excessMoves + " excess moves.");
+ //   console.log("Something wrong with crystal color. Teacher = " + thisAction.student.teacher.id + ",class = " + thisAction.class_id + ", student = " + thisAction.student.id + ", challenge " + thisAction.activity + ", action index + " + thisAction.index + ", " + thisTry.targetMatchMoves + " moves, " + thisTry.excessMoves + " excess moves.");
 }
 
 function getColorFromIndex(colorIndex) {
