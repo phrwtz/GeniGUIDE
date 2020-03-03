@@ -114,6 +114,7 @@ function parseJSON(myTeacher) {
     for (var j = 0; j < rowObjs.length; j++) {
         myRow = rowObjs[j];
         myRow.probs = [];
+        myRow.glitch = false; //Used to identify actions that are the result of a computer glitch (e.g. repeated "Navigation" actions)
         if (myRow.class_id) { //addClass;
             classId = myRow.class_id;
             if (!myTeacher.classesObj[classId]) {

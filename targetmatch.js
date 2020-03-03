@@ -27,9 +27,9 @@ function updateTargetMatchForAllStudents(students) {
             if (targetMatchArray.includes(action.activity)) {
                 updateTargetMatchMoves(action);
                 describeTargetMatch(action);
-            }
         }
     }
+}
 }
 
 function updateTargetMatchMoves(action) {
@@ -39,15 +39,13 @@ function updateTargetMatchMoves(action) {
     switch (action.event) {
         //Navigated events always mean a new myTry with a new drake. The targetMatchMoves property of the new myTry is set to zero, the minimumTargetMatchMoves value is recovered from the event, and the remediationInProgress flag is set to false (because the student has navigated out of remediation).
         case "Navigated":
-            if ((myStudent.id == "273326") && (myActivity.name == "allele-targetMatch-visible-simpleDom")) {
-                console.log("stop");
-            }
             //First check to see whether this navigated event happens very soon after another navigated event, in which case it's a computer glitch and the first action does not constitute a legitimate try. So that try should be popped off the tries array before starting a new one.
             lastAction = myStudent.actions[action.index - 1];
             if (typeof lastAction != "undefined") {
                 thisTime = action.unixTime;
                 lastTime = lastAction.unixTime;
                 if ((lastAction.event == "Navigated") && ((thisTime - lastTime) < 100)) {
+                    lastAction.glitch = true;
                     myActivity.tries.pop();
                 }
             }
@@ -127,6 +125,7 @@ function updateTargetMatchMoves(action) {
                 action.excessMoves = myTry.excessMoves;
                 action.crystalIndex = getCrystalIndex(myTry, action);
                 myTry.crystalIndex = action.crystalIndex;
+                myTry.crystalColor = getCrystalColor(myTry.crystalIndex);
                 if (typeof myTry.actions == "undefined") {
                     console.log("No actions for this try.")
                 }
@@ -138,6 +137,7 @@ function updateTargetMatchMoves(action) {
 //Summarize all the tries on a particular challenge for a particular student
 function summarizeTries(studentIndex, challengeIndex) {
     let outcomeStr = "";
+    let newStr = "";
     let myTries = [];
     student = students[studentIndex];
     challenge = targetMatchArray[challengeIndex];
@@ -145,14 +145,15 @@ function summarizeTries(studentIndex, challengeIndex) {
     console.log("This student tried " + myTries.length + " times on " + challenge + ".");
     for (let i = 0; i < myTries.length; i++) {
         myTry = myTries[i];
+        (myTry.newDrake ? newStr = " New drake. " : newStr = " Old drake. ")
         if (myTry.drakeSubmitted) {
             if (myTry.correct) {
-                outcomeStr = "Student submitted a correct drake and earned " + myTry.crystalIndex + " points.";
+                outcomeStr = "Student submitted a correct drake and earned a " + myTry.crystalColor + " crystal (index = " + myTry.crystalIndex + ").";
             } else outcomeStr = "Student submitted an incorrect drake."
         } else {
             outcomeStr = "Student retried without submitting a drake."
         }
-        console.log("Try number " + i + " started on action " + myTry.startIndex + ". " + outcomeStr);
+        console.log("Try number " + (i + 1) + " started on action " + myTry.startIndex + ". " + newStr + outcomeStr);
     }
     console.log("End of story");
 }
@@ -202,7 +203,7 @@ function describeTargetMatch(action) {
             previousAllele = action.parameters.previousAllele;
             newAllele = action.parameters.newAllele;
             (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-            (myActivity.tries.length == 1 ? triesStr = " myTry " : triesStr = " tries ");
+            (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
             action.description += "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
             if (myTry.remediationInProgress) {
                 action.description += "Remediation in progress. Action doesn't count.<br>";
@@ -214,7 +215,7 @@ function describeTargetMatch(action) {
             (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
             (action.parameters.newSex == "1" ? action.description += "Changed sex from male to female." : action.description += "Changed sex from female to male.");
             action.description += "<br>That makes " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
-            (myActivity.tries.length == 1 ? triesStr = " myTry " : triesStr = " tries ");
+            (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
             if (myTry.remediationInProgress) {
                 action.description += "Remediation in progress. Action doesn't count.<br>";
             } else if (action.newTry) {
@@ -235,8 +236,16 @@ function describeTargetMatch(action) {
             (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
             (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
             action.description += "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + myTry.minimumTargetMatchMoves + ".<br>";
-            (myActivity.tries.length == 1 ? triesStr = " myTry " : triesStr = " tries ");
+            (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
             action.description += "This is the start of a new try with a new drake. " + myActivity.tries.length + triesStr + "so far.<br>";
+            if (action.index > 0) {
+                lastAction = action.student.actions[action.index - 1];
+                if (typeof lastAction.glitch != "undefined") {
+                    if (lastAction.glitch) {
+                        lastAction.description = "<b>This action is a computer glitch and won't be counted!</b>"
+                    }
+                }
+            }
             break;
         case "Drake submitted":
             target = action.parameters.target;

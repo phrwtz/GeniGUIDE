@@ -698,7 +698,7 @@ function getCrystalIndex(thisTry, thisAction) {
  //   console.log("Something wrong with crystal color. Teacher = " + thisAction.student.teacher.id + ",class = " + thisAction.class_id + ", student = " + thisAction.student.id + ", challenge " + thisAction.activity + ", action index + " + thisAction.index + ", " + thisTry.targetMatchMoves + " moves, " + thisTry.excessMoves + " excess moves.");
 }
 
-function getColorFromIndex(colorIndex) {
+function getCrystalColor(colorIndex) {
     switch (colorIndex) {
         case 0:
             return "none";
