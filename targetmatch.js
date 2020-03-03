@@ -27,9 +27,9 @@ function updateTargetMatchForAllStudents(students) {
             if (targetMatchArray.includes(action.activity)) {
                 updateTargetMatchMoves(action);
                 describeTargetMatch(action);
+            }
         }
     }
-}
 }
 
 function updateTargetMatchMoves(action) {
@@ -133,7 +133,44 @@ function updateTargetMatchMoves(action) {
             }
     }
 }
+//Run through all the students and all the target match challenges, populating the challenges with the six different try outcomes,
+function updateAllChallenges() {
+    let noOver = 0,
+        noZero = 0,
+        noUnder = 0,
+        bad = 0,
+        black = 0,
+        red = 0,
+        yellow = 0,
+        blue = 0,
+        outcomeArr = [];
+    for (i = 0; i < students.length; i++) {
+        for (j = 0; j < targetMatchArray.length; j++) {
+            outcomeArr = summarizeTries(i, j);
+            noOver += outcomeArr[0];
+            noZero += outcomeArr[1];
+            noUnder += outcomeArr[2];
+            bad += outcomeArr[3];
+            black += outcomeArr[4];
+            red += outcomeArr[5];
+            yellow += outcomeArr[6];
+            blue += outcomeArr[7];
+        }
+    }
+    let totalTries = noOver + noZero + noUnder + bad + black + red + yellow + blue;
+    let percentOver = Math.round((noOver / totalTries) * 100) ; 
+    let percentUnder = Math.round((noUnder / totalTries) * 100);
+    let percentZero = Math.round((noZero / totalTries) * 100);
+    let percentBad = Math.round((bad / totalTries) * 100); 
+    let percentBlack = Math.round((black / totalTries) * 100);
+    let percentRed = Math.round((red / totalTries) * 100);
+    let percentYellow = Math.round((yellow / totalTries) * 100);
+    let percentBlue = Math.round((blue / totalTries) * 100);
 
+    console.log("Total tries = " + totalTries);
+    console.log("noOver = " + noOver + ", noZero = " + noZero + ", noUnder = " + noUnder + ", bad = " + bad + ", black = " + black + ", red = " + red + ", yellow = " + yellow + ", blue = " + blue);
+    console.log("noOver% = " + percentOver + ", noZero% = " + percentZero + ", noUnder% = " + percentUnder + ", bad% = " + percentBad + ", black% = " + percentBlack + ", red% = " + percentRed + ", yellow% = " + percentYellow + ", blue% = " + percentBlue);
+}
 //Summarize all the tries on a particular challenge for a particular student
 function summarizeTries(studentIndex, challengeIndex) {
     let outcomeStr = "";
@@ -141,22 +178,65 @@ function summarizeTries(studentIndex, challengeIndex) {
     let myTries = [];
     student = students[studentIndex];
     challenge = targetMatchArray[challengeIndex];
-    myTries = student.activitiesByName[challenge].tries;
-    console.log("This student tried " + myTries.length + " times on " + challenge + ".");
-    for (let i = 0; i < myTries.length; i++) {
-        myTry = myTries[i];
-        (myTry.newDrake ? newStr = " New drake. " : newStr = " Old drake. ")
-        if (myTry.drakeSubmitted) {
-            if (myTry.correct) {
-                outcomeStr = "Student submitted a correct drake and earned a " + myTry.crystalColor + " crystal (index = " + myTry.crystalIndex + ").";
-            } else outcomeStr = "Student submitted an incorrect drake."
-        } else {
-            outcomeStr = "Student retried without submitting a drake."
+    myActivity = student.activitiesByName[challenge];
+    if (typeof myActivity == "undefined") {
+        console.log("Student " + student.id + " hasn't done anything on challenge " + challenge);
+        return [0, 0, 0, 0, 0, 0, 0, 0];
+    } else {
+        myTries = myActivity.tries;
+        myActivity.noSubmissionUnder = 0;
+        myActivity.noSubmissionOver = 0;
+        myActivity.noSubmissionZero = 0;
+        myActivity.badSubmission = 0;
+        myActivity.blackSubmission = 0;
+        myActivity.redSubmission = 0;
+        myActivity.yellowSubmission = 0;
+        myActivity.blueSubmission = 0;
+
+        //     console.log("Working on student " + student.id + "(" + studentIndex + ") in class " + student.class.id + ", challenge " + challenge + "(" + challengeIndex + ")");
+        for (let i = 0; i < myTries.length; i++) {
+            myTry = myTries[i];
+            (myTry.newDrake ? newStr = " New drake. " : newStr = " Old drake. ")
+            if (myTry.drakeSubmitted) {
+                if (!myTry.correct) { //Incorrect submission
+                    outcomeStr = "Student submitted an incorrect drake.";
+                    myActivity.badSubmission++;
+                } else { //Correct submission. Find crystal color
+                    outcomeStr = "Student submitted a correct drake and earned a " + myTry.crystalColor + " crystal (index = " + myTry.crystalIndex + ").";
+                    switch (myTry.crystalColor) {
+                        case "black":
+                            myActivity.blackSubmission++;
+                            break;
+                        case "red":
+                            myActivity.redSubmission++;
+                            break;
+                        case "yellow":
+                            myActivity.yellowSubmission++;
+                            break;
+                        case "blue":
+                            myActivity.blueSubmission++;
+                            break;
+                    }
+                    //     console.log("Try number " + (i + 1) + " started on action " + myTry.startIndex + ". " + newStr + outcomeStr);
+                }
+            } else { //No submission.
+                outcomeStr = "Student retried without submitting a drake.";
+                if (myTry.targetMatchMoves > myTry.minimumTargetMatchMoves) {
+                    myActivity.noSubmissionOver++;
+                } else if (myTry.targetMatchMoves == 0) {
+                    myActivity.noSubmissionZero++;
+                } else {
+                    myActivity.noSubmissionUnder++;
+                }
+            }
         }
-        console.log("Try number " + (i + 1) + " started on action " + myTry.startIndex + ". " + newStr + outcomeStr);
+        return [myActivity.noSubmissionOver, myActivity.noSubmissionZero, myActivity.noSubmissionUnder, myActivity.badSubmission, myActivity.blackSubmission, myActivity.redSubmission, myActivity.yellowSubmission, myActivity.blueSubmission];
+        //     console.log("No = " + myActivity.noSubmission + ", bad = " + myActivity.badSubmission + ", black = " + myActivity.blackSubmission + ", red = " + myActivity.redSubmission + ", yellow = " + myActivity.yellowSubmission + ", blue = " + myActivity.blueSubmission);
     }
-    console.log("End of story");
 }
+
+
+
 
 //Add description to individual actions in target match array of challenges
 function describeTargetMatch(action) {
@@ -183,9 +263,6 @@ function describeTargetMatch(action) {
         ig,
         tg,
         moveStr;
-    if (typeof myTry == "undefined") {
-        console.log("no Try defined");
-    }
     action.description = "";
     switch (action.event) {
         case "Guide hint received":
@@ -202,16 +279,22 @@ function describeTargetMatch(action) {
             side = action.parameters.side;
             previousAllele = action.parameters.previousAllele;
             newAllele = action.parameters.newAllele;
-            (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-            (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
-            action.description += "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
-            if (myTry.remediationInProgress) {
-                action.description += "Remediation in progress. Action doesn't count.<br>";
-            } else if (action.newTry) {
-                action.description += "This is the start of a new try with the same drake. " + myActivity.tries.length + triesStr + "so far.<br>";
+            if (typeof myTry == "undefined") {
+                console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
+                action.description = "No try defined for this action."
+            } else {
+                (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+                (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
+                action.description += "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
+                if (myTry.remediationInProgress) {
+                    action.description += "Remediation in progress. Action doesn't count.<br>";
+                } else if (action.newTry) {
+                    action.description += "This is the start of a new try with the same drake. " + myActivity.tries.length + triesStr + "so far.<br>";
+                }
             }
             break;
         case "Sex changed":
+            (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
             (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
             (action.parameters.newSex == "1" ? action.description += "Changed sex from male to female." : action.description += "Changed sex from female to male.");
             action.description += "<br>That makes " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
@@ -224,49 +307,59 @@ function describeTargetMatch(action) {
             }
             break;
         case "Navigated":
-            level = parseInt(action.parameters.level) + 1;
-            mission = parseInt(action.parameters.mission) + 1;
-            targetGenotype = action.parameters.targetDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
-            initialGenotype = action.parameters.initialDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
-            //Get rid of that pesky comma and quotation mark at the end
-            tg = targetGenotype.slice(0, targetGenotype.length - 2);
-            ig = initialGenotype.slice(0, initialGenotype.length - 2);
-            targetSexInteger = action.parameters.targetDrake.match(/(?<="sex"=>)([\d])/)[1];
-            initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
-            (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
-            (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
-            action.description += "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + myTry.minimumTargetMatchMoves + ".<br>";
-            (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
-            action.description += "This is the start of a new try with a new drake. " + myActivity.tries.length + triesStr + "so far.<br>";
-            if (action.index > 0) {
-                lastAction = action.student.actions[action.index - 1];
-                if (typeof lastAction.glitch != "undefined") {
-                    if (lastAction.glitch) {
-                        lastAction.description = "<b>This action is a computer glitch and won't be counted!</b>"
+            if (typeof myTry == "undefined") {
+                console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
+                action.description = "No try defined for this action."
+            } else {
+                level = parseInt(action.parameters.level) + 1;
+                mission = parseInt(action.parameters.mission) + 1;
+                targetGenotype = action.parameters.targetDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
+                initialGenotype = action.parameters.initialDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
+                //Get rid of that pesky comma and quotation mark at the end
+                tg = targetGenotype.slice(0, targetGenotype.length - 2);
+                ig = initialGenotype.slice(0, initialGenotype.length - 2);
+                targetSexInteger = action.parameters.targetDrake.match(/(?<="sex"=>)([\d])/)[1];
+                initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
+                (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
+                (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
+                action.description += "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + myTry.minimumTargetMatchMoves + ".<br>";
+                (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
+                action.description += "This is the start of a new try with a new drake. " + myActivity.tries.length + triesStr + "so far.<br>";
+                if (action.index > 0) {
+                    lastAction = action.student.actions[action.index - 1];
+                    if (typeof lastAction.glitch != "undefined") {
+                        if (lastAction.glitch) {
+                            lastAction.description = "<b>This action is a computer glitch and won't be counted!</b>"
+                        }
                     }
                 }
             }
             break;
         case "Drake submitted":
-            target = action.parameters.target;
-            selected = action.parameters.selected;
-            selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
-            targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
-            (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
-            selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
-            (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
-            targetPhenotype = "\'" + target.match(/(?<="phenotype"=>{")([^}]+)/)[1] + "\'";
-            tp = targetPhenotype.match(/(?<="=>")([^"]+)/g);
-            selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
-            sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
-            selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
-            sp = selectedOrg.phenotype.allCharacteristics;
-            let correct = action.parameters.correct;
-            (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
-            (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-            action.description += "Target phenotype = " + tp + "<br>Selected phenotype = " + sp + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + myTry.targetMatchMoves + moveStr + "  taken. The minimum was " + myTry.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + myTry.crystalIndex + ".<br>";
-            if (myTry.remediationInProgress) {
-                action.description += "Remediation in progress. Crystal index doesn't count.<br>";
+            if (typeof myTry == "undefined") {
+                console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
+                action.description = "No try defined for this action."
+            } else {
+                target = action.parameters.target;
+                selected = action.parameters.selected;
+                selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
+                targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
+                (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
+                selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
+                (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
+                targetPhenotype = "\'" + target.match(/(?<="phenotype"=>{")([^}]+)/)[1] + "\'";
+                tp = targetPhenotype.match(/(?<="=>")([^"]+)/g);
+                selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
+                sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
+                selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
+                sp = selectedOrg.phenotype.allCharacteristics;
+                let correct = action.parameters.correct;
+                (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
+                (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+                action.description += "Target phenotype = " + tp + "<br>Selected phenotype = " + sp + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + myTry.targetMatchMoves + moveStr + "  taken. The minimum was " + myTry.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + myTry.crystalIndex + ".<br>";
+                if (myTry.remediationInProgress) {
+                    action.description += "Remediation in progress. Crystal index doesn't count.<br>";
+                }
             }
             break;
         case "ITS Data Updated":
@@ -382,8 +475,18 @@ function getTargetMatchResults(filteredStudents) {
     });
 }
 
+/* function makeTargetMatchTriesTable(challengeResultsArray) {
+    if (typeof targetMatchTable != "undefined") {
+        clear(targetMatchTable);
+    }
+    let targetMatchTable = document.createElement(table);
+    let headerRow = document.createElement(th);
+    let 
+
+} */
+
 function makeTargetMatchTable(challengeResultsArray) {
-    var challengeResult,
+    let challengeResult,
         chalRow,
         chalCell;
     clear(targetMatchBody);
