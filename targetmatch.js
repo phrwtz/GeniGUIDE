@@ -126,7 +126,7 @@ function updateTargetMatchMoves(action) {
                 action.crystalIndex = getCrystalIndex(myTry, action);
                 myTry.crystalIndex = action.crystalIndex;
                 myTry.crystalColor = getCrystalColor(myTry.crystalIndex);
-                if (typeof myTry.actions == "undefined") {
+                if (typeof myTry.actions == undefined) {
                     console.log("No actions for this try.")
                 }
                 myTry.actions.push(action);
@@ -134,7 +134,7 @@ function updateTargetMatchMoves(action) {
     }
 }
 //Run through all the students and all the target match challenges, populating the challenges with the six different try outcomes,
-function updateAllChallenges() {
+function updateAllChallenges(students) {
     let noOver = 0,
         noZero = 0,
         noUnder = 0,
@@ -158,10 +158,10 @@ function updateAllChallenges() {
         }
     }
     let totalTries = noOver + noZero + noUnder + bad + black + red + yellow + blue;
-    let percentOver = Math.round((noOver / totalTries) * 100) ; 
+    let percentOver = Math.round((noOver / totalTries) * 100);
     let percentUnder = Math.round((noUnder / totalTries) * 100);
     let percentZero = Math.round((noZero / totalTries) * 100);
-    let percentBad = Math.round((bad / totalTries) * 100); 
+    let percentBad = Math.round((bad / totalTries) * 100);
     let percentBlack = Math.round((black / totalTries) * 100);
     let percentRed = Math.round((red / totalTries) * 100);
     let percentYellow = Math.round((yellow / totalTries) * 100);
@@ -171,6 +171,7 @@ function updateAllChallenges() {
     console.log("noOver = " + noOver + ", noZero = " + noZero + ", noUnder = " + noUnder + ", bad = " + bad + ", black = " + black + ", red = " + red + ", yellow = " + yellow + ", blue = " + blue);
     console.log("noOver% = " + percentOver + ", noZero% = " + percentZero + ", noUnder% = " + percentUnder + ", bad% = " + percentBad + ", black% = " + percentBlack + ", red% = " + percentRed + ", yellow% = " + percentYellow + ", blue% = " + percentBlue);
 }
+
 //Summarize all the tries on a particular challenge for a particular student
 function summarizeTries(studentIndex, challengeIndex) {
     let outcomeStr = "";
@@ -183,7 +184,11 @@ function summarizeTries(studentIndex, challengeIndex) {
         console.log("Student " + student.id + " hasn't done anything on challenge " + challenge);
         return [0, 0, 0, 0, 0, 0, 0, 0];
     } else {
-        myTries = myActivity.tries;
+        try {
+            myTries = myActivity.tries;
+        } catch (err) {
+            console.log("no tries");
+        };
         myActivity.noSubmissionUnder = 0;
         myActivity.noSubmissionOver = 0;
         myActivity.noSubmissionZero = 0;
@@ -221,7 +226,7 @@ function summarizeTries(studentIndex, challengeIndex) {
                 }
             } else { //No submission.
                 outcomeStr = "Student retried without submitting a drake.";
-                if (myTry.targetMatchMoves > myTry.minimumTargetMatchMoves) {
+                if (myTry.targetMatchMoves >= myTry.minimumTargetMatchMoves) {
                     myActivity.noSubmissionOver++;
                 } else if (myTry.targetMatchMoves == 0) {
                     myActivity.noSubmissionZero++;
@@ -235,7 +240,65 @@ function summarizeTries(studentIndex, challengeIndex) {
     }
 }
 
+//Create a string consisting of a header row and a row for each student in <selectedStudents> with columns corresponding to the numbers of tries of each type for each target matching challenge for each student.
+function makeTriesCSVFile(selectedStudents) {
+    let triesStr = makeTriesHeaderRow();
+    let noOver = 0,
+        noZero = 0,
+        noUnder = 0,
+        bad = 0,
+        black = 0,
+        red = 0,
+        yellow = 0,
+        blue = 0;
+    for (studIndex = 0; studIndex < selectedStudents.length; studIndex++) {
+        student = selectedStudents[studIndex];
+        if (student.score_pre == undefined) {
+            student.score_pre = null;
+        }
+        if (student.score_post == undefined) {
+            student.score_post = null;
+        }
+        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.score_pre + ", " + student.score_post + ", ");
+        for (chalIndex = 0; chalIndex < targetMatchArray.length; chalIndex++) {
+            chalName = targetMatchArray[chalIndex];
+            myActivity = student.activitiesByName[chalName];
+            if (typeof myActivity == "undefined") {
+                noOver = 0;
+                noZero = 0;
+                noUnder = 0;
+                bad = 0;
+                black = 0;
+                red = 0;
+                yellow = 0;
+                blue = 0;
+            } else {
+                summarizeTries(studIndex, chalIndex);
+                noUnder = myActivity.noSubmissionUnder;
+                noOver = myActivity.noSubmissionOver;
+                noZero = myActivity.noSubmissionZero;
+                bad = myActivity.badSubmission;
+                black = myActivity.blackSubmission;
+                red = myActivity.redSubmission;
+                yellow = myActivity.yellowSubmission;
+                blue = myActivity.blueSubmission;
+            }
+            triesStr += (", " + noUnder + ", " + noZero + ", " + noOver + ", " + bad + ", " + black + ", " + red + ", " + yellow + ", " + blue);
+        }
+        console.log("After " + studIndex + " students, triesStr is " + triesStr.length + " characters long.");
+    }
+};
 
+function makeTriesHeaderRow() {
+    const tryTypes = ["noUnder", "noZero", "noOver", "bad", "black", "red", "yellow", "blue"];
+    let triesStr = "Teacher, Class, Student, Pre-score, Post-score";
+    let shortChallenge;
+    for (challenge of targetMatchArray) {
+        shortChallenge = challenge.split("-")[2] + "-" + challenge.split("-")[3];
+        triesStr += ", " + shortChallenge + "-" + "noUnder, " + shortChallenge + "-" + "noZero, " + shortChallenge + "-" + "noOver, " + shortChallenge + "-" + "bad, " + shortChallenge + "-" + "black, " + shortChallenge + "-" + "red, " + shortChallenge + "-" + "yellow, " + shortChallenge + "-" + "blue";
+    }
+    return triesStr;
+}
 
 
 //Add description to individual actions in target match array of challenges
@@ -279,7 +342,7 @@ function describeTargetMatch(action) {
             side = action.parameters.side;
             previousAllele = action.parameters.previousAllele;
             newAllele = action.parameters.newAllele;
-            if (typeof myTry == "undefined") {
+            if (typeof myTry == undefined) {
                 console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
@@ -307,7 +370,7 @@ function describeTargetMatch(action) {
             }
             break;
         case "Navigated":
-            if (typeof myTry == "undefined") {
+            if (typeof myTry == undefined) {
                 console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
@@ -336,7 +399,7 @@ function describeTargetMatch(action) {
             }
             break;
         case "Drake submitted":
-            if (typeof myTry == "undefined") {
+            if (typeof myTry == undefined) {
                 console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
