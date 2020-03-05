@@ -83,7 +83,8 @@ function filter() {
     document.getElementById("reversalsButton").style.display = "inline";
     document.getElementById("singleStudentChalButton").style.display = "none";
     showConcepts();
-    updateTargetMatchForAllStudents(students);
+    updateTargetMatchForAllStudents(students)
+        .then(updateAllChallenges(students));
     showTeachers();
     summarizeHints(students);
 }
