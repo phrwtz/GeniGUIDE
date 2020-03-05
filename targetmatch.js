@@ -36,6 +36,9 @@ function updateTargetMatchMoves(action) {
     let myStudent = action.student;
     let myActivity = myStudent.activitiesByName[action.activity];
     let tryObj = Object;
+    if ((myStudent.id == 273326) && (myActivity.name == "allele-targetMatch-hidden-simpleDom")) {
+        console.log("stop");
+    }
     switch (action.event) {
         //Navigated events always mean a new myTry with a new drake. The targetMatchMoves property of the new myTry is set to zero, the minimumTargetMatchMoves value is recovered from the event, and the remediationInProgress flag is set to false (because the student has navigated out of remediation).
         case "Navigated":
@@ -126,7 +129,7 @@ function updateTargetMatchMoves(action) {
                 action.crystalIndex = getCrystalIndex(myTry, action);
                 myTry.crystalIndex = action.crystalIndex;
                 myTry.crystalColor = getCrystalColor(myTry.crystalIndex);
-                if (typeof myTry.actions == undefined) {
+                if (typeof myTry.actions == "undefined") {
                     console.log("No actions for this try.")
                 }
                 myTry.actions.push(action);
@@ -181,7 +184,7 @@ function summarizeTries(studentIndex, challengeIndex) {
     challenge = targetMatchArray[challengeIndex];
     myActivity = student.activitiesByName[challenge];
     if (typeof myActivity == "undefined") {
-        console.log("Student " + student.id + " hasn't done anything on challenge " + challenge);
+  //      console.log("Student " + student.id + " hasn't done anything on challenge " + challenge);
         return [0, 0, 0, 0, 0, 0, 0, 0];
     } else {
         try {
@@ -189,6 +192,7 @@ function summarizeTries(studentIndex, challengeIndex) {
         } catch (err) {
             console.log("no tries");
         };
+        myActivity.outcomes = [];
         myActivity.noSubmissionUnder = 0;
         myActivity.noSubmissionOver = 0;
         myActivity.noSubmissionZero = 0;
@@ -205,20 +209,25 @@ function summarizeTries(studentIndex, challengeIndex) {
             if (myTry.drakeSubmitted) {
                 if (!myTry.correct) { //Incorrect submission
                     outcomeStr = "Student submitted an incorrect drake.";
+                    myTry.outcome = "bad";
                     myActivity.badSubmission++;
                 } else { //Correct submission. Find crystal color
                     outcomeStr = "Student submitted a correct drake and earned a " + myTry.crystalColor + " crystal (index = " + myTry.crystalIndex + ").";
                     switch (myTry.crystalColor) {
                         case "black":
+                            myTry.outcome = "black";
                             myActivity.blackSubmission++;
                             break;
                         case "red":
+                            myTry.outcome = "red";
                             myActivity.redSubmission++;
                             break;
                         case "yellow":
+                            myTry.outcome = "yellow";
                             myActivity.yellowSubmission++;
                             break;
                         case "blue":
+                            myTry.outcome = "blue";
                             myActivity.blueSubmission++;
                             break;
                     }
@@ -227,13 +236,17 @@ function summarizeTries(studentIndex, challengeIndex) {
             } else { //No submission.
                 outcomeStr = "Student retried without submitting a drake.";
                 if (myTry.targetMatchMoves >= myTry.minimumTargetMatchMoves) {
+                    myTry.outcome = "noOver";
                     myActivity.noSubmissionOver++;
                 } else if (myTry.targetMatchMoves == 0) {
+                    myTry.outcome = "noZero";
                     myActivity.noSubmissionZero++;
                 } else {
+                    myTry.outcome = "noUnder";
                     myActivity.noSubmissionUnder++;
                 }
             }
+            myActivity.outcomes.push(myTry.outcome);
         }
         return [myActivity.noSubmissionOver, myActivity.noSubmissionZero, myActivity.noSubmissionUnder, myActivity.badSubmission, myActivity.blackSubmission, myActivity.redSubmission, myActivity.yellowSubmission, myActivity.blueSubmission];
         //     console.log("No = " + myActivity.noSubmission + ", bad = " + myActivity.badSubmission + ", black = " + myActivity.blackSubmission + ", red = " + myActivity.redSubmission + ", yellow = " + myActivity.yellowSubmission + ", blue = " + myActivity.blueSubmission);
@@ -243,14 +256,6 @@ function summarizeTries(studentIndex, challengeIndex) {
 //Create a string consisting of a header row and a row for each student in <selectedStudents> with columns corresponding to the numbers of tries of each type for each target matching challenge for each student.
 function makeTriesCSVFile(selectedStudents) {
     let triesStr = makeTriesHeaderRow();
-    let noOver = 0,
-        noZero = 0,
-        noUnder = 0,
-        bad = 0,
-        black = 0,
-        red = 0,
-        yellow = 0,
-        blue = 0;
     for (studIndex = 0; studIndex < selectedStudents.length; studIndex++) {
         student = selectedStudents[studIndex];
         if (student.score_pre == undefined) {
@@ -261,18 +266,10 @@ function makeTriesCSVFile(selectedStudents) {
         }
         triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.score_pre + ", " + student.score_post + ", ");
         for (chalIndex = 0; chalIndex < targetMatchArray.length; chalIndex++) {
+            let noOver = 0, noZero = 0,  noUnder = 0, bad = 0, black = 0, red = 0,yellow = 0,blue = 0;
             chalName = targetMatchArray[chalIndex];
             myActivity = student.activitiesByName[chalName];
-            if (typeof myActivity == "undefined") {
-                noOver = 0;
-                noZero = 0;
-                noUnder = 0;
-                bad = 0;
-                black = 0;
-                red = 0;
-                yellow = 0;
-                blue = 0;
-            } else {
+            if (typeof myActivity != "undefined") {
                 summarizeTries(studIndex, chalIndex);
                 noUnder = myActivity.noSubmissionUnder;
                 noOver = myActivity.noSubmissionOver;
@@ -285,8 +282,9 @@ function makeTriesCSVFile(selectedStudents) {
             }
             triesStr += (", " + noUnder + ", " + noZero + ", " + noOver + ", " + bad + ", " + black + ", " + red + ", " + yellow + ", " + blue);
         }
-        console.log("After " + studIndex + " students, triesStr is " + triesStr.length + " characters long.");
     }
+    let fileName = prompt("Enter file name");
+    (saveData)()(triesStr, fileName);
 };
 
 function makeTriesHeaderRow() {
@@ -342,7 +340,7 @@ function describeTargetMatch(action) {
             side = action.parameters.side;
             previousAllele = action.parameters.previousAllele;
             newAllele = action.parameters.newAllele;
-            if (typeof myTry == undefined) {
+            if (typeof myTry == "undefined") {
                 console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
@@ -350,7 +348,7 @@ function describeTargetMatch(action) {
                 (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
                 action.description += "Old allele = <b>" + previousAllele + "</b>, new Allele = <b>" + newAllele + "</b>, side = " + side + ".<br>That's " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
                 if (myTry.remediationInProgress) {
-                    action.description += "Remediation in progress. Action doesn't count.<br>";
+                    action.description += "<b>Remediation in progress. Action doesn't count.</b><br>";
                 } else if (action.newTry) {
                     action.description += "This is the start of a new try with the same drake. " + myActivity.tries.length + triesStr + "so far.<br>";
                 }
@@ -363,14 +361,14 @@ function describeTargetMatch(action) {
             action.description += "<br>That makes " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
             (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
             if (myTry.remediationInProgress) {
-                action.description += "Remediation in progress. Action doesn't count.<br>";
+                action.description += "<b>Remediation in progress. Action doesn't count.</b><br>";
             } else if (action.newTry) {
                 action.description += "This is the start of a new try with the same drake. " + myActivity.tries.length + triesStr + "so far.<br>";
                 break;
             }
             break;
         case "Navigated":
-            if (typeof myTry == undefined) {
+            if (typeof myTry == "undefined") {
                 console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
@@ -399,7 +397,7 @@ function describeTargetMatch(action) {
             }
             break;
         case "Drake submitted":
-            if (typeof myTry == undefined) {
+            if (typeof myTry == "undefined") {
                 console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
@@ -421,7 +419,7 @@ function describeTargetMatch(action) {
                 (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
                 action.description += "Target phenotype = " + tp + "<br>Selected phenotype = " + sp + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + myTry.targetMatchMoves + moveStr + "  taken. The minimum was " + myTry.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + myTry.crystalIndex + ".<br>";
                 if (myTry.remediationInProgress) {
-                    action.description += "Remediation in progress. Crystal index doesn't count.<br>";
+                    action.description += "<b>Remediation in progress. Crystal index doesn't count.</b><br>";
                 }
             }
             break;
