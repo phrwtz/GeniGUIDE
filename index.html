@@ -740,7 +740,12 @@
                             thisStudent.score_post = parseInt(thisPpStudent.score_post);
                             thisStudent.prepost_gain =
                                 parseInt(thisPpStudent.prepost_gain);
-                            //console.log("Student " + thisStudent.id + " had a pre-test score of " +  thisPpStudent    .score_pre + " and a post-test score of " + thisPpStudent.score_post +  " for an effect size of " + (thisPpStudent.prepost_gain);
+                            thisStudent.pre_no_protein = parseInt(thisPpStudent.pre_no_protein);
+                            thisStudent.post_no_protein = parseInt(thisPpStudent.post_no_protein);
+                            thisStudent.prepost_gain =
+                                parseInt(thisPpStudent.prepost_gain);
+                            thisStudent.gain_no_protein =
+                                parseInt(thisPpStudent.gain_no_protein);
                         }
                     }
                     document.getElementById("CSVfile").style.display = "none";

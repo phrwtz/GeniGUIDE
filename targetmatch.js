@@ -152,19 +152,19 @@ function categorizeChallenge(chal) {
             recentColor = out[j];
             for (let k = j; k < len; k++) {
                 if ((recentColor != "") && (out[k] == "noOver")) {
-                        for (let l = k; l < len; l++) {
-                            if (((recentColor == "black") && ((out[l] == "red") || (out[l] == "yellow") || (out[l] == "blue"))) || ((recentColor == "red") && ((out[l] == "yellow") || (out[l] == "blue"))) || ((recentColor == "yellow") && (out[l] == "blue"))) {
-                                if (!improvedAdded) {
-                                    cat += " improved";
-                                    improvedAdded = true;
-                                    break;
-                                }
+                    for (let l = k; l < len; l++) {
+                        if (((recentColor == "black") && ((out[l] == "red") || (out[l] == "yellow") || (out[l] == "blue"))) || ((recentColor == "red") && ((out[l] == "yellow") || (out[l] == "blue"))) || ((recentColor == "yellow") && (out[l] == "blue"))) {
+                            if (!improvedAdded) {
+                                cat += " improved";
+                                improvedAdded = true;
+                                break;
                             }
                         }
                     }
                 }
             }
         }
+    }
     return cat;
 }
 
@@ -333,23 +333,23 @@ function updateAllChallenges(students) {
 
 //Create a string consisting of a header row and a row for each student in <selectedStudents> with columns corresponding to the outcome string for each target matching challenge for each student.
 function makeSummaryTriesFile(students) {
-    let triesStr = "Teacher, Class, Student, pre-score, post-score";
+    let triesStr = "Teacher, Class, Student, pre-no-protein, post-no-protein";
     for (chalName of targetMatchArray) {
         shortName = chalName.split("-")[2] + "-" + chalName.split("-")[3];
         triesStr += ", " + shortName;
     }
     for (student of students) {
-        if (student.score_pre == undefined) {
-            student.score_pre = null;
+        if (student.pre_no_protein == undefined) {
+            student.pre_no_protein = null;
         }
-        if (student.score_post == undefined) {
-            student.score_post = null;
+        if (student.post_no_protein == undefined) {
+            student.post_no_protein = null;
         }
-        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.score_pre + ", " + student.score_post);
+        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", ");
         for (name of targetMatchArray) {
             myActivity = student.activitiesByName[name];
             if (typeof myActivity != "undefined") {
-                triesStr += (", " + myActivity.category);
+                triesStr += (", " + myActivity.outcomesStr + "; " + myActivity.category);
             } else {
                 triesStr += "";
             }
@@ -364,13 +364,13 @@ function makeTriesCSVFile(selectedStudents) {
     let triesStr = makeTriesHeaderRow();
     for (studIndex = 0; studIndex < selectedStudents.length; studIndex++) {
         student = selectedStudents[studIndex];
-        if (student.score_pre == undefined) {
-            student.score_pre = null;
+        if (student.pre_no_protein == undefined) {
+            student.pre_no_protein = null;
         }
-        if (student.score_post == undefined) {
-            student.score_post = null;
+        if (student.post_no_protein == undefined) {
+            student.post_no_protein = null;
         }
-        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.score_pre + ", " + student.score_post + ", ");
+        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", ");
         for (chalIndex = 0; chalIndex < targetMatchArray.length; chalIndex++) {
             let noOver = 0,
                 noZero = 0,
@@ -402,7 +402,7 @@ function makeTriesCSVFile(selectedStudents) {
 
 function makeTriesHeaderRow() {
     const tryTypes = ["noUnder", "noZero", "noOver", "bad", "black", "red", "yellow", "blue"];
-    let triesStr = "Teacher, Class, Student, Pre-score, Post-score";
+    let triesStr = "Teacher, Class, Student, Pre-no-protein, Post-no-protein";
     let shortChallenge;
     for (challenge of targetMatchArray) {
         shortChallenge = challenge.split("-")[2] + "-" + challenge.split("-")[3];
