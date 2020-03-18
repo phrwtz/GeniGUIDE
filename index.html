@@ -736,14 +736,12 @@
                         let thisPpStudent = ppStudents[k];
                         let thisStudent = studentsObj[thisPpStudent.UserID];
                         if (thisStudent) {
-                            thisStudent.score_pre = parseInt(thisPpStudent.score_pre);
-                            thisStudent.score_post = parseInt(thisPpStudent.score_post);
-                            thisStudent.prepost_gain =
-                                parseInt(thisPpStudent.prepost_gain);
+                            thisStudent.score_pre = parseInt(thisPpStudent.pre_score);
+                            thisStudent.score_post = parseInt(thisPpStudent.post_score);
                             thisStudent.pre_no_protein = parseInt(thisPpStudent.pre_no_protein);
                             thisStudent.post_no_protein = parseInt(thisPpStudent.post_no_protein);
-                            thisStudent.prepost_gain =
-                                parseInt(thisPpStudent.prepost_gain);
+                            thisStudent.gain =
+                                parseInt(thisPpStudent.gain);
                             thisStudent.gain_no_protein =
                                 parseInt(thisPpStudent.gain_no_protein);
                         }

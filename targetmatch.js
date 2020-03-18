@@ -333,7 +333,7 @@ function updateAllChallenges(students) {
 
 //Create a string consisting of a header row and a row for each student in <selectedStudents> with columns corresponding to the outcome string for each target matching challenge for each student.
 function makeSummaryTriesFile(students) {
-    let triesStr = "Teacher, Class, Student, pre-no-protein, post-no-protein";
+    let triesStr = "Teacher, Class, Student, pre_no_protein, post_no_protein, gain_no_protein";
     for (chalName of targetMatchArray) {
         shortName = chalName.split("-")[2] + "-" + chalName.split("-")[3];
         triesStr += ", " + shortName;
@@ -345,7 +345,10 @@ function makeSummaryTriesFile(students) {
         if (student.post_no_protein == undefined) {
             student.post_no_protein = null;
         }
-        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", ");
+        if (student.gain_no_protein == undefined) {
+            student.gain_no_protein = null;
+        }
+        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein);
         for (name of targetMatchArray) {
             myActivity = student.activitiesByName[name];
             if (typeof myActivity != "undefined") {
