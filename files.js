@@ -97,6 +97,117 @@ function openPrePostFile(evt) {
     reader.readAsText(file);
 }
 
+function makeSummaryChallengesFile(students) {
+    let scoresArr = [];
+    let avgsStr = "Teacher, Class, Student, pre_no_protein, post_no_protein, gain_no_protein, simpleDomPro, simpleDomEng, armorHornsPro, armorHornsEng, colorPro, colorEng, harderPro, harderEng";
+    for (student of students) {
+        if (student.pre_no_protein == undefined) {
+            student.pre_no_protein = null;
+        }
+        if (student.post_no_protein == undefined) {
+            student.post_no_protein = null;
+        }
+        if (student.gain_no_protein == undefined) {
+            student.gain_no_protein = null;
+        }
+        let scoresArr = averageChallengeScores(student),
+            simpleProAvg = scoresArr[0],
+            armorProAvg = scoresArr[1],
+            colorProAvg = scoresArr[2],
+            harderProAvg = scoresArr[3],
+            simpleEngAvg = scoresArr[4],
+            armorEngAvg = scoresArr[5],
+            colorEngAvg = scoresArr[6],
+            harderEngAvg = scoresArr[7];
+        avgsStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein + ", " + simpleProAvg + ", " + simpleEngAvg + ", " + armorProAvg + ", " + armorEngAvg + ", " + colorProAvg + ", " + colorEngAvg + ", " + harderProAvg + ", " + harderEngAvg);
+    }
+    let fileName = prompt("Enter file name") + "_challenge_averages";
+    saveData()(avgsStr, fileName);
+}
+
+//Create a string consisting of a header row and a row for each student in <selectedStudents> with columns corresponding to the outcome string for each target matching challenge for each student.
+function makeSummaryTriesFile(students) {
+    let triesStr = "Teacher, Class, Student, pre_no_protein, post_no_protein, gain_no_protein";
+    for (chalName of targetMatchArray) {
+        shortName = chalName.split("-")[2] + "-" + chalName.split("-")[3];
+        triesStr += ", " + shortName;
+    }
+    for (student of students) {
+        if (student.pre_no_protein == undefined) {
+            student.pre_no_protein = null;
+        }
+        if (student.post_no_protein == undefined) {
+            student.post_no_protein = null;
+        }
+        if (student.gain_no_protein == undefined) {
+            student.gain_no_protein = null;
+        }
+        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein);
+        for (name of targetMatchArray) {
+            myActivity = student.activitiesByName[name];
+            if (typeof myActivity != "undefined") {
+                triesStr += (", " + myActivity.outcomesStr + "; " + myActivity.score[0] + "/" + myActivity.score[1]);
+            } else {
+                triesStr += "";
+            }
+        }
+    }
+    let fileName = prompt("Enter file name") + "_challenge_summary";
+    saveData()(triesStr, fileName);
+}
+
+//Create a string consisting of a header row and a row for each student in <selectedStudents> with columns corresponding to the numbers of tries of each type for each target matching challenge for each student.
+function makeTriesCSVFile(selectedStudents) {
+    let triesStr = makeTriesHeaderRow();
+    for (studIndex = 0; studIndex < selectedStudents.length; studIndex++) {
+        student = selectedStudents[studIndex];
+        if (student.pre_no_protein == undefined) {
+            student.pre_no_protein = null;
+        }
+        if (student.post_no_protein == undefined) {
+            student.post_no_protein = null;
+        }
+        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", ");
+        for (chalIndex = 0; chalIndex < targetMatchArray.length; chalIndex++) {
+            let noOver = 0,
+                noZero = 0,
+                noUnder = 0,
+                bad = 0,
+                black = 0,
+                red = 0,
+                yellow = 0,
+                blue = 0;
+            chalName = targetMatchArray[chalIndex];
+            myActivity = student.activitiesByName[chalName];
+            if (typeof myActivity != "undefined") {
+                summarizeTries(studIndex, chalIndex);
+                noUnder = myActivity.noSubmissionUnder;
+                noOver = myActivity.noSubmissionOver;
+                noZero = myActivity.noSubmissionZero;
+                bad = myActivity.badSubmission;
+                black = myActivity.blackSubmission;
+                red = myActivity.redSubmission;
+                yellow = myActivity.yellowSubmission;
+                blue = myActivity.blueSubmission;
+            }
+            triesStr += (", " + noUnder + ", " + noZero + ", " + noOver + ", " + bad + ", " + black + ", " + red + ", " + yellow + ", " + blue);
+        }
+    }
+    let fileName = prompt("Enter file name");
+    (saveData)()(triesStr, fileName);
+};
+
+function makeTriesHeaderRow() {
+    const tryTypes = ["noUnder", "noZero", "noOver", "bad", "black", "red", "yellow", "blue"];
+    let triesStr = "Teacher, Class, Student, Pre-no-protein, Post-no-protein";
+    let shortChallenge;
+    for (challenge of targetMatchArray) {
+        shortChallenge = challenge.split("-")[2] + "-" + challenge.split("-")[3];
+        triesStr += ", " + shortChallenge + "-" + "noUnder, " + shortChallenge + "-" + "noZero, " + shortChallenge + "-" + "noOver, " + shortChallenge + "-" + "bad, " + shortChallenge + "-" + "black, " + shortChallenge + "-" + "red, " + shortChallenge + "-" + "yellow, " + shortChallenge + "-" + "blue";
+    }
+    return triesStr;
+}
+
 function countPreScores(student) {
     var preScore0 = 0;
     var preScore1 = 0;
@@ -293,7 +404,7 @@ function downloadSummaryFile(fileStr) {
 }
 
 function makeSummaryFileRow(student, hintsArray) {
-    let gain = student.score_post -student.score_pre;
+    let gain = student.score_post - student.score_pre;
     let domScore = hintsArray[0][0] + 2 * hintsArray[0][1] + 3 * hintsArray[0][2];
     let armorHornsScore = hintsArray[1][0] + 2 * hintsArray[1][1] + 3 * hintsArray[1][2];
     let colorScore = hintsArray[2][0] + 2 * hintsArray[2][1] + 3 * hintsArray[2][2];

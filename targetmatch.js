@@ -51,6 +51,67 @@ const harderTraitsArray = [
     "allele-targetMatch-hidden-harderTraits2"
 ];
 
+//Return the average scores for each challenge type (simpleDom, armorHorns, color, and harderTraits) for <student></student>
+function averageChallengeScores(student) {
+    let simpleProArr = [],
+        armorProArr = [],
+        colorProArr = [],
+        harderProArr = [],
+        simpleEngArr = [],
+        armorEngArr = [],
+        colorEngArr = [],
+        harderEngArr = [];
+    for (chal of simpleDomArray) {
+        myActivity = student.activitiesByName[chal];
+        if (typeof myActivity === "undefined") {
+            simpleProArr.push(null);
+            simpleEngArr.push(null);
+        } else {
+            simpleProArr.push(myActivity.score[0]);
+            simpleEngArr.push(myActivity.score[1]);
+        }
+    }
+    for (chal of armorHornsArray) {
+        myActivity = student.activitiesByName[chal];
+        if (typeof myActivity === "undefined") {
+            armorProArr.push(null);
+            armorEngArr.push(null);
+        } else {
+            armorProArr.push(myActivity.score[0]);
+            armorEngArr.push(myActivity.score[1]);
+        }
+    }
+    for (chal of colorArray) {
+        myActivity = student.activitiesByName[chal];
+        if (typeof myActivity == "undefined") {
+            colorProArr.push(null);
+            colorEngArr.push(null);
+        } else {
+            colorProArr.push(myActivity.score[0]);
+            colorEngArr.push(myActivity.score[1]);
+        }
+    }
+    for (chal of harderTraitsArray) {
+        myActivity = student.activitiesByName[chal];
+        if (typeof myActivity == "undefined") {
+            harderProArr.push(null);
+            harderEngArr.push(null);
+        } else {
+            harderProArr.push(myActivity.score[0]);
+            harderEngArr.push(myActivity.score[1]);
+        }
+    }
+    let simpleProAvg = Math.round(100 * meanStdDev(simpleProArr)[0]) / 100;
+    let armorProAvg = Math.round(100 * meanStdDev(armorProArr)[0]) / 100;
+    let colorProAvg = Math.round(100 * meanStdDev(colorProArr)[0]) / 100;
+    let harderProAvg = Math.round(100 * meanStdDev(harderProArr)[0]) / 100;
+    let simpleEngAvg = Math.round(100 * meanStdDev(simpleEngArr)[0]) / 100;
+    let armorEngAvg = Math.round(100 * meanStdDev(armorEngArr)[0]) / 100;
+    let colorEngAvg = Math.round(100 * meanStdDev(colorEngArr)[0]) / 100;
+    let harderEngAvg = Math.round(100 * meanStdDev(harderEngArr)[0]) / 100;
+    return [simpleProAvg, armorProAvg, colorProAvg, harderProAvg, simpleEngAvg, armorEngAvg, colorEngAvg, harderEngAvg];
+}
+
 //Score <challenge>. Return an array for proficiency and engagement.
 function scoreChallenge(challenge) {
     const proficiencyScoreArray = [
@@ -81,8 +142,8 @@ function scoreChallenge(challenge) {
             proficiencyScore = 0;
             engagementScore = 5;
         } else {
-                proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal - 1];
-                engagementScore = engagementScoreArray[triesForBlue - 1][bestCrystal - 1];
+            proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal - 1];
+            engagementScore = engagementScoreArray[triesForBlue - 1][bestCrystal - 1];
         }
         return [proficiencyScore, engagementScore];
     } else { //No drake submissions
@@ -459,88 +520,7 @@ function updateAllChallenges(students) {
     console.log("noOver% = " + percentOver + ", noZero% = " + percentZero + ", noUnder% = " + percentUnder + ", bad% = " + percentBad + ", black% = " + percentBlack + ", red% = " + percentRed + ", yellow% = " + percentYellow + ", blue% = " + percentBlue);
 }
 
-//Create a string consisting of a header row and a row for each student in <selectedStudents> with columns corresponding to the outcome string for each target matching challenge for each student.
-function makeSummaryTriesFile(students) {
-    let triesStr = "Teacher, Class, Student, pre_no_protein, post_no_protein, gain_no_protein";
-    for (chalName of targetMatchArray) {
-        shortName = chalName.split("-")[2] + "-" + chalName.split("-")[3];
-        triesStr += ", " + shortName;
-    }
-    for (student of students) {
-        if (student.pre_no_protein == undefined) {
-            student.pre_no_protein = null;
-        }
-        if (student.post_no_protein == undefined) {
-            student.post_no_protein = null;
-        }
-        if (student.gain_no_protein == undefined) {
-            student.gain_no_protein = null;
-        }
-        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein);
-        for (name of targetMatchArray) {
-            myActivity = student.activitiesByName[name];
-            if (typeof myActivity != "undefined") {
-                triesStr += (", " + myActivity.outcomesStr + "; " + myActivity.score[0] + "/" + myActivity.score[1]);
-            } else {
-                triesStr += "";
-            }
-        }
-    }
-    let fileName = prompt("Enter file name") + "_challenge_summary";
-    saveData()(triesStr, fileName);
-}
 
-//Create a string consisting of a header row and a row for each student in <selectedStudents> with columns corresponding to the numbers of tries of each type for each target matching challenge for each student.
-function makeTriesCSVFile(selectedStudents) {
-    let triesStr = makeTriesHeaderRow();
-    for (studIndex = 0; studIndex < selectedStudents.length; studIndex++) {
-        student = selectedStudents[studIndex];
-        if (student.pre_no_protein == undefined) {
-            student.pre_no_protein = null;
-        }
-        if (student.post_no_protein == undefined) {
-            student.post_no_protein = null;
-        }
-        triesStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", ");
-        for (chalIndex = 0; chalIndex < targetMatchArray.length; chalIndex++) {
-            let noOver = 0,
-                noZero = 0,
-                noUnder = 0,
-                bad = 0,
-                black = 0,
-                red = 0,
-                yellow = 0,
-                blue = 0;
-            chalName = targetMatchArray[chalIndex];
-            myActivity = student.activitiesByName[chalName];
-            if (typeof myActivity != "undefined") {
-                summarizeTries(studIndex, chalIndex);
-                noUnder = myActivity.noSubmissionUnder;
-                noOver = myActivity.noSubmissionOver;
-                noZero = myActivity.noSubmissionZero;
-                bad = myActivity.badSubmission;
-                black = myActivity.blackSubmission;
-                red = myActivity.redSubmission;
-                yellow = myActivity.yellowSubmission;
-                blue = myActivity.blueSubmission;
-            }
-            triesStr += (", " + noUnder + ", " + noZero + ", " + noOver + ", " + bad + ", " + black + ", " + red + ", " + yellow + ", " + blue);
-        }
-    }
-    let fileName = prompt("Enter file name");
-    (saveData)()(triesStr, fileName);
-};
-
-function makeTriesHeaderRow() {
-    const tryTypes = ["noUnder", "noZero", "noOver", "bad", "black", "red", "yellow", "blue"];
-    let triesStr = "Teacher, Class, Student, Pre-no-protein, Post-no-protein";
-    let shortChallenge;
-    for (challenge of targetMatchArray) {
-        shortChallenge = challenge.split("-")[2] + "-" + challenge.split("-")[3];
-        triesStr += ", " + shortChallenge + "-" + "noUnder, " + shortChallenge + "-" + "noZero, " + shortChallenge + "-" + "noOver, " + shortChallenge + "-" + "bad, " + shortChallenge + "-" + "black, " + shortChallenge + "-" + "red, " + shortChallenge + "-" + "yellow, " + shortChallenge + "-" + "blue";
-    }
-    return triesStr;
-}
 
 
 //Add description to individual actions in target match array of challenges
