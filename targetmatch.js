@@ -73,21 +73,26 @@ function scoreChallenge(challenge) {
     if (subs > 0) {
         let posBlue = getFirstBluePosition(subsArr);
         let bestCrystal = getBestCrystal(subsArr);
+        let triesBeforeBlue = getTriesBeforeBlue(subsArr);
         let proficiencyScore = null;
         let engagementScore = null;
-        if (subs > 5) {
+        if (triesBeforeBlue > 4) {
             proficiencyScore = 0;
             engagementScore = 5;
         } else {
-            proficiencyScore = proficiencyScoreArray[subs - 1][bestCrystal - 1];
-            engagementScore = engagementScoreArray[subs - 1][bestCrystal - 1];
+            try {
+                proficiencyScore = proficiencyScoreArray[triesBeforeBlue][bestCrystal - 1];
+                engagementScore = engagementScoreArray[triesBeforeBlue][bestCrystal - 1];
+            }
+            catch (err) {
+                console.log(err);
+            }
         }
         return [proficiencyScore, engagementScore];
     } else { //No drake submissions
         return [0, 0];
     }
 }
-
 
 function getSubmissions(arr) {
     let subs = [];
@@ -145,6 +150,19 @@ function getBestCrystal(arr) {
     }
     return crystalValue;
 }
+
+function getTriesBeforeBlue(arr) {
+    let result = 0;
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] != "blue") {
+            result++;
+        } else {
+            break;
+        }
+    }
+    return result;
+}
+
 
 //Summarize all the tries on a particular challenge for a particular student
 function summarizeTries(studentIndex, challengeIndex) {
