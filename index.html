@@ -730,26 +730,36 @@
                         for (let j = 0; j < dataRow.length; j++) {
                             ppStudent[header[j]] = dataRow[j]
                         }
-                        ppStudents.push(ppStudent);
-                    }
-                    for (let k = 0; k < ppStudents.length; k++) {
-                        let thisPpStudent = ppStudents[k];
-                        let thisStudent = studentsObj[thisPpStudent.UserID];
-                        if (thisStudent) {
-                            thisStudent.score_pre = parseInt(thisPpStudent.pre_score);
-                            thisStudent.score_post = parseInt(thisPpStudent.post_score);
-                            thisStudent.pre_no_protein = parseInt(thisPpStudent.pre_no_protein);
-                            thisStudent.post_no_protein = parseInt(thisPpStudent.post_no_protein);
-                            thisStudent.gain =
-                                parseInt(thisPpStudent.gain);
-                            thisStudent.gain_no_protein =
-                                parseInt(thisPpStudent.gain_no_protein);
+                        let preBlanks = parseInt(ppStudent.pre_blanks);
+                        let postBlanks = parseInt(ppStudent.post_blanks);
+                        if ((preBlanks < 23) && (postBlanks < 23)) {
+                            ppStudents.push(ppStudent);
+                            for (let k = 0; k < ppStudents.length; k++) {
+                                let thisPpStudent = ppStudents[k];
+                                let thisStudent = studentsObj[thisPpStudent.UserID];
+                                if (thisStudent) {
+                                    thisStudent.score_pre = parseInt(thisPpStudent.pre_score);
+                                    thisStudent.score_post = parseInt(thisPpStudent.post_score);
+                                    thisStudent.pre_no_protein = parseInt(thisPpStudent.pre_no_protein);
+                                    thisStudent.post_no_protein = parseInt(thisPpStudent.post_no_protein);
+                                    thisStudent.gain =
+                                        parseInt(thisPpStudent.gain);
+                                    thisStudent.gain_no_protein =
+                                        parseInt(thisPpStudent.gain_no_protein);
+                                    thisStudent.pre_blanks = thisPpStudent.pre_blanks;
+                                    thisStudent.post_blanks = thisPpStudent.post_blanks;
+                                }
+                            }
+                        } else {
+                            console.log("Student " + ppStudent.UserID + " of teacher " + ppStudent.teacher +
+                                " has " + preBlanks + " blanks on the pre-test and " + postBlanks +
+                                " on the post-test.");
                         }
                     }
                     document.getElementById("CSVfile").style.display = "none";
                     document.getElementById("challengeType").style.display = "block";
-                }(file);
-            }
+                }
+            }(file);
             reader.readAsText(file);
         }
     </script>

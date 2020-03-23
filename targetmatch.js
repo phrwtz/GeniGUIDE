@@ -20,6 +20,132 @@ const targetMatchArray = [
     "allele-targetMatch-hidden-harderTraits2"
 ];
 
+const simpleDomArray = [
+    "allele-targetMatch-visible-simpleDom", "allele-targetMatch-visible-simpleDom2", "allele-targetMatch-hidden-simpleDom", "allele-targetMatch-hidden-simpleDom2"
+];
+
+const armorHornsArray = [
+    "allele-targetMatch-visible-armorHorns",
+    "allele-targetMatch-visible-armorHorns2",
+    "allele-targetMatch-visible-armorHorns3",
+    "allele-targetMatch-hidden-armorHorns",
+    "allele-targetMatch-hidden-armorHorns2",
+    "allele-targetMatch-hidden-armorHorns3"
+];
+
+const colorArray = [
+    "allele-targetMatch-visible-simpleColors",
+    "allele-targetMatch-visible-simpleColors2",
+    "allele-targetMatch-visible-simpleColors3",
+    "allele-targetMatch-visible-simpleColors4",
+    "allele-targetMatch-visible-simpleColors5",
+    "allele-targetMatch-hidden-simpleColors",
+    "allele-targetMatch-hidden-simpleColors2",
+    "allele-targetMatch-hidden-simpleColors3"
+];
+
+const harderTraitsArray = [
+    "allele-targetMatch-visible-harderTraits",
+    "allele-targetMatch-visible-harderTraits2",
+    "allele-targetMatch-hidden-harderTraits",
+    "allele-targetMatch-hidden-harderTraits2"
+];
+
+//Score <challenge>. Return an array for proficiency and engagement.
+function scoreChallenge(challenge) {
+    const proficiencyScoreArray = [
+        [0, 2, 4, 5],
+        [0, 0, 2, 4],
+        [0, 0, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ];
+    const engagementScoreArray = [
+        [0, 0, 0, null],
+        [1, 1, 1, 2],
+        [1, 2, 2, 4],
+        [2, 3, 3, 5],
+        [3, 4, 4, 5]
+    ]
+    let triesArr = challenge.outcomesArr;
+    let subsArr = getSubmissions(triesArr);
+    let subs = subsArr.length;
+    if (subs > 0) {
+        let posBlue = getFirstBluePosition(subsArr);
+        let bestCrystal = getBestCrystal(subsArr);
+        let proficiencyScore = null;
+        let engagementScore = null;
+        if (subs > 5) {
+            proficiencyScore = 0;
+            engagementScore = 5;
+        } else {
+            proficiencyScore = proficiencyScoreArray[subs - 1][bestCrystal - 1];
+            engagementScore = engagementScoreArray[subs - 1][bestCrystal - 1];
+        }
+        return [proficiencyScore, engagementScore];
+    } else { //No drake submissions
+        return [0, 0];
+    }
+}
+
+
+function getSubmissions(arr) {
+    let subs = [];
+    for (let i = 0; i < arr.length; i++) {
+        if ((arr[i] === "blue") || (arr[i] === "yellow") || (arr[i] === "red") || (arr[i] === "black") || (arr[i] === "bad")) {
+            subs.push(arr[i]);
+        }
+    }
+    return subs;
+}
+
+function getFirstBluePosition(arr) {
+    let pos = 0;
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] != "noZero") {
+            pos++;
+            if (arr[i] === "blue") {
+                break;
+            }
+        }
+    }
+    return pos;
+}
+
+function getNumericalCrystalValue(str) {
+    value = 0;
+    switch (str) {
+        case "blue":
+            value = 4;
+            break;
+        case "yellow":
+            value = 3;
+            break;
+        case "red":
+            value = 2;
+            break;
+        case "black":
+            value = 1;
+            break;
+        case "bad":
+            value = 0;
+            break;
+    }
+    return value;
+}
+
+function getBestCrystal(arr) {
+    let value = 0;
+    let crystalValue = 0;
+    for (let i = 0; i < arr.length; i++) {
+        crystalValue = getNumericalCrystalValue(arr[i]);
+        if (crystalValue > value) {
+            value = crystalValue;
+        }
+    }
+    return crystalValue;
+}
+
 //Summarize all the tries on a particular challenge for a particular student
 function summarizeTries(studentIndex, challengeIndex) {
     let myTries = [];
@@ -96,6 +222,7 @@ function summarizeTries(studentIndex, challengeIndex) {
         }
         myActivity.outcomesStr = outcomesStr.slice(0, outcomesStr.length - 1);
         myActivity.category = categorizeChallenge(myActivity);
+        myActivity.score = scoreChallenge(myActivity);
         return [myActivity.noSubmissionOver, myActivity.noSubmissionZero, myActivity.noSubmissionUnder, myActivity.badSubmission, myActivity.blackSubmission, myActivity.redSubmission, myActivity.yellowSubmission, myActivity.blueSubmission];
         //     console.log("No = " + myActivity.noSubmission + ", bad = " + myActivity.badSubmission + ", black = " + myActivity.blackSubmission + ", red = " + myActivity.redSubmission + ", yellow = " + myActivity.yellowSubmission + ", blue = " + myActivity.blueSubmission);
     }
@@ -352,7 +479,7 @@ function makeSummaryTriesFile(students) {
         for (name of targetMatchArray) {
             myActivity = student.activitiesByName[name];
             if (typeof myActivity != "undefined") {
-                triesStr += (", " + myActivity.outcomesStr + "; " + myActivity.category);
+                triesStr += (", " + myActivity.outcomesStr + "; " + myActivity.score[0] + "/" + myActivity.score[1]);
             } else {
                 triesStr += "";
             }
