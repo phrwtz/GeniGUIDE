@@ -127,7 +127,10 @@ function scoreChallenge(challenge) {
         [1, 2, 2, 4],
         [2, 3, 3, 5],
         [3, 4, 4, 5]
-    ]
+    ];
+/*     if ((challenge.student.id == 263272) && (challenge.name == "allele-targetMatch-hidden-harderTraits")) {
+        console.log("stop");
+    } */
     let triesArr = challenge.outcomesArr;
     let subsArr = getSubmissions(triesArr);
     let subs = subsArr.length;
@@ -205,7 +208,7 @@ function getBestCrystal(arr) {
             value = crystalValue;
         }
     }
-    return crystalValue;
+    return value;
 }
 
 //Summarize all the tries on a particular challenge for a particular student

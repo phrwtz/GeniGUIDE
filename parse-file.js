@@ -179,6 +179,7 @@ function parseJSON(myTeacher) {
                     myActivity = new Object();
                     myActivity.id = activityId;
                     myActivity.name = activityName;
+                    myActivity.student = myStudent;
                     myActivity.eventsObj = new Object();
                     myActivity.eventsByName = new Object();
                     myActivity.eventIds = [];
