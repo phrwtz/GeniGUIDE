@@ -34,19 +34,81 @@ function openFiles(evt) {
                 console.log("File " + f.name + " has started to load at " + time + ".");
             }
         })(f);
+        reader.readAsText(f);
+    }
+}
 
-        /* reader.onprogress = (function (f) {
+function fixupPrePostFiles(evt) {
+    var fileCount = 0;
+    var files = evt.target.files; // FileList object
+    for (var i = 0, f;
+        (f = files[i]); i++) {
+        var reader = new FileReader();
+        reader.onerror = function (err) {
+            console.log(err);
+        };
+        //closure to capture the file information
+        reader.onloadend = (function (f) {
             return function (e) {
-                let today = new Date();
-                let time = today.getMinutes() + ":" + today.getSeconds() + "." + today.getMilliseconds();;
-                console.log("File " + f.name + " has loaded " + e.loaded + " bytes out of " + e.total + " at " + time + ". the data field is " + e.target.result.length + " long.");
-                if (e.target.result.length == 0) {
-                    console.log("Stop!");
+                fileCount++;
+                let csvStr = e.target.result;
+                let csvArr = Papa.parse(csvStr);
+                let data = csvArr.data;
+                let header = data[0];
+                let prefix = "";
+                if (header[13].split(' ')[1] == "Post-Quiz") {
+                    prefix = "Post_";
+                } else if (header[13].split(' ')[1] == "Pre-Quiz") {
+                    prefix = "Pre_";
+                }
+                header[10] = prefix + "#Correct"
+                header[11] = prefix + "Last run";
+                header[13] = prefix + "#Completed";
+                header[14] = prefix + "%Completed";
+                for (let i = 15; i < header.length; i++) {
+                    header[i] = prefix + header[i].split(":")[0];
+                }
+                for (let j = 2; j < data.length; j++) {
+                    dataRow = data[j];
+                    id = dataRow[5]
+                    if (typeof ppStudentsObj[id] === "undefined") {
+                        ppStudent = new Object();
+                        ppStudent.pre_score = 0;
+                        ppStudent.post_score = 0;
+                        ppStudent.pre_no_protein = 0;
+                        ppStudent.post_no_protein = 0;
+                    } else {
+                        ppStudent = ppStudentsObj[id];
+                    }
+                    for (let k = 0; k < dataRow.length; k++) {
+                        ppStudent[header[k]] = dataRow[k];
+                        if ((k >= 15) && (k <= 42)) {
+                            if (header[k].split("_")[0] === "Pre") {
+                                if (dataRow[k].search("(correct)") == 1) {
+                                    ppStudent.pre_score++;
+                                    if ((k < 33) || ((k > 38) && (k < 42))) {
+                                        ppStudent.pre_no_protein++;
+                                    }
+                                }
+                            }else if (header[k].split("_")[0] === "Post") {
+                                if (dataRow[k].search("(correct)") == 1) {
+                                    ppStudent.post_score++;
+                                    if ((k < 33) || ((k > 38) && (k < 42))) {
+                                        ppStudent.post_no_protein++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ppStudentsObj[id] = ppStudent;
+                    ppStudentsArr.push(ppStudent);
+           //         console.log(fileCount + " files out of " + files.length + ", student " + id + " pushed.");
+                    if (fileCount >= files.length) {
+                        console.log("All done");
+                    }
                 }
             }
-        })(f); */
-
-
+        })(f);
         reader.readAsText(f);
     }
 }
