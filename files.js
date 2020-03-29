@@ -38,7 +38,7 @@ function openFiles(evt) {
     }
 }
 
-function fixupPrePostFiles(evt) {
+function openPrePostFiles(evt) {
     var fileCount = 0;
     var files = evt.target.files; // FileList object
     for (var i = 0, f;
@@ -90,7 +90,7 @@ function fixupPrePostFiles(evt) {
                                         ppStudent.pre_no_protein++;
                                     }
                                 }
-                            }else if (header[k].split("_")[0] === "Post") {
+                            } else if (header[k].split("_")[0] === "Post") {
                                 if (dataRow[k].search("(correct)") == 1) {
                                     ppStudent.post_score++;
                                     if ((k < 33) || ((k > 38) && (k < 42))) {
@@ -102,18 +102,46 @@ function fixupPrePostFiles(evt) {
                     }
                     ppStudentsObj[id] = ppStudent;
                     ppStudentsArr.push(ppStudent);
-           //         console.log(fileCount + " files out of " + files.length + ", student " + id + " pushed.");
-                    if (fileCount >= files.length) {
-                        console.log("All done");
-                    }
                 }
+                populateStudents(ppStudentsArr);
             }
         })(f);
         reader.readAsText(f);
     }
 }
 
-function openPrePostFile(evt) {
+//Transfer pre_score, pre_no_protein, post_score, post_no_protein from each ppStudent in ppStudentsArr to the corresponding student in students. Calculate gain and no_protein_gain and set those properties in each student as well.
+function populateStudents(ppStudentsArr) {
+    for (pps of ppStudentsArr) {
+        s = studentsObj[pps.UserID];
+        if (typeof s != "undefined") {
+            s.pre_score = pps.pre_score;
+            s.post_score = pps.post_score;
+            s.pre_no_protein = pps.pre_no_protein;
+            s.post_no_protein = pps.post_no_protein;
+            s.gain = s.post_score - s.pre_score;
+            s.gain_no_protein = s.post_no_protein - s.pre_no_protein;
+        }
+    }
+}
+
+function savePPStudentsFile(ppStudentsArr) {
+    let headerArr = Object.keys(ppStudentsArr[0]);
+    let tblStr = headerArr.toString();
+    for (let ii = 0; ii < ppStudentsArr.length; ii++) {
+        stud = ppStudentsArr[ii];
+        tblStr += "/n";
+        for (let jj = 0; jj < headerArr.length - 1; jj++) {
+            prop = headerArr[jj];
+            tblStr += stud[prop] + ",";
+        }
+        tblStr += stud[headerArr[headerArr.length - 1]];
+    }
+    let fileName = prompt("Enter file name") + "_pre_post";
+    saveData()(tblStr, fileName);
+}
+
+function oldOpenPrePostFile(evt) {
     var file = evt.target.files[0];
     var reader = new FileReader();
     reader.onerror = function (err) {
@@ -163,25 +191,24 @@ function makeSummaryChallengesFile(students) {
     let scoresArr = [];
     let avgsStr = "Teacher, Class, Student, pre_no_protein, post_no_protein, gain_no_protein, simpleDomPro, simpleDomEng, armorHornsPro, armorHornsEng, colorPro, colorEng, harderPro, harderEng";
     for (student of students) {
-        if (student.pre_no_protein == undefined) {
-            student.pre_no_protein = null;
+        let ppStudent = ppStudentsObj[student.id];
+        if (typeof ppStudent != "undefined") {
+            if ((typeof ppStudent.pre_no_protein != "undefined") && (typeof ppStudent.post_no_protein != "undefined")) {
+                student.pre_no_protein = ppStudent.pre_no_protein;
+                student.post_no_protein = ppStudent.post_no_protein;
+                student.gain_no_protein = ppStudent.gain_no_protein;
+                let scoresArr = averageChallengeScores(student),
+                    simpleProAvg = scoresArr[0],
+                    armorProAvg = scoresArr[1],
+                    colorProAvg = scoresArr[2],
+                    harderProAvg = scoresArr[3],
+                    simpleEngAvg = scoresArr[4],
+                    armorEngAvg = scoresArr[5],
+                    colorEngAvg = scoresArr[6],
+                    harderEngAvg = scoresArr[7];
+                avgsStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein + ", " + simpleProAvg + ", " + simpleEngAvg + ", " + armorProAvg + ", " + armorEngAvg + ", " + colorProAvg + ", " + colorEngAvg + ", " + harderProAvg + ", " + harderEngAvg);
+            }
         }
-        if (student.post_no_protein == undefined) {
-            student.post_no_protein = null;
-        }
-        if (student.gain_no_protein == undefined) {
-            student.gain_no_protein = null;
-        }
-        let scoresArr = averageChallengeScores(student),
-            simpleProAvg = scoresArr[0],
-            armorProAvg = scoresArr[1],
-            colorProAvg = scoresArr[2],
-            harderProAvg = scoresArr[3],
-            simpleEngAvg = scoresArr[4],
-            armorEngAvg = scoresArr[5],
-            colorEngAvg = scoresArr[6],
-            harderEngAvg = scoresArr[7];
-        avgsStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein + ", " + simpleProAvg + ", " + simpleEngAvg + ", " + armorProAvg + ", " + armorEngAvg + ", " + colorProAvg + ", " + colorEngAvg + ", " + harderProAvg + ", " + harderEngAvg);
     }
     let fileName = prompt("Enter file name") + "_challenge_averages";
     saveData()(avgsStr, fileName);

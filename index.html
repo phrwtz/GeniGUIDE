@@ -70,7 +70,7 @@
     </button>
     <div id="CSVfile" style="display:none">
         Input Students file
-        <input type="file" id="csvInput" onchange="openCSVFile(event)"> <br><br>
+        <input type="file" id="csvInput" multiple onchange="openPrePostFiles(event)"> <br><br>
     </div>
     <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
         challenge file
@@ -677,92 +677,6 @@
             <tbody id="probTableBody"></tbody>
         </table>
     </div>
-
-    <script>
-        var fileCount = 0;
-
-        function openFiles(evt) {
-            var files = evt.target.files; // FileList object
-            for (var i = 0, f; f = files[i]; i++) {
-                var reader = new FileReader();
-                reader.onerror = function (err) {
-                    console.log(err);
-                }
-                //closure to capture the file information
-                reader.onloadend = function (f) {
-                    return function (e) {
-                        fileCount++;
-                        if (fileCount >= files.length - 1) {
-                            document.getElementById("JSONfiles").style.display = "none";
-                            document.getElementById("analyzeButton")
-                                .style.display = "block";
-                            document.getElementById("fileInput").disabled =
-                                true;
-                            document.getElementById("analyzeButton").style.display = "block";
-                        }
-                        var myTeacher = new Object;
-                        var myName = f.name.split(".")[0];
-                        myTeacher.id = myName;
-                        myTeacher.data = e.target.result;
-                        teachersArray.push(myTeacher);
-                        console.log("File " + myName + " loaded.");
-                    }
-                }(f);
-                reader.readAsText(f);
-            }
-        }
-
-        function openCSVFile(evt) {
-            var file = evt.target.files[0];
-            var reader = new FileReader();
-            reader.onerror = function (err) {
-                console.log(err);
-            }
-            reader.onloadend = function (file) {
-                return function (e) {
-                    let csvStr = e.target.result;
-                    let csvArr = Papa.parse(csvStr);
-                    let data = csvArr.data;
-                    let header = data[0];
-                    for (let i = 1; i < data.length; i++) {
-                        dataRow = data[i];
-                        ppStudent = new Object;
-                        for (let j = 0; j < dataRow.length; j++) {
-                            ppStudent[header[j]] = dataRow[j]
-                        }
-                        let preBlanks = parseInt(ppStudent.pre_blanks);
-                        let postBlanks = parseInt(ppStudent.post_blanks);
-                        if ((preBlanks < 23) && (postBlanks < 23)) {
-                            ppStudents.push(ppStudent);
-                            for (let k = 0; k < ppStudents.length; k++) {
-                                let thisPpStudent = ppStudents[k];
-                                let thisStudent = studentsObj[thisPpStudent.UserID];
-                                if (thisStudent) {
-                                    thisStudent.score_pre = parseInt(thisPpStudent.pre_score);
-                                    thisStudent.score_post = parseInt(thisPpStudent.post_score);
-                                    thisStudent.pre_no_protein = parseInt(thisPpStudent.pre_no_protein);
-                                    thisStudent.post_no_protein = parseInt(thisPpStudent.post_no_protein);
-                                    thisStudent.gain =
-                                        parseInt(thisPpStudent.gain);
-                                    thisStudent.gain_no_protein =
-                                        parseInt(thisPpStudent.gain_no_protein);
-                                    thisStudent.pre_blanks = thisPpStudent.pre_blanks;
-                                    thisStudent.post_blanks = thisPpStudent.post_blanks;
-                                }
-                            }
-                        } else {
-                            console.log("Student " + ppStudent.UserID + " of teacher " + ppStudent.teacher +
-                                " has " + preBlanks + " blanks on the pre-test and " + postBlanks +
-                                " on the post-test.");
-                        }
-                    }
-                    document.getElementById("CSVfile").style.display = "none";
-                    document.getElementById("challengeType").style.display = "block";
-                }
-            }(file);
-            reader.readAsText(file);
-        }
-    </script>
 
     <script>
         //Hint tables and filter controls

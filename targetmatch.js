@@ -114,23 +114,25 @@ function averageChallengeScores(student) {
 
 //Score <challenge>. Return an array for proficiency and engagement.
 function scoreChallenge(challenge) {
-    const proficiencyScoreArray = [
-        [0, 2, 4, 5],
-        [0, 0, 2, 4],
-        [0, 0, 1, 1],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]
+    //Rows are tries (if blue obtaineds before the end, later tries don't count), columns are crystal values (0 => no crystal – hard to do, must navigate to next challenge!)
+
+    const proficiencyScoreArray = [ 
+        [0, 0, 2, 4, 5],
+        [0, 0, 0, 2, 4],
+        [0, 0, 0, 1, 1],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0]
     ];
     const engagementScoreArray = [
-        [0, 0, 0, null],
-        [1, 1, 1, 2],
-        [1, 2, 2, 4],
-        [2, 3, 3, 5],
-        [3, 4, 4, 5]
+        [0, 0, 0, 0, null],
+        [0, 1, 1, 1, 2],
+        [0, 1, 2, 2, 4],
+        [0, 2, 3, 3, 5],
+        [0, 3, 4, 4, 5]
     ];
-/*     if ((challenge.student.id == 263272) && (challenge.name == "allele-targetMatch-hidden-harderTraits")) {
+    if ((challenge.student.id == 268809) && (challenge.name == "allele-targetMatch-visible-simpleColors4")) {
         console.log("stop");
-    } */
+    }
     let triesArr = challenge.outcomesArr;
     let subsArr = getSubmissions(triesArr);
     let subs = subsArr.length;
@@ -138,15 +140,25 @@ function scoreChallenge(challenge) {
         let posBlue = getFirstBluePosition(subsArr);
         let bestCrystal = getBestCrystal(subsArr);
         let triesForBlue;
-        (posBlue == 0 ? triesForBlue = subs : triesForBlue = posBlue);
         let proficiencyScore = null;
         let engagementScore = null;
-        if (triesForBlue > 5) {
+        if (bestCrystal == 0) { //No crystal, no tries
+            triesForBlue = -1;
+        } else if (posBlue == 0) { //No blue, tries = total tries
+            triesForBlue = subs;
+        } else {
+            triesForBlue = posBlue; //Got blue, tries = up to and including first blue try
+        }
+        if (triesForBlue < 0) { //Didn't get a crystal on challenge
+            proficiencyScore = 0;
+            engagementScore = 0;
+        }
+        else if (triesForBlue > 5) { //Tried really hard!
             proficiencyScore = 0;
             engagementScore = 5;
         } else {
-            proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal - 1];
-            engagementScore = engagementScoreArray[triesForBlue - 1][bestCrystal - 1];
+            proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal];
+            engagementScore = engagementScoreArray[triesForBlue - 1][bestCrystal];
         }
         return [proficiencyScore, engagementScore];
     } else { //No drake submissions
@@ -165,16 +177,12 @@ function getSubmissions(arr) {
 }
 
 function getFirstBluePosition(arr) {
-    let pos = 0;
     for (let i = 0; i < arr.length; i++) {
-        if (arr[i] != "noZero") {
-            pos++;
-            if (arr[i] === "blue") {
-                break;
-            }
+        if (arr[i] === "blue") {
+            return (i + 1);
         }
     }
-    return pos;
+    return 0;
 }
 
 function getNumericalCrystalValue(str) {
@@ -200,7 +208,7 @@ function getNumericalCrystalValue(str) {
 }
 
 function getBestCrystal(arr) {
-    let value = 0;
+    let value = -1;
     let crystalValue = 0;
     for (let i = 0; i < arr.length; i++) {
         crystalValue = getNumericalCrystalValue(arr[i]);
