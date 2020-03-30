@@ -57,40 +57,42 @@ function openPrePostFiles(evt) {
                 let header = data[0];
                 let prefix = "";
                 if (header[13].split(' ')[1] == "Post-Quiz") {
-                    prefix = "Post_";
+                    prefix = "post_";
                 } else if (header[13].split(' ')[1] == "Pre-Quiz") {
-                    prefix = "Pre_";
+                    prefix = "pre_";
                 }
-                header[10] = prefix + "#Correct"
-                header[11] = prefix + "Last run";
-                header[13] = prefix + "#Completed";
-                header[14] = prefix + "%Completed";
+                header[10] = prefix + "correct"
+                header[11] = prefix + "lastRun";
+                header[13] = prefix + "completed";
+                header[14] = prefix + "%completed";
                 for (let i = 15; i < header.length; i++) {
                     header[i] = prefix + header[i].split(":")[0];
                 }
                 for (let j = 2; j < data.length; j++) {
                     dataRow = data[j];
-                    id = dataRow[5]
+                    id = dataRow[5];
                     if (typeof ppStudentsObj[id] === "undefined") {
                         ppStudent = new Object();
                         ppStudent.pre_score = 0;
                         ppStudent.post_score = 0;
                         ppStudent.pre_no_protein = 0;
                         ppStudent.post_no_protein = 0;
+                        ppStudent.pre_completed = 0;
+                        ppStudent.post_completed = 0;
                     } else {
                         ppStudent = ppStudentsObj[id];
                     }
                     for (let k = 0; k < dataRow.length; k++) {
                         ppStudent[header[k]] = dataRow[k];
                         if ((k >= 15) && (k <= 42)) {
-                            if (header[k].split("_")[0] === "Pre") {
+                            if (header[k].split("_")[0] === "pre") {
                                 if (dataRow[k].search("(correct)") == 1) {
                                     ppStudent.pre_score++;
                                     if ((k < 33) || ((k > 38) && (k < 42))) {
                                         ppStudent.pre_no_protein++;
                                     }
                                 }
-                            } else if (header[k].split("_")[0] === "Post") {
+                            } else if (header[k].split("_")[0] === "post") {
                                 if (dataRow[k].search("(correct)") == 1) {
                                     ppStudent.post_score++;
                                     if ((k < 33) || ((k > 38) && (k < 42))) {
@@ -100,10 +102,12 @@ function openPrePostFiles(evt) {
                             }
                         }
                     }
+                    if (id == "260157") {
+                        console.log("This is it");
+                    }
                     ppStudentsObj[id] = ppStudent;
                     ppStudentsArr.push(ppStudent);
                 }
-                populateStudents(ppStudentsArr);
             }
         })(f);
         reader.readAsText(f);
@@ -111,8 +115,9 @@ function openPrePostFiles(evt) {
 }
 
 //Transfer pre_score, pre_no_protein, post_score, post_no_protein from each ppStudent in ppStudentsArr to the corresponding student in students. Calculate gain and no_protein_gain and set those properties in each student as well.
-function populateStudents(ppStudentsArr) {
-    for (pps of ppStudentsArr) {
+function populateStudents() {
+    for (let i = 0; i < ppStudentsArr.length; i++) {
+        pps = ppStudentsArr[i];
         s = studentsObj[pps.UserID];
         if (typeof s != "undefined") {
             s.pre_score = pps.pre_score;
@@ -121,6 +126,23 @@ function populateStudents(ppStudentsArr) {
             s.post_no_protein = pps.post_no_protein;
             s.gain = s.post_score - s.pre_score;
             s.gain_no_protein = s.post_no_protein - s.pre_no_protein;
+            s.pre_completed = pps.pre_completed;
+            s.post_completed = pps.post_completed;
+            if (s.pre_completed == 0) {
+                console.log("Student " + s.id + " completed zero pre test items.");
+            }
+            if (s.post_completed == 0) {
+                console.log("Student " + s.id + " completed zero post test items.");
+            }
+            if (s.pre_score == 0) {
+                console.log("Student " + s.id + " has zero pre score.");
+            }
+            if (s.post_score == 0) {
+                console.log("Student " + s.id + " has zero post score.");
+            }
+            if (s.gain < 0) {
+                console.log("Student " + s.id + " has negative gain.");
+            }
         }
     }
 }
@@ -187,27 +209,21 @@ function oldOpenPrePostFile(evt) {
     reader.readAsText(file);
 }
 
-function makeSummaryChallengesFile(students) {
+function makeSummaryChallengesFile() {
     let scoresArr = [];
-    let avgsStr = "Teacher, Class, Student, pre_no_protein, post_no_protein, gain_no_protein, simpleDomPro, simpleDomEng, armorHornsPro, armorHornsEng, colorPro, colorEng, harderPro, harderEng";
+    let avgsStr = "Teacher, Class, Student, pre_completed, pre_score, post_completed, post_score, gain, pre_no_protein, post_no_protein, gain_no_protein, simpleDomPro, simpleDomEng, armorHornsPro, armorHornsEng, colorPro, colorEng, harderPro, harderEng";
     for (student of students) {
-        let ppStudent = ppStudentsObj[student.id];
-        if (typeof ppStudent != "undefined") {
-            if ((typeof ppStudent.pre_no_protein != "undefined") && (typeof ppStudent.post_no_protein != "undefined")) {
-                student.pre_no_protein = ppStudent.pre_no_protein;
-                student.post_no_protein = ppStudent.post_no_protein;
-                student.gain_no_protein = ppStudent.gain_no_protein;
-                let scoresArr = averageChallengeScores(student),
-                    simpleProAvg = scoresArr[0],
-                    armorProAvg = scoresArr[1],
-                    colorProAvg = scoresArr[2],
-                    harderProAvg = scoresArr[3],
-                    simpleEngAvg = scoresArr[4],
-                    armorEngAvg = scoresArr[5],
-                    colorEngAvg = scoresArr[6],
-                    harderEngAvg = scoresArr[7];
-                avgsStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein + ", " + simpleProAvg + ", " + simpleEngAvg + ", " + armorProAvg + ", " + armorEngAvg + ", " + colorProAvg + ", " + colorEngAvg + ", " + harderProAvg + ", " + harderEngAvg);
-            }
+        if ((student.pre_completed != 0) && (student.post_completed != 0) && (typeof student.post_completed != "undefined")) {
+            let scoresArr = averageChallengeScores(student),
+                simpleProAvg = scoresArr[0],
+                armorProAvg = scoresArr[1],
+                colorProAvg = scoresArr[2],
+                harderProAvg = scoresArr[3],
+                simpleEngAvg = scoresArr[4],
+                armorEngAvg = scoresArr[5],
+                colorEngAvg = scoresArr[6],
+                harderEngAvg = scoresArr[7];
+            avgsStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_completed + ", " + student.pre_score + ", " + student.pre_completed + ", " + student.post_score + ", " + student.gain + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein + ", " + simpleProAvg + ", " + simpleEngAvg + ", " + armorProAvg + ", " + armorEngAvg + ", " + colorProAvg + ", " + colorEngAvg + ", " + harderProAvg + ", " + harderEngAvg);
         }
     }
     let fileName = prompt("Enter file name") + "_challenge_averages";
