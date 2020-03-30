@@ -61,6 +61,7 @@ function openPrePostFiles(evt) {
                 } else if (header[13].split(' ')[1] == "Pre-Quiz") {
                     prefix = "pre_";
                 }
+                header[6] = prefix + "perm_form";
                 header[10] = prefix + "correct"
                 header[11] = prefix + "lastRun";
                 header[13] = prefix + "completed";
@@ -82,6 +83,7 @@ function openPrePostFiles(evt) {
                     } else {
                         ppStudent = ppStudentsObj[id];
                     }
+                    (dataRow[6] == "Geniverse: Geniventure" ? dataRow[6] = true : dataRow[6] = false);
                     for (let k = 0; k < dataRow.length; k++) {
                         ppStudent[header[k]] = dataRow[k];
                         if ((k >= 15) && (k <= 42)) {
@@ -102,15 +104,13 @@ function openPrePostFiles(evt) {
                             }
                         }
                     }
-                    if (id == "260157") {
-                        console.log("This is it");
-                    }
                     ppStudentsObj[id] = ppStudent;
                     ppStudentsArr.push(ppStudent);
                 }
             }
         })(f);
         reader.readAsText(f);
+        document.getElementById("challengeType").style.display = "block";
     }
 }
 
@@ -120,10 +120,12 @@ function populateStudents() {
         pps = ppStudentsArr[i];
         s = studentsObj[pps.UserID];
         if (typeof s != "undefined") {
-            s.pre_score = pps.pre_score;
-            s.post_score = pps.post_score;
-            s.pre_no_protein = pps.pre_no_protein;
-            s.post_no_protein = pps.post_no_protein;
+            s.pre_perm_form = pps.pre_perm_form;
+            s.post_perm_form = pps.post_perm_form;
+            s.pre_score = parseInt(pps.pre_score);
+            s.post_score = parseInt(pps.post_score);
+            s.pre_no_protein = parseInt(pps.pre_no_protein);
+            s.post_no_protein = parseInt(pps.post_no_protein);
             s.gain = s.post_score - s.pre_score;
             s.gain_no_protein = s.post_no_protein - s.pre_no_protein;
             s.pre_completed = pps.pre_completed;
@@ -211,9 +213,9 @@ function oldOpenPrePostFile(evt) {
 
 function makeSummaryChallengesFile() {
     let scoresArr = [];
-    let avgsStr = "Teacher, Class, Student, pre_completed, pre_score, post_completed, post_score, gain, pre_no_protein, post_no_protein, gain_no_protein, simpleDomPro, simpleDomEng, armorHornsPro, armorHornsEng, colorPro, colorEng, harderPro, harderEng";
+    let avgsStr = "Teacher, Class, Student, pre_perm_form, pre_completed, pre_score, post_perm-form, post_completed, post_score, gain, pre_no_protein, post_no_protein, gain_no_protein, simpleDomPro, simpleDomEng, armorHornsPro, armorHornsEng, colorPro, colorEng, harderPro, harderEng";populateStudents();
     for (student of students) {
-        if ((student.pre_completed != 0) && (student.post_completed != 0) && (typeof student.post_completed != "undefined")) {
+        if ((student.pre_perm_form) && (student.post_perm_form) &&(student.pre_completed != 0) && (student.post_completed != 0) && (typeof student.post_completed != "undefined")) {
             let scoresArr = averageChallengeScores(student),
                 simpleProAvg = scoresArr[0],
                 armorProAvg = scoresArr[1],
@@ -223,7 +225,7 @@ function makeSummaryChallengesFile() {
                 armorEngAvg = scoresArr[5],
                 colorEngAvg = scoresArr[6],
                 harderEngAvg = scoresArr[7];
-            avgsStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_completed + ", " + student.pre_score + ", " + student.pre_completed + ", " + student.post_score + ", " + student.gain + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein + ", " + simpleProAvg + ", " + simpleEngAvg + ", " + armorProAvg + ", " + armorEngAvg + ", " + colorProAvg + ", " + colorEngAvg + ", " + harderProAvg + ", " + harderEngAvg);
+            avgsStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_perm_form + ", " + student.pre_completed + ", " + student.pre_score + ", " + student.post_perm_form + ", " + student.post_completed + ", " + student.post_score + ", " + student.gain + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein + ", " + simpleProAvg + ", " + simpleEngAvg + ", " + armorProAvg + ", " + armorEngAvg + ", " + colorProAvg + ", " + colorEngAvg + ", " + harderProAvg + ", " + harderEngAvg);
         }
     }
     let fileName = prompt("Enter file name") + "_challenge_averages";

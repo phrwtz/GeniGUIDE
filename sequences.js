@@ -544,12 +544,12 @@ function filterStudents(filterValue, maxValue, minValue) {
                 thisKey,
                 filteredStudents = [];
             var gainHistogram = Object();
-            var allSpan = document.getElementById("allSpan");
+            var allSpan = document.getElementById("allSpan");populateStudents();
             for (let i = 0; i < students.length; i++) {
                 thisStudent = students[i];
                 try {
-                    if (thisStudent.score_pre && thisStudent.score_post) {
-                        gain = (thisStudent.score_post - thisStudent.score_pre);
+                    if (thisStudent.pre_score&& thisStudent.post_score) {
+                        gain = (thisStudent.post_score - thisStudent.pre_score);
                         gainStr = gain.toString()
                         if (gainHistogram[gainStr]) {
                             gainHistogram[gainStr]++;
@@ -571,23 +571,23 @@ function filterStudents(filterValue, maxValue, minValue) {
                 return (a[0] - b[0]);
             });
             allStudents.sort(function (a, b) {
-                return a.score_pre - b.score_pre;
+                return a.pre_score - b.pre_score;
             });
-            preScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].score_pre;
+            preScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].pre_score;
             allStudents.sort(function (a, b) {
-                return a.score_post - b.score_post;
+                return a.post_score - b.post_score;
             });
-            postScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].score_post;
+            postScoreMedian = allStudents[Math.round((allStudents.length - 1) / 2)].post_score;
             for (let j = 0; j < allStudents.length; j++) {
                 let thisStudent = allStudents[j];
-                if (thisStudent.score_pre < preScoreMedian) {
-                    if (thisStudent.score_post <= postScoreMedian) {
+                if (thisStudent.pre_score < preScoreMedian) {
+                    if (thisStudent.post_score <= postScoreMedian) {
                         lowLowStudents.push(thisStudent);
                     } else {
                         lowHighStudents.push(thisStudent);
                     }
                 } else {
-                    if (thisStudent.score_post < postScoreMedian) {
+                    if (thisStudent.post_score < postScoreMedian) {
                         highLowStudents.push(thisStudent);
                     } else {
                         highHighStudents.push(thisStudent);
@@ -597,7 +597,7 @@ function filterStudents(filterValue, maxValue, minValue) {
             if ((filterValue === "filter by gain") || (filterValue === "filter by prescore") || (filterValue === "filter by postscore")) {
                 for (let m = 0; m < allStudents.length; m++) {
                     thisStudent = allStudents[m];
-                    gain = thisStudent.score_post - thisStudent.score_pre;
+                    gain = thisStudent.post_score - thisStudent.pre_score;
                     effectSize = parseFloat(thisStudent.prepost_gain);
                     switch (filterValue) {
                         case "filter by gain":
@@ -606,12 +606,12 @@ function filterStudents(filterValue, maxValue, minValue) {
                             }
                             break;
                         case "filter by prescore":
-                            if ((thisStudent.score_pre <= maxValue) && (thisStudent.score_pre >= minValue)) {
+                            if ((thisStudent.pre_score <= maxValue) && (thisStudent.pre_score >= minValue)) {
                                 filteredStudents.push(thisStudent);
                             }
                             break;
                         case "filter by postscore":
-                            if ((thisStudent.score_post <= maxValue) && (thisStudent.score_post >= minValue)) {
+                            if ((thisStudent.post_score <= maxValue) && (thisStudent.post_score >= minValue)) {
                                 filteredStudents.push(thisStudent);
                             }
                             break;
