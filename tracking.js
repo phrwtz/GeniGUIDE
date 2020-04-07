@@ -1,4 +1,57 @@
+NCSUStudentsArr = [];
+NCSUStudentsObj = new Object();
 
+function openNCSUFile(evt) {
+    var fileCount = 0;
+    var files = evt.target.files; // FileList object
+    for (var i = 0, f;
+        (f = files[i]); i++) {
+        var reader = new FileReader();
+        reader.onerror = function (err) {
+            console.log(err);
+        };
+        //closure to capture the file information
+        reader.onloadend = (function (f) {
+            return function (e) {
+                fileCount++;
+                let csvStr = e.target.result;
+                let csvArr = Papa.parse(csvStr);
+                let data = csvArr.data;
+                let header = data[0];
+                for (let j = 1; j < data.length; j++) {
+                    dataRow = data[j];
+                    NCSUStudent = new Object();
+                    for (let k = 0; k < dataRow.length; k++) {
+                        NCSUStudent[header[k]] = dataRow[k];
+                    }
+                    NCSUStudentsObj[NCSUStudent.UserID] = NCSUStudent;
+                    NCSUStudentsArr.push(NCSUStudent);
+                }
+            }
+        })(f);
+        reader.readAsText(f);
+    }
+}
+
+function compareFiles() {
+    let matches = 0;
+    let preMatches = 0;
+    let postMatches = 0;
+    for (i = 0; i < ppStudentsArr.length; i++) {
+        let ppStudent = ppStudentsArr[i];
+        let NCSUStudent = NCSUStudentsObj[ppStudent.UserID];
+        if (typeof NCSUStudent != "undefined") {
+            matches++;
+            if (NCSUStudent.pre_score == ppStudent.pre_score) {
+                preMatches++;
+            }
+            if (NCSUStudent.post_score == ppStudent.post_score) {
+                postMatches++;
+            }
+        }
+    }
+    console.log(matches + " students matched. " + preMatches + " had the same pre score and " + postMatches + " had the same post score.");
+}
 
 function addProbRow(myStudent, oldProbs, newProbs) {
     var index = newProbs[0].action.index;
@@ -242,7 +295,7 @@ function addProbRow(myStudent, oldProbs, newProbs) {
 
     studentCell.innerHTML = myStudent.id;
     indexCell.innerHTML = newProbs[0].action.index;
-    timeCell.innerHTML = date + "<br>" + time; 
+    timeCell.innerHTML = date + "<br>" + time;
     challengeCell.innerHTML = newProbs[0].action.activity;
 
     compareProbs(oldProbs, newProbs); //Sets the changed property to true for each prob in newProbs that has a changed probability from oldProbs

@@ -548,7 +548,7 @@ function filterStudents(filterValue, maxValue, minValue) {
             for (let i = 0; i < students.length; i++) {
                 thisStudent = students[i];
                 try {
-                    if (thisStudent.pre_score&& thisStudent.post_score) {
+                    if (thisStudent.pre_score && thisStudent.post_score && thisStudent.pre_perm_form && thisStudent.post_perm_form) {
                         gain = (thisStudent.post_score - thisStudent.pre_score);
                         gainStr = gain.toString()
                         if (gainHistogram[gainStr]) {
