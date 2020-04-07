@@ -46,7 +46,7 @@ function showActivities() { //Sets up the activites checkboxes, which are labele
                 }
                 styledActivityName = '<span style=\"color:' + color + '\">' + activityNames[j] + '</span>';
                 count = myActivity.eventNames.length;
-                activitiesPara.innerHTML += "<input type ='checkbox' id=" + activityIds[j] + " name='activityButton' + onchange='showEvents();showActions()'> </input > " + styledActivityName + " (" + count + ")<br>";
+                activitiesPara.innerHTML += "<input type ='radio' id=" + activityIds[j] + " name='activityButton' + onchange='showEvents();showActions()'> </input > " + styledActivityName + " (" + count + ")<br>";
                 showEvents();
             }
         }

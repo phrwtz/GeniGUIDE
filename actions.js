@@ -31,16 +31,15 @@ function showActions() {
         for (var k = 0; k < acts.length; k++) {
             myAction = acts[k];
             if (targetMatchArray.includes(myAction.activity)) {
-   //             updateTargetMatchMoves(myAction);
-    //            description = describeTargetMatch(myAction);
+                //The description for target match actions is added during the initial analysis (in parse-file.js)
             } else if (eggDropArray.includes(myAction.activity)) {
-                description = describeEggDropAction(myAction);
+                myAction.description = describeEggDropAction(myAction);
             }  else if (gameteArray.includes(myAction.activity)) {
-                description = describeGameteAction(myAction);
+                myAction.description = describeGameteAction(myAction);
             }  else if (clutchArray.includes(myAction.activity)) {
-                description = describeClutchAction(myAction);
+                myAction.description = describeClutchAction(myAction);
             } else {
-                description = "";
+                myAction.description = "";
             }
             actionsPara.innerHTML += ("<br><b>Action " + myAction.index + ", " + myAction.event + " at " + myAction.time + "</b><br>" + "Challenge is " + myAction.activity + "<br>" + myAction.description + "<br>");
         }
