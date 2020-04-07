@@ -5,13 +5,40 @@ const gameteArray = [
 
 //Add description to individual actions in gamete array of challenges
 function describeGameteAction(action) {
-    var description = "";
+    let description = "",
+        level,
+        mission,
+        challenge,
+        parent,
+        chromosome,
+        side,
+        correct,
+        str;
     switch (action.event) {
         case "Navigated":
-            var level = parseInt(action.parameters.level) + 1,
-                mission = parseInt(action.parameters.mission) + 1,
-                challenge = parseInt(action.parameters.challenge) + 1;
+            level = parseInt(action.parameters.level) + 1;
+            mission = parseInt(action.parameters.mission) + 1;
+            challenge = parseInt(action.parameters.challenge) + 1;
             description = "Level " + level + ", mission " + mission + ", challenge " + challenge;
+            break;
+        case "Gamete chromosome added":
+            (action.parameters.index == 1 ? parent = "mother" : parent = "father");
+            chromosome = action.parameters.name;
+            side = action.parameters.side;
+            description = "Parent: " + parent + ", chromosome " + chromosome + ", side " + side;
+            break;
+        case "Drake submitted":
+            correct = action.parameters.correct;
+            (correct ? description = "Good drake submitted." : description = "Bad drake submitted.");
+            break;
+        case "Gamete selected in pool":
+            (action.parameters.sex == 0 ? sex = "male" : sex = "female");
+            index = parseInt(action.parameters.index) + 1;
+            str = action.parameters.gamete;
+            chr1_side = str.match(/(?<==>")([^"]+)/g)[0];
+            chr2_side = str.match(/(?<==>")([^"]+)/g)[1];
+            chrXY_side = str.match(/(?<==>")([^"]+)/g)[2];
+            description = "Gamete " + index + " of " + sex + " drake selected. Side 1 = " + chr1_side + ", side 2 = " + chr2_side + ", side 3 = " + chrXY_side;
             break;
         case "Guide hint received":
             var data = action.parameters.data,
