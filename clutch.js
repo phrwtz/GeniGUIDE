@@ -5,7 +5,16 @@ const clutchArray = [
     "clutch-5drakes-intermediateTraits",
     "clutch-5drakes-intermediateTraits2",
     "clutch-5drakes-harderTraits-bothParents",
-    "clutch-5drakes-harderTraits-bothParents2"
+    "clutch-5drakes-harderTraits-bothParents2",
+    "siblings-1",
+    "siblings-2",
+    "siblings-3",
+    "test-cross-1",
+    "test-cross-2",
+    "test-cross-3",
+    "test-cross-nosespike-dilute-tail-1",
+    "test-cross-nosespike-dilute-tail-2",
+    "test-cross-nosespike-dilute-tail-3"
 ];
 
 //Add description to individual actions in clutch array of challenges

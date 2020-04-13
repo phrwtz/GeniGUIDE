@@ -40,6 +40,8 @@ function describeGameteAction(action) {
             chrXY_side = str.match(/(?<==>")([^"]+)/g)[2];
             description = "Gamete " + index + " of " + sex + " drake selected. Side 1 = " + chr1_side + ", side 2 = " + chr2_side + ", side 3 = " + chrXY_side;
             break;
+        case "Hatched":
+            break;
         case "Guide hint received":
             var data = action.parameters.data,
                 conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0],
