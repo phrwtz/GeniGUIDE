@@ -49,11 +49,11 @@ function describeClutchAction(action) {
                 index = action.parameters.index,
                 previousAllele = action.parameters.previousAllele,
                 newAllele = action.parameters.newAllele;
-            if (index == "0") {
+            if (index == "1") {
                 description = "Allele changed on mother drake, side " +
                     side + ". Allele changed from " + previousAllele + " to " +
                     newAllele + ".";
-            } else if (index == "1") {
+            } else if (index == "0") {
                 description = "Allele changed on father drake, side " +
                     side + ". Allele changed from " + previousAllele + " to " +
                     newAllele + ".";
@@ -62,6 +62,17 @@ function describeClutchAction(action) {
                     side + " from " + previousAllele + " to " +
                     newAllele + ".";
             }
+            break;
+        case "Allele selected":
+            var gene = action.parameters.gene,
+                side = action.parameters.side,
+                newAllele = action.parameters.newAllele,
+                previousAllele = action.parameters.previousAllele;
+            description = "For gene \"" + gene + "\" on chromosome side " + side + ", selected the " + newAllele + " allele.";
+            break;
+        case "Ready to answer":
+            var ready = action.parameters.ready;
+            description = "Ready = " + ready + ".";
             break;
         case "Clutch bred":
             description = "Clutch bred; clutch size is " + action.parameters.clutchSize + ".";
