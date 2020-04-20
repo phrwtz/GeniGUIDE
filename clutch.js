@@ -17,6 +17,81 @@ const clutchArray = [
     "test-cross-nosespike-dilute-tail-3"
 ];
 
+
+
+function updateClutchMoves(action) {
+    let myStudent = action.student;
+    let myActivity = myStudent.activitiesByName[action.activity];
+    let tryObj = Object;
+    switch (action.event) {
+        //Navigated events always mean a new myTry with a new drake. The clutchMoves property of the new myTry is set to zero, the minimumClutchMoves value is recovered from the event, and the remediationInProgress flag is set to false (because the student has navigated out of remediation).
+        case "Navigated":
+            //First check to see whether this navigated event happens very soon after another navigated event, in which case it's a computer glitch and the first action does not constitute a legitimate try. So that try should be popped off the tries array before starting a new one.
+            lastAction = myStudent.actions[action.index - 1];
+            if (typeof lastAction != "undefined") {
+                thisTime = action.unixTime;
+                lastTime = lastAction.unixTime;
+                if ((lastAction.event == "Navigated") && ((thisTime - lastTime) < 100)) {
+                    lastAction.glitch = true;
+                    myActivity.tries.pop();
+                }
+            }
+            myTry = new tryObj();
+            myTry.startIndex = action.index;
+            myTry.newDrake = true;
+            myTry.actions = [];
+            myTry.actions.push(action);
+            myTry.drakeSubmitted = false;
+            myTry.remediationInProgress = false;
+            myTry.alleleChanges = 0;
+            myActivity.tries.push(myTry);
+            break;
+
+            //Allele and sex changes are only counted if remediation is not in progress. If no drake has been submitted, they are treated as belonging to the current myTry and increment the targetMatchMoves property of that myTry. If a drake has been submitted on the current myTry then the change is considered the beginning of new myTry but with the same drake. The targetMatchMoves property of the old myTry is retained and used as the starting point for the new myTry. The minimumTargetMatchMoves property is transferred to the new myTry since the drake hasn't changed, but the drakeSubmitted property of the new myTry is set to false.
+        case "Allele changed":
+            if (!myTry.remediationInProgress) {
+                if (myTry.drakeSubmitted) {
+                    //Save values from old myTry
+                    remediationInProgress = myTry.remediationInProgress;
+                    alleleChanges = myTry.alleleChanges;
+                    //New myTry
+                    myTry = new tryObj();
+                    myTry.startIndex = action.index;
+                    myTry.newDrake = false;
+                    myTry.actions = [];
+                    myTry.actions.push(action);
+                    myTry.drakeSubmitted = false;
+                    myTry.remediationInProgress = remediationInProgress;
+                    myTry.alleleChanges = alleleChanges;
+                    action.alleleChanges = alleleChanges;
+                    myActivity.tries.push(myTry);
+                    action.newTry = true;
+                } else {
+                    myTry.alleleChanges++;
+                    action.newTry = false;
+                }
+            }
+            break;
+        case "Started remediation":
+            myTry.remediationInProgress = true;
+            break;
+        case "Ended remediation":
+            myTry.remediationInProgress = false;
+            break;
+        case "Drake submitted":
+            if (!myTry.remediationInProgress) {
+                myTry.endIndex = action.index;
+                myTry.drakeSubmitted = true;
+                (action.parameters.correct === "true" ? myTry.correct = true : myTry.correct = false);
+                action.alleleChanges = myTry.alleleChanges;
+                if (typeof myTry.actions == "undefined") {
+                    console.log("No actions for this try.")
+                }
+                myTry.actions.push(action);
+            }
+    }
+}
+
 //Add description to individual actions in clutch array of challenges
 function describeClutchAction(action) {
     var description = "";
@@ -42,7 +117,7 @@ function describeClutchAction(action) {
         case "Drake submitted":
             var correct = (action.parameters.correct === "true");
             var correctStr = (correct ? "Correct" : "Wrong");
-            description = correctStr + " drake submitted.";
+            description = correctStr + " drake submitted after " + action.alleleChanges + " allele changes.";
             break;
         case "Allele changed":
             var side = action.parameters.side,
@@ -56,7 +131,8 @@ function describeClutchAction(action) {
             } else if (index == "0") {
                 description = "Allele changed on father drake, side " +
                     side + ". Allele changed from " + previousAllele + " to " +
-                    newAllele + ".";
+                    newAllele + ".<br>";
+                description += action.alleleChanges + "allele changes so far on this try."
             } else {
                 description = "Allele changed on side " +
                     side + " from " + previousAllele + " to " +
@@ -88,7 +164,7 @@ function describeClutchAction(action) {
             break;
 
     }
-    return description;
+    action.description = description;
 }
 
 //For each clutch challenge, run through the filtered students and count up all the hints they receive. Return a promise since the process may take a while.

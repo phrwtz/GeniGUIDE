@@ -37,7 +37,7 @@ function showActions() {
             }  else if (gameteArray.includes(myAction.activity)) {
                 myAction.description = describeGameteAction(myAction);
             }  else if (clutchArray.includes(myAction.activity)) {
-                myAction.description = describeClutchAction(myAction);
+      //          myAction.description = describeClutchAction(myAction);
             } else {
                 myAction.description = "";
             }

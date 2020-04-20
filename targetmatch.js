@@ -116,7 +116,7 @@ function averageChallengeScores(student) {
 function scoreChallenge(challenge) {
     //Rows are tries (if blue obtaineds before the end, later tries don't count), columns are crystal values (0 => no crystal – hard to do, must navigate to next challenge!)
 
-    const proficiencyScoreArray = [ 
+    const proficiencyScoreArray = [
         [0, 0, 2, 4, 5],
         [0, 0, 0, 2, 4],
         [0, 0, 0, 1, 1],
@@ -152,8 +152,7 @@ function scoreChallenge(challenge) {
         if (triesForBlue < 0) { //Didn't get a crystal on challenge
             proficiencyScore = 0;
             engagementScore = 0;
-        }
-        else if (triesForBlue > 5) { //Tried really hard!
+        } else if (triesForBlue > 5) { //Tried really hard!
             proficiencyScore = 0;
             engagementScore = 5;
         } else {
@@ -375,7 +374,7 @@ function updateTargetMatchForAllStudents(students) {
             for (action of student.actions) {
                 if (targetMatchArray.includes(action.activity)) {
                     updateTargetMatchMoves(action);
-                    describeTargetMatch(action);
+                    describeTargetMatchAction(action);
                 }
             }
         }
@@ -535,7 +534,7 @@ function updateAllChallenges(students) {
 
 
 //Add description to individual actions in target match array of challenges
-function describeTargetMatch(action) {
+function describeTargetMatchAction(action) {
     var myFields = Object.keys(action),
         myActivity = action.student.activitiesByName[action.activity],
         myTry = myActivity.tries[myActivity.tries.length - 1],

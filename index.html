@@ -61,9 +61,15 @@
     </style>
 
     <h2>Parse Geniventure JSON log files</h2>
+    <div id="newFiles" style="display:none">
+        Input new pre-post files
+        <input type="file" multiple onchange="openNewPrePostFiles(event)"> <br><br>
+        </input>
+    </div>
     <div id="JSONfiles" style="display:block">
         Input Teachers files
         <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
+        </input>
     </div>
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">
         Analyze

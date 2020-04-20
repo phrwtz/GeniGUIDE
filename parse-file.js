@@ -4,6 +4,8 @@ var teacherIds = [];
 var ppStudents = []; //An array of student objects with ids and pre and post scores (obtained from Danielle's file). Note: not all students are contained in this array).
 var ppStudentsObj = new Object;
 var ppStudentsArr = [];
+var newStudentsObj = new Object,
+    newStudentsArr = [];
 var teachersPara = document.getElementById("teachers");
 var classesPara = document.getElementById("classes");
 var studentsPara = document.getElementById("students");
@@ -66,6 +68,7 @@ function filter() {
     for (var i = 0; i < teachersArray.length; i++) {
         var myTeacher = teachersArray[i];
         myTeacher.name = teachersArray[i].id;
+        console.log("Starting parse of " + myTeacher.id + " data.");
         var t = parseJSON(myTeacher); //Returns "fully dressed" and pruned teacher object
         delete t.data; //Don't need the (huge!) data property any more.
         teachersObj[t.id] = t;
@@ -85,10 +88,26 @@ function filter() {
     document.getElementById("reversalsButton").style.display = "inline";
     document.getElementById("singleStudentChalButton").style.display = "none";
     showConcepts();
-    updateTargetMatchForAllStudents(students)
+    updateActionsForAllStudents(students)
         .then(updateAllChallenges(students));
     showTeachers();
     summarizeHints(students);
+}
+//Go through all the students in <students> and look at all the actions for each. For each action that is in a target match or clutch challenge, add the appropriate info.
+function updateActionsForAllStudents(students) {
+    return new Promise((resolve, reject) => {
+        for (student of students) {
+            for (action of student.actions) {
+                if (clutchArray.includes(action.activity)) {
+                    updateClutchMoves(action);
+                    describeClutchAction(action);
+                } else if (targetMatchArray.includes(action.activity)) {
+                    updateTargetMatchMoves(action);
+                    describeTargetMatchAction(action);
+                }
+            }
+        }
+    });
 }
 
 
