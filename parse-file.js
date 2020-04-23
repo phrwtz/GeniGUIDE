@@ -89,7 +89,7 @@ function filter() {
     document.getElementById("singleStudentChalButton").style.display = "none";
     showConcepts();
     updateActionsForAllStudents(students)
-        .then(updateAllChallenges(students));
+        .then(updateChallengesForAllStudents(students));
     showTeachers();
     summarizeHints(students);
 }
@@ -99,12 +99,28 @@ function updateActionsForAllStudents(students) {
         for (student of students) {
             for (action of student.actions) {
                 if (clutchArray.includes(action.activity)) {
-                    updateClutchMoves(action);
+                    updateClutchAction(action);
                     describeClutchAction(action);
                 } else if (targetMatchArray.includes(action.activity)) {
-                    updateTargetMatchMoves(action);
+                    updateTargetMatchAction(action);
                     describeTargetMatchAction(action);
                 }
+            }
+        }
+    });
+}
+
+////Run through all the students and target match and clutch  challenges, populating the challenges with the  try outcomes.
+function updateChallengesForAllStudents() {
+    return new Promise((resolve, reject) => {
+        for (student of students) { //students is a global
+            for (chalName of targetMatchArray) {
+                chal = student.activitiesByName[chalName];
+                updateTargetMatchChallenge(chal);
+            }
+            for (chalName of clutchArray) {
+                chal = student.activitiesByName[chalName];
+                updateClutchChallenge(chal);
             }
         }
     });

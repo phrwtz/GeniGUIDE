@@ -298,7 +298,7 @@ function makeTriesCSVFile(selectedStudents) {
             chalName = targetMatchArray[chalIndex];
             myActivity = student.activitiesByName[chalName];
             if (typeof myActivity != "undefined") {
-                summarizeTries(studIndex, chalIndex);
+                summarizeTries(myActivity);
                 noUnder = myActivity.noSubmissionUnder;
                 noOver = myActivity.noSubmissionOver;
                 noZero = myActivity.noSubmissionZero;

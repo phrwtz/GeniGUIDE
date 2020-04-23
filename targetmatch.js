@@ -114,7 +114,7 @@ function averageChallengeScores(student) {
 
 //Score <challenge>. Return an array for proficiency and engagement.
 function scoreChallenge(challenge) {
-    //Rows are tries (if blue obtaineds before the end, later tries don't count), columns are crystal values (0 => no crystal – hard to do, must navigate to next challenge!)
+    //Rows are tries (if blue obtained before the end, later tries don't count), columns are crystal values (0 => no crystal – hard to do, must navigate to next challenge!)
 
     const proficiencyScoreArray = [
         [0, 0, 2, 4, 5],
@@ -130,9 +130,6 @@ function scoreChallenge(challenge) {
         [0, 2, 3, 3, 5],
         [0, 3, 4, 4, 5]
     ];
-    if ((challenge.student.id == 268809) && (challenge.name == "allele-targetMatch-visible-simpleColors4")) {
-        console.log("stop");
-    }
     let triesArr = challenge.outcomesArr;
     let subsArr = getSubmissions(triesArr);
     let subs = subsArr.length;
@@ -218,85 +215,70 @@ function getBestCrystal(arr) {
     return value;
 }
 
-//Summarize all the tries on a particular challenge for a particular student
-function summarizeTries(studentIndex, challengeIndex) {
-    let myTries = [];
-    let outcomesStr = "";
-    student = students[studentIndex];
-    challenge = targetMatchArray[challengeIndex];
-    myActivity = student.activitiesByName[challenge];
-    if (typeof myActivity == "undefined") {
-        //      console.log("Student " + student.id + " hasn't done anything on challenge " + challenge);
-        return [0, 0, 0, 0, 0, 0, 0, 0];
-    } else {
-        try {
-            myTries = myActivity.tries;
-        } catch (err) {
-            console.log("no tries");
-        };
-        myActivity.noSubmissionUnder = 0;
-        myActivity.noSubmissionOver = 0;
-        myActivity.noSubmissionZero = 0;
-        myActivity.badSubmission = 0;
-        myActivity.blackSubmission = 0;
-        myActivity.redSubmission = 0;
-        myActivity.yellowSubmission = 0;
-        myActivity.blueSubmission = 0;
-        myActivity.outcomesArr = [];
-        myActivity.outcomesStr = "";
-        myActivity.score = 0;
+//Populate a specific target match challenge for a specific student with an array of outcomes of all the tries on that challenge. Then give the challenge a category and a score.
 
-        //     console.log("Working on student " + student.id + "(" + studentIndex + ") in class " + student.class.id + ", challenge " + challenge + "(" + challengeIndex + ")");
-        for (let i = 0; i < myTries.length; i++) {
-            myTry = myTries[i];
+function updateTargetMatchChallenge(chal) {
+    if (typeof chal != "undefined") {
+        let outcomesStr = "";
+        chal.noSubmissionUnder = 0;
+        chal.noSubmissionOver = 0;
+        chal.noSubmissionZero = 0;
+        chal.badSubmission = 0;
+        chal.blackSubmission = 0;
+        chal.redSubmission = 0;
+        chal.yellowSubmission = 0;
+        chal.blueSubmission = 0;
+        chal.outcomesArr = [];
+        chal.outcomesStr = "";
+        chal.score = 0;
+        for (let i = 0; i < chal.tries.length; i++) {
+            myTry = chal.tries[i];
             (myTry.newDrake ? newStr = " New drake. " : newStr = " Old drake. ")
             if (myTry.drakeSubmitted) {
                 if (!myTry.correct) { //Incorrect submission
-                    outcomeStr = "Student submitted an incorrect drake.";
+                    outcomesStr = "Student submitted an incorrect drake.";
                     myTry.outcome = "bad";
                 } else { //Correct submission. Find crystal color
-                    outcomeStr = "Student submitted a correct drake and earned a " + myTry.crystalColor + " crystal (index = " + myTry.crystalIndex + ").";
+                    outcomesStr = "Student submitted a correct drake and earned a " + myTry.crystalColor + " crystal (index = " + myTry.crystalIndex + ").";
                     switch (myTry.crystalColor) {
                         case "black":
                             myTry.outcome = "black";
-                            myActivity.blackSubmission++;
+                            chal.blackSubmission++;
                             break;
                         case "red":
                             myTry.outcome = "red";
-                            myActivity.redSubmission++;
+                            chal.redSubmission++;
                             break;
                         case "yellow":
                             myTry.outcome = "yellow";
-                            myActivity.yellowSubmission++;
+                            chal.yellowSubmission++;
                             break;
                         case "blue":
                             myTry.outcome = "blue";
-                            myActivity.blueSubmission++;
+                            chal.blueSubmission++;
                             break;
                     }
-                    //     console.log("Try number " + (i + 1) + " started on action " + myTry.startIndex + ". " + newStr + outcomeStr);
                 }
             } else { //No submission.
-                outcomeStr = "Student retried without submitting a drake.";
+                outcomesStr = "Student retried without submitting a drake.";
                 if (myTry.targetMatchMoves >= myTry.minimumTargetMatchMoves) {
                     myTry.outcome = "noOver";
-                    myActivity.noSubmissionOver++;
+                    chal.noSubmissionOver++;
                 } else if (myTry.targetMatchMoves == 0) {
                     myTry.outcome = "noZero";
-                    myActivity.noSubmissionZero++;
+                    chal.noSubmissionZero++;
                 } else {
                     myTry.outcome = "noUnder";
-                    myActivity.noSubmissionUnder++;
+                    chal.noSubmissionUnder++;
                 }
             }
             outcomesStr += myTry.outcome + "-";
-            myActivity.outcomesArr.push(myTry.outcome);
+            chal.outcomesArr.push(myTry.outcome);
         }
-        myActivity.outcomesStr = outcomesStr.slice(0, outcomesStr.length - 1);
-        myActivity.category = categorizeChallenge(myActivity);
-        myActivity.score = scoreChallenge(myActivity);
-        return [myActivity.noSubmissionOver, myActivity.noSubmissionZero, myActivity.noSubmissionUnder, myActivity.badSubmission, myActivity.blackSubmission, myActivity.redSubmission, myActivity.yellowSubmission, myActivity.blueSubmission];
-        //     console.log("No = " + myActivity.noSubmission + ", bad = " + myActivity.badSubmission + ", black = " + myActivity.blackSubmission + ", red = " + myActivity.redSubmission + ", yellow = " + myActivity.yellowSubmission + ", blue = " + myActivity.blueSubmission);
+        chal.outcomesStr = outcomesStr.slice(0, outcomesStr.length - 1);
+        chal.category = categorizeChallenge(chal);
+        chal.score = scoreChallenge(chal);
+        return [chal.noSubmissionOver, chal.noSubmissionZero, chal.noSubmissionUnder, chal.badSubmission, chal.blackSubmission, chal.redSubmission, chal.yellowSubmission, chal.blueSubmission];
     }
 }
 
@@ -368,7 +350,7 @@ function categorizeChallenge(chal) {
 }
 
 //Go through all the students in <students> and look at all the actions for each. For each action that is in a target match challenge, add the appropriate info.
-function updateTargetMatchForAllStudents(students) {
+/* function updateTargetMatchForAllStudents(students) {
     return new Promise((resolve, reject) => {
         for (student of students) {
             for (action of student.actions) {
@@ -379,17 +361,13 @@ function updateTargetMatchForAllStudents(students) {
             }
         }
     });
-}
+} */
 
-function updateTargetMatchMoves(action) {
+function updateTargetMatchAction(action) {
     let myStudent = action.student;
     let myActivity = myStudent.activitiesByName[action.activity];
     let tryObj = Object;
-    /*
-    if ((myStudent.id == 273326) && (myActivity.name == "allele-targetMatch-hidden-simpleDom")) {
-        console.log("stop");
-    }
-    */
+    let lastAction = myStudent.actions[action.index - 1];
     switch (action.event) {
         //Navigated events always mean a new myTry with a new drake. The targetMatchMoves property of the new myTry is set to zero, the minimumTargetMatchMoves value is recovered from the event, and the remediationInProgress flag is set to false (because the student has navigated out of remediation).
         case "Navigated":
@@ -437,6 +415,7 @@ function updateTargetMatchMoves(action) {
                     action.newTry = true;
                 } else {
                     myTry.targetMatchMoves++;
+                    myTry.actions.push(action);
                     action.newTry = false;
                 }
             }
@@ -481,61 +460,17 @@ function updateTargetMatchMoves(action) {
                 myTry.crystalIndex = action.crystalIndex;
                 myTry.crystalColor = getCrystalColor(myTry.crystalIndex);
                 if (typeof myTry.actions == "undefined") {
-                    console.log("No actions for this try.")
+                    elapsedTime = (action.unixTime - lastAction.unixTime) / 1000;
+                    console.log("No actions for this try. Previous action was " + elapsedTime + " seconds ago.");
                 }
                 myTry.actions.push(action);
             }
     }
 }
-//Run through all the students and all the target match challenges, populating the challenges with the six different try outcomes,
-function updateAllChallenges(students) {
-    console.log("Starting to update challenges");
-    let noOver = 0,
-        noZero = 0,
-        noUnder = 0,
-        bad = 0,
-        black = 0,
-        red = 0,
-        yellow = 0,
-        blue = 0,
-        perfect = 0,
-        outcomeArr = [];
-    for (i = 0; i < students.length; i++) {
-        let myStudent = students[i];
-        for (j = 0; j < targetMatchArray.length; j++) {
-            let myActivity = myStudent.activitiesByName[targetMatchArray[j]];
-            outcomeArr = summarizeTries(i, j);
-            noOver += outcomeArr[0];
-            noZero += outcomeArr[1];
-            noUnder += outcomeArr[2];
-            bad += outcomeArr[3];
-            black += outcomeArr[4];
-            red += outcomeArr[5];
-            yellow += outcomeArr[6];
-            blue += outcomeArr[7];
-        }
-    }
-    let totalTries = noOver + noZero + noUnder + bad + black + red + yellow + blue;
-    let percentOver = Math.round((noOver / totalTries) * 100);
-    let percentUnder = Math.round((noUnder / totalTries) * 100);
-    let percentZero = Math.round((noZero / totalTries) * 100);
-    let percentBad = Math.round((bad / totalTries) * 100);
-    let percentBlack = Math.round((black / totalTries) * 100);
-    let percentRed = Math.round((red / totalTries) * 100);
-    let percentYellow = Math.round((yellow / totalTries) * 100);
-    let percentBlue = Math.round((blue / totalTries) * 100);
-
-    console.log("Total tries = " + totalTries + ", perfect scores = " + perfect);
-    console.log("noOver = " + noOver + ", noZero = " + noZero + ", noUnder = " + noUnder + ", bad = " + bad + ", black = " + black + ", red = " + red + ", yellow = " + yellow + ", blue = " + blue);
-    console.log("noOver% = " + percentOver + ", noZero% = " + percentZero + ", noUnder% = " + percentUnder + ", bad% = " + percentBad + ", black% = " + percentBlack + ", red% = " + percentRed + ", yellow% = " + percentYellow + ", blue% = " + percentBlue);
-}
-
-
-
 
 //Add description to individual actions in target match array of challenges
 function describeTargetMatchAction(action) {
-    var myFields = Object.keys(action),
+    let myFields = Object.keys(action),
         myActivity = action.student.activitiesByName[action.activity],
         myTry = myActivity.tries[myActivity.tries.length - 1],
         data,
@@ -545,7 +480,6 @@ function describeTargetMatchAction(action) {
         practice,
         message,
         tab4 = "&#9;",
-        description = "",
         targetGenotype,
         selectedGenotype,
         initialGenotype,

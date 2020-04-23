@@ -17,12 +17,16 @@ const clutchArray = [
     "test-cross-nosespike-dilute-tail-3"
 ];
 
+//Populate a specific cluth challenge for a specific student with an array of outcomes of all the tries on that challenge.
+function updateClutchChallenge(chal) {
+    console.log("in updateClutchChallenge")
+}
 
-
-function updateClutchMoves(action) {
+function updateClutchAction(action) {
     let myStudent = action.student;
     let myActivity = myStudent.activitiesByName[action.activity];
     let tryObj = Object;
+    let lastAction = myStudent.actions[action.index - 1];
     switch (action.event) {
         //Navigated events always mean a new myTry with a new drake. The clutchMoves property of the new myTry is set to zero, the minimumClutchMoves value is recovered from the event, and the remediationInProgress flag is set to false (because the student has navigated out of remediation).
         case "Navigated":
@@ -68,6 +72,7 @@ function updateClutchMoves(action) {
                     action.newTry = true;
                 } else {
                     myTry.alleleChanges++;
+                    action.alleleChanges = myTry.alleleChanges;
                     action.newTry = false;
                 }
             }
@@ -85,7 +90,8 @@ function updateClutchMoves(action) {
                 (action.parameters.correct === "true" ? myTry.correct = true : myTry.correct = false);
                 action.alleleChanges = myTry.alleleChanges;
                 if (typeof myTry.actions == "undefined") {
-                    console.log("No actions for this try.")
+                    elapsedTime = (action.unixTime - lastAction.unixTime) / 1000;
+                    console.log("No actions for this try. Previous action was " + elapsedTime + " seconds ago.");
                 }
                 myTry.actions.push(action);
             }
@@ -94,21 +100,39 @@ function updateClutchMoves(action) {
 
 //Add description to individual actions in clutch array of challenges
 function describeClutchAction(action) {
-    var description = "";
+    let myFields = Object.keys(action),
+        myActivity = action.student.activitiesByName[action.activity],
+        myTry = myActivity.tries[myActivity.tries.length - 1],
+        data,
+        conceptId,
+        score,
+        trait,
+        message,
+        description = "";
     switch (action.event) {
         case "Navigated":
             var level = parseInt(action.parameters.level) + 1,
                 mission = parseInt(action.parameters.mission) + 1,
                 challenge = parseInt(action.parameters.challenge) + 1;
             description = "Level " + level + ", mission " + mission + ", challenge " + challenge;
+            (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
+            action.description += "This is the start of a new try with a new drake. " + myActivity.tries.length + triesStr + "so far.<br>";
+            if (action.index > 0) {
+                lastAction = action.student.actions[action.index - 1];
+                if (typeof lastAction.glitch != "undefined") {
+                    if (lastAction.glitch) {
+                        lastAction.description = "<b>This action is a computer glitch and won't be counted!</b>"
+                    }
+                }
+            }
             break;
         case "Guide hint received":
-            var data = action.parameters.data,
-                conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0],
-                score = Math.round(1000 * parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0])) / 1000,
-                trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0],
-                message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0],
-                hintLevel = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
+            data = action.parameters.data;
+            conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
+            score = Math.round(1000 * parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0])) / 1000;
+            trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
+            message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
+            hintLevel = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
             if (hintLevel != 1) {
                 //            console.log("Hint level for clutch challenge = " + hintLevel);
             }
@@ -132,11 +156,19 @@ function describeClutchAction(action) {
                 description = "Allele changed on father drake, side " +
                     side + ". Allele changed from " + previousAllele + " to " +
                     newAllele + ".<br>";
-                description += action.alleleChanges + "allele changes so far on this try."
+                description += action.alleleChanges + " allele changes so far on this try.";
             } else {
                 description = "Allele changed on side " +
                     side + " from " + previousAllele + " to " +
                     newAllele + ".";
+            }
+            if (typeof myTry == "undefined") {
+                console.log("No tries for this challenge. Class = " + student.class.id + ", student = " + action.student.id + ", challenge = " + myActivity.name);
+                console.log("Event = " + action.event + ", index = " + action.index);
+            } else if (myTry.remediationInProgress) {
+                action.description += "<b>Remediation in progress. Action doesn't count.</b><br>";
+            } else if (action.newTry) {
+                action.description += "This is the start of a new try with the same drake. " + myActivity.tries.length + triesStr + "so far.<br>";
             }
             break;
         case "Allele selected":
