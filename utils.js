@@ -684,3 +684,25 @@ function summarizeEventArray(arr) {
         }
     }
 }
+
+//Compute total elapsed time from an array of actions. Normally, this could be done just by subtracting the time of the first action from the time of the last action, but the challenge might have been worked on on multiple different occasions. We detect that by looking at the interval between successive actions and requiring that it be less than some maximum (on the order of minutes). If the interval exceeds that maximum we don't add it to the accumulated time.
+
+function getElapsedTime(actions) {
+    actions.sort(function (a, b) {
+        return a.unixTime - b.unixTime;
+    });
+    const maxTime = 300000;
+    let elapsedTime = 0;
+    let firstTime = actions[0].unixTime;
+    let compareTime = firstTime;
+    for (let i = 1; i < actions.length; i++) {
+        thisTime = actions[i].unixTime
+        if ((thisTime - compareTime) < maxTime) {
+            elapsedTime += (thisTime - compareTime);
+            compareTime = thisTime;
+        } else {
+            compareTime = thisTime;
+        }
+    }
+    return elapsedTime;       
+}

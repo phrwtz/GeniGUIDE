@@ -231,6 +231,7 @@ function updateTargetMatchChallenge(chal) {
         chal.outcomesArr = [];
         chal.outcomesStr = "";
         chal.score = 0;
+        chal.elapsedTime = getElapsedTime(chal.actions) / 1000;
         for (let i = 0; i < chal.tries.length; i++) {
             myTry = chal.tries[i];
             (myTry.newDrake ? newStr = " New drake. " : newStr = " Old drake. ")

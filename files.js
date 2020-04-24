@@ -76,7 +76,7 @@ function openNewPrePostFiles(evt) {
                         for (let i = 17; i < 44; i++) {
                             if (dataRow[i].split(" ")[0] == "(correct)") {
                                 newStudent[testType + "_score"]++;
-                            } 
+                            }
                         }
                         newStudentsObj[id] = newStudent;
                         newStudentsArr.push(newStudent);
@@ -88,7 +88,7 @@ function openNewPrePostFiles(evt) {
                         for (let i = 17; i < 44; i++) {
                             if (dataRow[i].split(" ")[0] == "(correct)") {
                                 newStudent[testType + "_score"]++;
-                            } 
+                            }
                         }
                     }
                 }
@@ -118,7 +118,9 @@ function countNewStudents() {
                 gainNegative++;
             } else if (student.post_score > student.pre_score) {
                 gainPositive++;
-            }else if (student.post_score == student.pre_score) { gainZero++; }
+            } else if (student.post_score == student.pre_score) {
+                gainZero++;
+            }
         }
     }
     return [newStudentsArr.length, countPre, countPost, countBoth, gainPositive, gainNegative, gainZero];
@@ -241,6 +243,41 @@ function makeSummaryChallengesFile() {
     }
     let fileName = prompt("Enter file name") + "_challenge_averages";
     saveData()(avgsStr, fileName);
+}
+
+//Create a csv table that reports on target match and clutch challenges, but just the length of time the student spent on them.
+function makeElapsedTimeFile() {
+    let tableStr = '';
+    let head = 'Teacher,Class,Student';
+    for (name of targetMatchArray) {
+        head += ',' + name;
+    }
+    for (name of clutchArray) {
+        head += ',' + name;
+    }
+    tableStr += head;
+    for (s of students) {
+        tableStr += '\n'
+        tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id;
+        for (name of targetMatchArray) {
+            chal = s.activitiesByName[name]
+            if (typeof chal != "undefined") {
+                tableStr += ',' + chal.elapsedTime;
+            } else {
+                tableStr += ',N/A';
+            }
+        }
+        for (name of clutchArray) {
+            chal = s.activitiesByName[name]
+            if (typeof chal != "undefined") {
+                tableStr += ',' + chal.elapsedTime;
+            } else {
+                tableStr += ',N/A';
+            }
+        }
+    }
+    let fileName = prompt('Enter file name') + '_elapsed_times';
+    saveData()(tableStr, fileName);
 }
 
 //Create a string consisting of a header row and a row for each student in <selectedStudents> with columns corresponding to the outcome string for each target matching challenge for each student.
