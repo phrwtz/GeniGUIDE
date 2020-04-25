@@ -64,7 +64,7 @@ var teachersObj = Object(),
 
 function filter() {
     var analyzeButton = document.getElementById("analyzeButton");
-    var chalFilter = document.getElementById("chalFilter");
+    var chalFilter = document.getElementById("chalFilter");   
     for (var i = 0; i < teachersArray.length; i++) {
         var myTeacher = teachersArray[i];
         myTeacher.name = teachersArray[i].id;

@@ -54,15 +54,15 @@ function openNewPrePostFiles(evt) {
                 let csvStr = e.target.result;
                 let csvArr = Papa.parse(csvStr);
                 let data = csvArr.data;
-                let header = data[1];
+                let header = data[0];
                 let testType = "n/a";
                 let id = "";
-                if (header[15].split(" ")[1] === "Pre-Quiz") {
+                if (header[13].split(" ")[1] === "Pre-Quiz") {
                     testType = "pre";
-                } else if (header[15].split(" ")[1] === "Post-Quiz") {
+                } else if (header[13].split(" ")[1] === "Post-Quiz") {
                     testType = "post";
                 }
-                for (let j = 3; j < data.length; j++) {
+                for (let j = 2; j < data.length; j++) {
                     dataRow = data[j];
                     id = dataRow[5];
                     if (typeof newStudentsObj[id] == "undefined") {
@@ -73,7 +73,7 @@ function openNewPrePostFiles(evt) {
                         newStudent[testType] = true;
                         newStudent[testType + "_score"] = 0;
                         newStudent[testType + "Date"] = dataRow[13];
-                        for (let i = 17; i < 44; i++) {
+                        for (let i = 14; i < 42; i++) {
                             if (dataRow[i].split(" ")[0] == "(correct)") {
                                 newStudent[testType + "_score"]++;
                             }
@@ -128,8 +128,8 @@ function countNewStudents() {
 
 //Transfer pre_score, pre_no_protein, post_score, post_no_protein from each ppStudent in ppStudentsArr to the corresponding student in students. Calculate gain and no_protein_gain and set those properties in each student as well.
 function populateStudents() {
-    for (let i = 0; i < ppStudentsArr.length; i++) {
-        pps = ppStudentsArr[i];
+    for (let i = 0; i < newStudentsArr.length; i++) {
+        pps = newStudentsArr[i];
         s = studentsObj[pps.UserID];
         if (typeof s != "undefined") {
             s.pre_perm_form = pps.pre_perm_form;
@@ -177,7 +177,7 @@ function savePPStudentsFile(ppStudentsArr) {
     saveData()(tblStr, fileName);
 }
 
-function oldOpenPrePostFile(evt) {
+function oldOpenPrePostFiles(evt) {
     var file = evt.target.files[0];
     var reader = new FileReader();
     reader.onerror = function (err) {
@@ -248,7 +248,8 @@ function makeSummaryChallengesFile() {
 //Create a csv table that reports on target match and clutch challenges, but just the length of time the student spent on them.
 function makeElapsedTimeFile() {
     let tableStr = '';
-    let head = 'Teacher,Class,Student';
+    let n, s, chal;
+    let head = 'Teacher,Class,Student,Pre-score,Post-score,Gain';
     for (name of targetMatchArray) {
         head += ',' + name;
     }
@@ -256,24 +257,34 @@ function makeElapsedTimeFile() {
         head += ',' + name;
     }
     tableStr += head;
+    //This is where we need to call populateStudents() in order to add the pre- and post-test scores
     for (s of students) {
-        tableStr += '\n'
-        tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id;
-        for (name of targetMatchArray) {
-            chal = s.activitiesByName[name]
-            if (typeof chal != "undefined") {
-                tableStr += ',' + chal.elapsedTime;
+        n = newStudentsObj[s.id];
+        if (typeof n != "undefined") {
+            if (n.pre && n.post) {
+                tableStr += '\n'
+                tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + n.post_score - n.pre_score;
+                for (name of targetMatchArray) {
+                    chal = s.activitiesByName[name]
+                    if (typeof chal != "undefined") {
+                        tableStr += ',' + chal.elapsedTime;
+                    } else {
+                        tableStr += ',N/A';
+                    }
+                }
+                for (name of clutchArray) {
+                    chal = s.activitiesByName[name]
+                    if (typeof chal != "undefined") {
+                        tableStr += ',' + chal.elapsedTime;
+                    } else {
+                        tableStr += ',N/A';
+                    }
+                }
             } else {
-                tableStr += ',N/A';
+                console.log("Student " + n.id + " did not do the pre0 and post-tests.");
             }
-        }
-        for (name of clutchArray) {
-            chal = s.activitiesByName[name]
-            if (typeof chal != "undefined") {
-                tableStr += ',' + chal.elapsedTime;
-            } else {
-                tableStr += ',N/A';
-            }
+        } else {
+            console.log("No pre-post info for student " + s.id);
         }
     }
     let fileName = prompt('Enter file name') + '_elapsed_times';
