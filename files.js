@@ -263,7 +263,7 @@ function makeElapsedTimeFile() {
         if (typeof n != "undefined") {
             if (n.pre && n.post) {
                 tableStr += '\n'
-                tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + n.post_score - n.pre_score;
+                tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + (n.post_score - n.pre_score);
                 for (name of targetMatchArray) {
                     chal = s.activitiesByName[name]
                     if (typeof chal != "undefined") {
