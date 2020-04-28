@@ -5,8 +5,8 @@ const clutchArray = [
     "clutch-5drakes-intermediateTraits",
     "clutch-5drakes-intermediateTraits2",
     "clutch-5drakes-harderTraits-bothParents",
-    "clutch-5drakes-harderTraits-bothParents2"]
-    /* "siblings-1",
+    "clutch-5drakes-harderTraits-bothParents2",
+    "siblings-1",
     "siblings-2",
     "siblings-3",
     "test-cross-1",
@@ -14,15 +14,16 @@ const clutchArray = [
     "test-cross-3",
     "test-cross-nosespike-dilute-tail-1",
     "test-cross-nosespike-dilute-tail-2",
-    "test-cross-nosespike-dilute-tail-3" */
+    "test-cross-nosespike-dilute-tail-3"];
 
 //Populate a specific clutch challenge for a specific student with an array of outcomes of all the tries on that challenge.
 
-//We haven't yet computed the crystal color for drake submission events, but we have the information needed.
 function updateClutchChallenge(chal) {
     if (typeof chal != "undefined") {
         let elapsedTime = getElapsedTime(chal.actions) / 1000;
+        /*
         console.log("Class: " + chal.student.class.id + " student " + chal.student.id + " challenge " + chal.name + ", " + chal.tries.length +  " tries, " + elapsedTime + " seconds.");
+        */
         chal.elapsedTime = elapsedTime;
     }
 }

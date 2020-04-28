@@ -2,6 +2,14 @@ const eggDropArray = [
     "eggDrop-wings", "eggDrop-limbs", "eggDrop-horns", "eggDrop-armor", "eggDrop-tail", "eggDrop-noseSpike"
 ];
 
+
+function updateEggDropChallenge(chal) {
+    if (typeof chal != "undefined") {
+        let elapsedTime = getElapsedTime(chal.actions) / 1000;
+        chal.elapsedTime = elapsedTime;
+    }
+}
+
 //Add description to individual actions in eggDrop array of challenges
 function describeEggDropAction(action) {
     var description = "";

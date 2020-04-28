@@ -118,6 +118,14 @@ function updateChallengesForAllStudents() {
                 chal = student.activitiesByName[chalName];
                 updateTargetMatchChallenge(chal);
             }
+            for (chalName of eggDropArray) {
+                chal = student.activitiesByName[chalName];
+                updateEggDropChallenge(chal);
+            }
+            for (chalName of gameteArray) {
+                chal = student.activitiesByName[chalName];
+                updateGameteChallenge(chal);
+            }
             for (chalName of clutchArray) {
                 chal = student.activitiesByName[chalName];
                 updateClutchChallenge(chal);

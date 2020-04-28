@@ -247,44 +247,44 @@ function makeSummaryChallengesFile() {
 
 //Create a csv table that reports on target match and clutch challenges, but just the length of time the student spent on them.
 function makeElapsedTimeFile() {
+    let allChallengesArr = targetMatchArray.concat(eggDropArray.concat(gameteArray.concat(clutchArray)));
     let tableStr = '';
     let n, s, chal;
+    let numStudents = 0;
     let head = 'Teacher,Class,Student,Pre-score,Post-score,Gain';
-    for (name of targetMatchArray) {
+    for (name of allChallengesArr) {
         head += ',' + name;
     }
-    for (name of clutchArray) {
-        head += ',' + name;
-    }
+    head += ", Total time";
     tableStr += head;
-    //This is where we need to call populateStudents() in order to add the pre- and post-test scores
     for (s of students) {
-        n = newStudentsObj[s.id];
-        if (typeof n != "undefined") {
-            if (n.pre && n.post) {
-                tableStr += '\n'
-                tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + (n.post_score - n.pre_score);
-                for (name of targetMatchArray) {
-                    chal = s.activitiesByName[name]
-                    if (typeof chal != "undefined") {
-                        tableStr += ',' + chal.elapsedTime;
-                    } else {
-                        tableStr += ',N/A';
+        if (s.activityNames.length == 65) {
+            s.totalTime = 0;
+            n = newStudentsObj[s.id];
+            if (typeof n != "undefined") {
+                if (n.pre && n.post) {
+                    numStudents++;
+                    tableStr += '\n'
+                    tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + (n.post_score - n.pre_score);
+                    for (name of allChallengesArr) {
+                        chal = s.activitiesByName[name]
+                        if (typeof chal != "undefined") {
+                            tableStr += ',' + chal.elapsedTime;
+                            s.totalTime += chal.elapsedTime;
+                        } else {
+                            tableStr += ',N/A';
+                        }
                     }
-                }
-                for (name of clutchArray) {
-                    chal = s.activitiesByName[name]
-                    if (typeof chal != "undefined") {
-                        tableStr += ',' + chal.elapsedTime;
-                    } else {
-                        tableStr += ',N/A';
-                    }
+                    tableStr += ", " + s.totalTime;
+                    console.log(numStudents + " in table.");
+                } else {
+                    console.log("Student " + n.id + " of teacher " + s.teacher.id + " in class " + s.class.id + " did not do the pre- and post-tests.");
                 }
             } else {
-                console.log("Student " + n.id + " did not do the pre0 and post-tests.");
+                console.log("No pre-post info for student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + ".");
             }
         } else {
-            console.log("No pre-post info for student " + s.id);
+            console.log("Student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + " didn't do all the challenges.");
         }
     }
     let fileName = prompt('Enter file name') + '_elapsed_times';
