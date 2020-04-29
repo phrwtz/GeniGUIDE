@@ -223,26 +223,51 @@ function oldOpenPrePostFiles(evt) {
     reader.readAsText(file);
 }
 
-function makeSummaryChallengesFile() {
-    let scoresArr = [];
-    let avgsStr = "Teacher, Class, Student, pre_perm_form, pre_completed, pre_score, post_perm-form, post_completed, post_score, gain, pre_no_protein, post_no_protein, gain_no_protein, simpleDomPro, simpleDomEng, armorHornsPro, armorHornsEng, colorPro, colorEng, harderPro, harderEng";
-    populateStudents();
-    for (student of students) {
-        if ((student.pre_perm_form) && (student.post_perm_form) && (student.pre_completed != 0) && (student.post_completed != 0) && (typeof student.post_completed != "undefined")) {
-            let scoresArr = averageChallengeScores(student),
-                simpleProAvg = scoresArr[0],
-                armorProAvg = scoresArr[1],
-                colorProAvg = scoresArr[2],
-                harderProAvg = scoresArr[3],
-                simpleEngAvg = scoresArr[4],
-                armorEngAvg = scoresArr[5],
-                colorEngAvg = scoresArr[6],
-                harderEngAvg = scoresArr[7];
-            avgsStr += ("\n" + student.teacher.id + ", " + student.class.id + ", " + student.id + ", " + student.pre_perm_form + ", " + student.pre_completed + ", " + student.pre_score + ", " + student.post_perm_form + ", " + student.post_completed + ", " + student.post_score + ", " + student.gain + ", " + student.pre_no_protein + ", " + student.post_no_protein + ", " + student.gain_no_protein + ", " + simpleProAvg + ", " + simpleEngAvg + ", " + armorProAvg + ", " + armorEngAvg + ", " + colorProAvg + ", " + colorEngAvg + ", " + harderProAvg + ", " + harderEngAvg);
-        }
+//Create a csv table that reports on the proficiency score each student got on the target match challenges.
+function makeTargetMatchChallengesFile() {
+    let totalScore = 0,
+        head = '',
+        tableStr,
+        testStr,
+        chalFound;
+    head = "Teacher, Class, Student, pre_score, post_score, gain";
+    for (name of targetMatchArray) {
+        head += ',' + name;
     }
-    let fileName = prompt("Enter file name") + "_challenge_averages";
-    saveData()(avgsStr, fileName);
+    head += ", Total score";
+    tableStr = head;
+    for (s of students) {
+        n = newStudentsObj[s.id];
+        if (typeof n != "undefined") {
+            if (n.pre && n.post) {
+                if (s.id === "263317") {
+                    console.log('In challenge score: pre-score = ' + n.pre_score + ", post-score = " + n.post_score);
+                }
+                totalScore = 0;
+                testStr = '';
+                chalFound = true;
+                //We don't want to include students who have not completed all the target match challenges so we populate a test string and only add that to the table if all the challenges are there. So the first time a challenge is missing we set chalFound false and don't reset it until we move to another student.
+                for (name of targetMatchArray) {
+                    chal = s.activitiesByName[name]
+                    if (typeof chal === "undefined") {
+                        chalFound = false;
+                    } else {
+                        testStr += ',' + chal.score[0];
+                        totalScore += chal.score[0];
+                    }
+                } //New challenge
+                if (chalFound) {
+                    tableStr += '\n' + s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + (n.post_score - n.pre_score) + testStr + ',' + totalScore;
+                }
+            } else {
+                //console.log("No pre-post info for student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + ".");
+            }
+        } else {
+            //console.log("Student " + n.id + " of teacher " + s.teacher.id + " in class " + s.class.id + " did not do the pre- and post-tests.");
+        }
+    } //New student
+    let fileName = prompt('Enter file name') + '_challenge_scores';
+    saveData()(tableStr, fileName);
 }
 
 //Create a csv table that reports on target match and clutch challenges, but just the length of time the student spent on them.
@@ -263,6 +288,9 @@ function makeElapsedTimeFile() {
             n = newStudentsObj[s.id];
             if (typeof n != "undefined") {
                 if (n.pre && n.post) {
+                    if (s.id === "258792") {
+                        console.log('In elapsed time: pre-score = ' + n.pre_score + ", post-score = " + n.post_score);
+                    }
                     numStudents++;
                     tableStr += '\n'
                     tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + (n.post_score - n.pre_score);
@@ -276,15 +304,15 @@ function makeElapsedTimeFile() {
                         }
                     }
                     tableStr += ", " + s.totalTime;
-                    console.log(numStudents + " in table.");
+                    //                console.log(numStudents + " in table.");
                 } else {
-                    console.log("Student " + n.id + " of teacher " + s.teacher.id + " in class " + s.class.id + " did not do the pre- and post-tests.");
+                    //                        console.log("Student " + n.id + " of teacher " + s.teacher.id + " in class " + s.class.id + " did not do the pre- and post-tests.");
                 }
             } else {
-                console.log("No pre-post info for student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + ".");
+                //            console.log("No pre-post info for student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + ".");
             }
         } else {
-            console.log("Student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + " didn't do all the challenges.");
+            //        console.log("Student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + " didn't do all the challenges.");
         }
     }
     let fileName = prompt('Enter file name') + '_elapsed_times';
