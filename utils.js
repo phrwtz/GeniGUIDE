@@ -678,20 +678,21 @@ function summarizeEventArray(arr) {
                 console.log("Challenge completed after " + (ev[1] - startTime) + " seconds and " + moves + " moves.");
                 startTime = ev[1];
                 break;
-                case "Challenge retried":
-                    console.log("Challenge retried after " + (ev[1] - startTime) + " seconds and " + moves + " moves.");
-                    break;
+            case "Challenge retried":
+                console.log("Challenge retried after " + (ev[1] - startTime) + " seconds and " + moves + " moves.");
+                break;
         }
     }
 }
 
 //Compute total elapsed time from an array of actions. Normally, this could be done just by subtracting the time of the first action from the time of the last action, but the challenge might have been worked on on multiple different occasions. We detect that by looking at the interval between successive actions and requiring that it be less than some maximum (on the order of minutes). If the interval exceeds that maximum we don't add it to the accumulated time.
 
+
 function getElapsedTime(actions) {
     actions.sort(function (a, b) {
         return a.unixTime - b.unixTime;
     });
-    const maxTime = 300000;
+    const maxTime = 600000;
     let elapsedTime = 0;
     let firstTime = actions[0].unixTime;
     let compareTime = firstTime;
@@ -704,5 +705,106 @@ function getElapsedTime(actions) {
             compareTime = thisTime;
         }
     }
-    return elapsedTime;       
+    return elapsedTime;
+}
+
+function openNewPrePostFiles(evt) {
+    var fileCount = 0;
+    var files = evt.target.files; // FileList object
+    for (var i = 0, f;
+        (f = files[i]); i++) {
+        var reader = new FileReader();
+        reader.onerror = function (err) {
+            console.log(err);
+        };
+        //closure to capture the file information
+        reader.onloadend = (function (f) {
+            return function (e) {
+                fileCount++;
+                let csvStr = e.target.result;
+                let csvArr = Papa.parse(csvStr);
+                let data = csvArr.data;
+                let header = data[1];
+                let testType = "n/a";
+                let id = "";
+                if (header[15].split(" ")[1] === "Pre-Quiz") {
+                    testType = "pre";
+                } else if (header[15].split(" ")[1] === "Post-Quiz") {
+                    testType = "post";
+                }
+                for (let j = 3; j < data.length; j++) {
+                    dataRow = data[j];
+                    id = dataRow[5];
+                    if (typeof newStudentsObj[id] == "undefined") {
+                        newStudent = new Object;
+                        newStudent.id = id;
+                        newStudent.teacher = dataRow[9];
+                        newStudent["pre"] = false;
+                        newStudent["post"] = false;
+                        newStudent[testType] = true;
+                        newStudent[testType + "_score"] = 0;
+                        newStudent[testType + "_date"] = dataRow[13];
+                        for (let i = 17; i < 44; i++) {
+                            if (dataRow[i].split(" ")[0] == "(correct)") {
+                                newStudent[testType + "_score"]++;
+                            }
+                        }
+                        newStudentsObj[id] = newStudent;
+                        newStudentsArr.push(newStudent);
+                    } else { //Student already exists
+                        newStudent = newStudentsObj[id];
+                        newStudent[testType] = true;
+                        newStudent[testType + "_date"] = dataRow[13];
+                        newStudent[testType + "_score"] = 0;
+                        for (let i = 17; i < 44; i++) {
+                            if (dataRow[i].split(" ")[0] == "(correct)") {
+                                newStudent[testType + "_score"]++;
+                            }
+                        }
+                    }
+                }
+            }
+        })(f);
+        reader.readAsText(f);
+    }
+}
+
+function findNewTeachersWhoDidPreAndPost() {
+    let teachers = [],
+        teacherNames = [];
+    for (s of newStudentsArr) {
+        stud = newStudentsObj[s.id]
+        if (stud.pre && stud.post) {
+            if (!teacherNames.includes(stud.teacher)) {
+                t = new Object();
+                t.name = stud.teacher
+                t.students = [];
+                t.students.push(stud);
+                teacherNames.push(t.name);
+                teachers.push(t);
+            } else {
+                t.students.push(stud);
+            }
+        }
+    }
+    for (t of teachers) {
+        maxDate = t.students[0].post_date;
+        maxDay = maxDate.split("/")[1];
+        maxMonth = maxDate.split("/")[0];
+        maxYear = maxDate.split("/")[2];
+        for (s of t.students) {
+            if (s.post_date.split[2] < maxYear) {
+                maxYear = s.post_date.split("/")[2];
+                maxMonth = s.post_date.split("/")[0];
+                maxDay = s.post_date.split("/")[1];
+            } else if (s.post_date.split[1] < maxMonth) {
+                maxMonth = s.post_date.split("/")[0];
+                maxDay = s.post_date.split("/")[1];
+            } else if (s.post_date.split[0] < maxDay) {
+                maxDay = s.post_date.split("/")[1];
+            }
+        }
+        maxDate = maxMonth + '/' + maxDay + '/' + maxYear;
+        console.log("Teacher " + t.name + ", last date of post-test " + maxDate);
+    }
 }

@@ -117,11 +117,11 @@ function scoreChallenge(challenge) {
     //Rows are tries (if blue obtained before the end, later tries don't count), columns are crystal values (0 => no crystal – hard to do, must navigate to next challenge!)
 // proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal];
     const proficiencyScoreArray = [
-        [1, 2, 3, 4, 5], //1 try for blue
-        [0, 1, 2, 3, 4], //2 tries for blue
-        [0, 0, 1, 2, 3], //3 tries for blue
-        [0, 0, 0, 1, 2], //4 tries for blue
-        [0, 0, 0, 0, 1]  //5 tries for blue
+        [0, 0, 1, 3, 5], //1 try for blue
+        [0, 0, 0, 2, 4], //2 tries for yellow
+        [0, 0, 0, 1, 3], //3 tries for red
+        [0, 0, 0, 0, 1], //4 tries for blasc
+        [0, 0, 0, 0, 0]  //5 tries for none
 //no, black, red, yellow, blue crystal
     ];
     const engagementScoreArray = [

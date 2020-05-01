@@ -74,9 +74,11 @@
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">
         Analyze
     </button>
-    <div id="CSVfile" style="display:none">
-        Input Students file
-        <input type="file" id="csvInput" multiple onchange="openNewPrePostFiles(event)"> <br><br>
+    <div id="CSVfile" style="display:block">
+        Input Students files
+        <input type="file" id="csvInput" multiple onchange="openPrePostFiles(event)"> <br><br>
+        Input New Students files
+        <input type="file" id="csvNewInput" style="display:block" multiple onchange="openNewPrePostFiles(event)"> <br><br>
     </div>
     <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
         challenge file

@@ -38,7 +38,7 @@ function openFiles(evt) {
     }
 }
 
-function openNewPrePostFiles(evt) {
+function openPrePostFiles(evt) {
     var fileCount = 0;
     var files = evt.target.files; // FileList object
     for (var i = 0, f;
@@ -56,7 +56,7 @@ function openNewPrePostFiles(evt) {
                 let data = csvArr.data;
                 let header = data[0];
                 let testType = "n/a";
-                let id = "";
+                let id = "", questionNum;
                 if (header[13].split(" ")[1] === "Pre-Quiz") {
                     testType = "pre";
                 } else if (header[13].split(" ")[1] === "Post-Quiz") {
@@ -71,11 +71,22 @@ function openNewPrePostFiles(evt) {
                         newStudent["pre"] = false;
                         newStudent["post"] = false;
                         newStudent[testType] = true;
-                        newStudent[testType + "_score"] = 0;
-                        newStudent[testType + "Date"] = dataRow[13];
-                        for (let i = 14; i < 42; i++) {
+                        newStudent[testType + "_total_score"] = 0;
+                        newStudent[testType + "_protein_score"] = 0;
+                        newStudent[testType + "_allele_score"] = 0;
+                        newStudent[testType + "_wrong_score"] = 0;
+                        newStudent[testType + "_date"] = dataRow[13];
+                        for (let i = 15; i < 42; i++) {
+                            questionNum = parseInt(header[i].split(":")[0]);
                             if (dataRow[i].split(" ")[0] == "(correct)") {
-                                newStudent[testType + "_score"]++;
+                                newStudent[testType + "_total_score"]++;
+                                if ((questionNum >= 19) && (questionNum <= 24)) {
+                                    newStudent[testType + "_protein_score"]++;
+                                } else {
+                                    newStudent[testType + "_allele_score"]++;
+                                }
+                            } else {
+                                newStudent[testType + "_wrong_score"]++;
                             }
                         }
                         newStudentsObj[id] = newStudent;
@@ -85,7 +96,8 @@ function openNewPrePostFiles(evt) {
                         newStudent[testType] = true;
                         newStudent[testType + "Date"] = dataRow[13];
                         newStudent[testType + "_score"] = 0;
-                        for (let i = 17; i < 44; i++) {
+                        for (let i = 15; i < 43; i++) {
+
                             if (dataRow[i].split(" ")[0] == "(correct)") {
                                 newStudent[testType + "_score"]++;
                             }
@@ -240,9 +252,6 @@ function makeTargetMatchChallengesFile() {
         n = newStudentsObj[s.id];
         if (typeof n != "undefined") {
             if (n.pre && n.post) {
-                if (s.id === "263317") {
-                    console.log('In challenge score: pre-score = ' + n.pre_score + ", post-score = " + n.post_score);
-                }
                 totalScore = 0;
                 testStr = '';
                 chalFound = true;
@@ -288,9 +297,6 @@ function makeElapsedTimeFile() {
             n = newStudentsObj[s.id];
             if (typeof n != "undefined") {
                 if (n.pre && n.post) {
-                    if (s.id === "258792") {
-                        console.log('In elapsed time: pre-score = ' + n.pre_score + ", post-score = " + n.post_score);
-                    }
                     numStudents++;
                     tableStr += '\n'
                     tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + (n.post_score - n.pre_score);
