@@ -56,7 +56,8 @@ function openPrePostFiles(evt) {
                 let data = csvArr.data;
                 let header = data[0];
                 let testType = "n/a";
-                let id = "", questionNum;
+                let id = "",
+                    questionNum;
                 if (header[13].split(" ")[1] === "Pre-Quiz") {
                     testType = "pre";
                 } else if (header[13].split(" ")[1] === "Post-Quiz") {
@@ -70,39 +71,30 @@ function openPrePostFiles(evt) {
                         newStudent.id = id;
                         newStudent["pre"] = false;
                         newStudent["post"] = false;
-                        newStudent[testType] = true;
-                        newStudent[testType + "_total_score"] = 0;
-                        newStudent[testType + "_protein_score"] = 0;
-                        newStudent[testType + "_allele_score"] = 0;
-                        newStudent[testType + "_wrong_score"] = 0;
-                        newStudent[testType + "_date"] = dataRow[13];
-                        for (let i = 15; i < 42; i++) {
-                            questionNum = parseInt(header[i].split(":")[0]);
-                            if (dataRow[i].split(" ")[0] == "(correct)") {
-                                newStudent[testType + "_total_score"]++;
-                                if ((questionNum >= 19) && (questionNum <= 24)) {
-                                    newStudent[testType + "_protein_score"]++;
-                                } else {
-                                    newStudent[testType + "_allele_score"]++;
-                                }
-                            } else {
-                                newStudent[testType + "_wrong_score"]++;
-                            }
-                        }
-                        newStudentsObj[id] = newStudent;
-                        newStudentsArr.push(newStudent);
                     } else { //Student already exists
                         newStudent = newStudentsObj[id];
-                        newStudent[testType] = true;
-                        newStudent[testType + "Date"] = dataRow[13];
-                        newStudent[testType + "_score"] = 0;
-                        for (let i = 15; i < 43; i++) {
-
-                            if (dataRow[i].split(" ")[0] == "(correct)") {
-                                newStudent[testType + "_score"]++;
+                    }
+                    newStudent[testType] = true;
+                    newStudent[testType + "_total_score"] = 0;
+                    newStudent[testType + "_protein_score"] = 0;
+                    newStudent[testType + "_allele_score"] = 0;
+                    newStudent[testType + "_wrong_score"] = 0;
+                    newStudent[testType + "_date"] = dataRow[13];
+                    for (let i = 15; i < 42; i++) {
+                        questionNum = parseInt(header[i].split(":")[0]);
+                        if (dataRow[i].split(" ")[0] == "(correct)") {
+                            newStudent[testType + "_total_score"]++;
+                            if ((questionNum >= 19) && (questionNum <= 24)) {
+                                newStudent[testType + "_protein_score"]++;
+                            } else {
+                                newStudent[testType + "_allele_score"]++;
                             }
+                        } else {
+                            newStudent[testType + "_wrong_score"]++;
                         }
                     }
+                    newStudentsObj[id] = newStudent;
+                    newStudentsArr.push(newStudent);
                 }
             }
         })(f);
@@ -189,52 +181,6 @@ function savePPStudentsFile(ppStudentsArr) {
     saveData()(tblStr, fileName);
 }
 
-function oldOpenPrePostFiles(evt) {
-    var file = evt.target.files[0];
-    var reader = new FileReader();
-    reader.onerror = function (err) {
-        console.log(err);
-    };
-    reader.onloadend = function (file) {
-        return (function (e) {
-            let csvStr = e.target.result;
-            let csvArr = Papa.parse(csvStr);
-            let data = csvArr.data;
-            let header = data[0];
-            for (let i = 1; i < data.length; i++) {
-                dataRow = data[i];
-                ppStudent = new Object();
-                for (let j = 0; j < dataRow.length; j++) {
-                    ppStudent[header[j]] = dataRow[j];
-                }
-                ppStudents.push(ppStudent);
-            }
-            for (let k = 0; k < ppStudents.length; k++) {
-                let thisPpStudent = ppStudents[k];
-                let thisStudent = studentsObj[thisPpStudent.UserID];
-                if (thisStudent) {
-                    thisStudent.preScores = countPreScores(thisPpStudent);
-                    thisStudent.postScores = countPostScores(thisPpStudent);
-                    var preDiff = 21 - (thisStudent.preScores[0] + thisStudent.preScores[1]);
-                    var postDiff = 21 - (thisStudent.postScores[0] + thisStudent.postScores[1]);
-                    if (preDiff > 0) {
-                        console.log("Student " + thisStudent.id + " didn't answer " + preDiff + " of the pre-test questions.");
-                    }
-                    if (postDiff > 0) {
-                        console.log("Student " + thisStudent.id + " didn't answer " + postDiff + " of the post-test questions.");
-                    }
-                    thisStudent.score_pre = thisStudent.preScores[1];
-                    thisStudent.score_post = thisStudent.postScores[1];
-                    thisStudent.prepost_gain = thisStudent.postScores[1] - thisStudent.preScores[1];
-                }
-            }
-            document.getElementById("CSVfile").style.display = "none";
-            document.getElementById("challengeType").style.display = "block";
-        })(file);
-    };
-    reader.readAsText(file);
-}
-
 //Create a csv table that reports on the proficiency score each student got on the target match challenges.
 function makeTargetMatchChallengesFile() {
     let totalScore = 0,
@@ -242,7 +188,7 @@ function makeTargetMatchChallengesFile() {
         tableStr,
         testStr,
         chalFound;
-    head = "Teacher, Class, Student, pre_score, post_score, gain";
+    head = 'Teacher,Class,Student,Pre-total,Pre-allele,Pre-protein,Post-total,Post-allele,Post-protein,Gain-total,Gain-allele,Gain-protein';
     for (name of targetMatchArray) {
         head += ',' + name;
     }
@@ -252,8 +198,9 @@ function makeTargetMatchChallengesFile() {
         n = newStudentsObj[s.id];
         if (typeof n != "undefined") {
             if (n.pre && n.post) {
+                testStr = '\n'
+                testStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_total_score + ',' + n.pre_allele_score + ',' + n.pre_protein_score + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score + ',' + (n.post_total_score - n.pre_total_score) + ',' + (n.post_allele_score - n.pre_allele_score) + ',' + (n.post_protein_score - n.pre_protein_score));
                 totalScore = 0;
-                testStr = '';
                 chalFound = true;
                 //We don't want to include students who have not completed all the target match challenges so we populate a test string and only add that to the table if all the challenges are there. So the first time a challenge is missing we set chalFound false and don't reset it until we move to another student.
                 for (name of targetMatchArray) {
@@ -266,7 +213,7 @@ function makeTargetMatchChallengesFile() {
                     }
                 } //New challenge
                 if (chalFound) {
-                    tableStr += '\n' + s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + (n.post_score - n.pre_score) + testStr + ',' + totalScore;
+                    tableStr += testStr + ',' + totalScore;
                 }
             } else {
                 //console.log("No pre-post info for student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + ".");
@@ -285,7 +232,7 @@ function makeElapsedTimeFile() {
     let tableStr = '';
     let n, s, chal;
     let numStudents = 0;
-    let head = 'Teacher,Class,Student,Pre-score,Post-score,Gain';
+    let head = 'Teacher,Class,Student,Pre-total,Pre-allele,Pre-protein,Post-total,Post-allele,Post-protein,Gain-total,Gain-allele,Gain-protein';
     for (name of allChallengesArr) {
         head += ',' + name;
     }
@@ -299,7 +246,7 @@ function makeElapsedTimeFile() {
                 if (n.pre && n.post) {
                     numStudents++;
                     tableStr += '\n'
-                    tableStr += s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_score + ',' + n.post_score + ',' + (n.post_score - n.pre_score);
+                    tableStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_total_score + ',' + n.pre_allele_score + ',' + n.pre_protein_score + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score + ',' + (n.post_total_score - n.pre_total_score) + ',' + (n.post_allele_score - n.pre_allele_score) + ',' + (n.post_protein_score - n.pre_protein_score));
                     for (name of allChallengesArr) {
                         chal = s.activitiesByName[name]
                         if (typeof chal != "undefined") {

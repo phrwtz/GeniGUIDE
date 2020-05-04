@@ -120,7 +120,7 @@ function scoreChallenge(challenge) {
         [0, 0, 1, 3, 5], //1 try for blue
         [0, 0, 0, 2, 4], //2 tries for yellow
         [0, 0, 0, 1, 3], //3 tries for red
-        [0, 0, 0, 0, 1], //4 tries for blasc
+        [0, 0, 0, 0, 1], //4 tries for black
         [0, 0, 0, 0, 0]  //5 tries for none
 //no, black, red, yellow, blue crystal
     ];
@@ -350,20 +350,6 @@ function categorizeChallenge(chal) {
     }
     return cat;
 }
-
-//Go through all the students in <students> and look at all the actions for each. For each action that is in a target match challenge, add the appropriate info.
-/* function updateTargetMatchForAllStudents(students) {
-    return new Promise((resolve, reject) => {
-        for (student of students) {
-            for (action of student.actions) {
-                if (targetMatchArray.includes(action.activity)) {
-                    updateTargetMatchMoves(action);
-                    describeTargetMatchAction(action);
-                }
-            }
-        }
-    });
-} */
 
 function updateTargetMatchAction(action) {
     let myStudent = action.student;
