@@ -87,7 +87,7 @@ function filter() {
     document.getElementById("toggleChangesButton").style.display = "inline";
     document.getElementById("reversalsButton").style.display = "inline";
     document.getElementById("singleStudentChalButton").style.display = "none";
-    showConcepts();
+  //  showConcepts();
     updateActionsForAllStudents(students)
         .then(updateChallengesForAllStudents(students));
     showTeachers();
@@ -317,23 +317,27 @@ function parseJSON(myTeacher) {
     return myTeacher;
 }
 
-function getProbs(myRow, myStudent) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated, returns null
+function getProbs(myRow, myStudent) { //Extracts prob objects from data when the event is ITS-Data-Updated. Returns an array of prob objects. If the event is not ITS-Data-Updated or if the studentModel is "*** PARSE ERROR #1: MISSING VALUE", returns null
     var myProbs = [],
-        myProb;
-    data = myRow.parameters.studentModel,
+        myProb, data, conceptIds, currentProbs, initProbs, attempts;
+    if (myRow.parameters.studentModel.concepts[0].L0 != "*** PARSE ERROR #1: MISSING VALUE") {
+        data = myRow.parameters.studentModel.data;
         conceptIds = data.match(/(?<="conceptId"=>")([^"]+)/g),
-        currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
-        initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
-        attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
-    for (var i = 0; i < currentProbs.length; i++) {
-        myProb = new Object();
-        myProb.action = myRow;
-        myProb.time = myRow.time;
-        myProb.id = conceptIds[i];
-        myProb.value = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
-        myProb.initValue = Math.round(1000 * parseFloat(initProbs[i])) / 1000;
-        myProb.attempts = attempts[i];
-        myProbs.push(myProb);
+            currentProbs = data.match(/(?<="probabilityLearned"=>)([^,]+)/g),
+            initProbs = data.match(/(?<="L0"=>)([^,]+)/g),
+            attempts = data.match(/(?<="totalAttempts"=>)([^,]+)/g);
+        for (var i = 0; i < currentProbs.length; i++) {
+            myProb = new Object();
+            myProb.action = myRow;
+            myProb.time = myRow.time;
+            myProb.id = conceptIds[i];
+            myProb.value = Math.round(1000 * parseFloat(currentProbs[i])) / 1000;
+            myProb.initValue = Math.round(1000 * parseFloat(initProbs[i])) / 1000;
+            myProb.attempts = attempts[i];
+            myProbs.push(myProb);
+        }
+    } else {
+    //    console.log("parse error found.")
     }
     return myProbs;
 }

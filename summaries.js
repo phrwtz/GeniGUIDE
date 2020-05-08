@@ -103,55 +103,57 @@ function summarizeHints(students) {
                 } else {
                     for (var k = 0; k < myStudent.hints.length; k++) {
                         myHint = myStudent.hints[k];
-                        if ((myHint.activity.indexOf("simpleDom") != -1) && ((myHint.conceptId === concepta) || (myHint.conceptId === conceptb))) {
-                            noHintsFound = false;
-                            switch (myHint.conceptId) {
-                                case concepta: {
-                                    conceptStr = "a";
-                                    break;
+                        if (typeof myHint != "undefined") {
+                            if ((myHint.activity.indexOf("simpleDom") != -1) && ((myHint.conceptId === concepta) || (myHint.conceptId === conceptb))) {
+                                noHintsFound = false;
+                                switch (myHint.conceptId) {
+                                    case concepta: {
+                                        conceptStr = "a";
+                                        break;
+                                    }
+                                    case conceptb: {
+                                        conceptStr = "b";
+                                        break;
+                                    }
                                 }
-                                case conceptb: {
-                                    conceptStr = "b";
-                                    break;
+                                if (myHint.activity.indexOf("visible") != -1) {
+                                    challengeStr = "v";
+                                } else if (myHint.activity.indexOf("hidden") != -1) {
+                                    challengeStr = "h";
+                                } else {
+                                    alert("Challenge is neither visible nor hidden!");
                                 }
+                                switch (myHint.trait) {
+                                    case "wings": {
+                                        traitStr = "w";
+                                        break;
+                                    }
+                                    case "forelimbs": {
+                                        traitStr = "a";
+                                        break;
+                                    }
+                                    case "hindlimbs": {
+                                        traitStr = "l";
+                                        break;
+                                    }
+                                }
+                                switch (myHint.level) {
+                                    case 1: {
+                                        levelStr = "1";
+                                        break;
+                                    }
+                                    case 2: {
+                                        levelStr = "2";
+                                        break;
+                                    }
+                                    case 3: {
+                                        levelStr = "3";
+                                        break;
+                                    }
+                                }
+                                cellId = conceptStr + challengeStr + traitStr + levelStr;
+                                hintTotals[cellId]++;
                             }
-                            if (myHint.activity.indexOf("visible") != -1) {
-                                challengeStr = "v";
-                            } else if (myHint.activity.indexOf("hidden") != -1) {
-                                challengeStr = "h";
-                            } else {
-                                alert("Challenge is neither visible nor hidden!");
-                            }
-                            switch (myHint.trait) {
-                                case "wings": {
-                                    traitStr = "w";
-                                    break;
-                                }
-                                case "forelimbs": {
-                                    traitStr = "a";
-                                    break;
-                                }
-                                case "hindlimbs": {
-                                    traitStr = "l";
-                                    break;
-                                }
-                            }
-                            switch (myHint.level) {
-                                case 1: {
-                                    levelStr = "1";
-                                    break;
-                                }
-                                case 2: {
-                                    levelStr = "2";
-                                    break;
-                                }
-                                case 3: {
-                                    levelStr = "3";
-                                    break;
-                                }
-                            }
-                            cellId = conceptStr + challengeStr + traitStr + levelStr;
-                            hintTotals[cellId]++;
                         }
                     }
                     if (noHintsFound) {
@@ -247,11 +249,15 @@ function addHintRow(myTeacher) {
 function parseHint(row) {
     var hint = new Object();
     var data = row.parameters.data;
-    hint.conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
-    hint.score = parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0]);
-    hint.activity = data.match(/(?<="challengeId"=>")([^"]+)/g)[0];
-    hint.trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
-    hint.dialog = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
-    hint.level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
-    return hint;
+    if (data.sequence != "*** PARSE ERROR #1: MISSING VALUE") {
+        hint.conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
+        hint.score = parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0]);
+        hint.activity = data.match(/(?<="challengeId"=>")([^"]+)/g)[0];
+        hint.trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
+        hint.dialog = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
+        hint.level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
+        return hint;
+    } else {
+   //     console.log("parse error found.")
+    }
 }

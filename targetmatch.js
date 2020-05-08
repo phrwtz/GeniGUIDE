@@ -115,14 +115,14 @@ function averageChallengeScores(student) {
 //Score <challenge>. Return an array for proficiency and engagement.
 function scoreChallenge(challenge) {
     //Rows are tries (if blue obtained before the end, later tries don't count), columns are crystal values (0 => no crystal – hard to do, must navigate to next challenge!)
-// proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal];
+    // proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal];
     const proficiencyScoreArray = [
         [0, 0, 1, 3, 5], //1 try for blue
         [0, 0, 0, 2, 4], //2 tries for yellow
         [0, 0, 0, 1, 3], //3 tries for red
         [0, 0, 0, 0, 1], //4 tries for black
-        [0, 0, 0, 0, 0]  //5 tries for none
-//no, black, red, yellow, blue crystal
+        [0, 0, 0, 0, 0] //5 tries for none
+        //no, black, red, yellow, blue crystal
     ];
     const engagementScoreArray = [
         [0, 0, 0, 0, null],
@@ -484,13 +484,16 @@ function describeTargetMatchAction(action) {
     switch (action.event) {
         case "Guide hint received":
             data = action.parameters.data;
-            conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
-            score = Math.round(1000 * parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0])) / 1000;
-            trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
-            message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
-            level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
-            action.description += "<pre>" + tab4 + "<b>Level " + level + "</b> hint received for <b>" + trait + ".<br>" + tab4 + "Message = </b>" + message + "<br>" + tab4 + "<b>Concept = </b>" + conceptId + ", <b>probability learned =</b> " + score + ".</pre>";
-            break;
+            if (data.sequence == "*** PARSE ERROR #1: MISSING VALUE") {
+                action.description = "Parse error: hint not logged."
+            } else {
+                conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
+                score = Math.round(1000 * parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0])) / 1000;
+                trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
+                message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
+                level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
+                action.description += "<pre>" + tab4 + "<b>Level " + level + "</b> hint received for <b>" + trait + ".<br>" + tab4 + "Message = </b>" + message + "<br>" + tab4 + "<b>Concept = </b>" + conceptId + ", <b>probability learned =</b> " + score + ".</pre>";
+            }
         case "Allele changed":
             chromosome = action.parameters.chromosome;
             side = action.parameters.side;
@@ -511,34 +514,62 @@ function describeTargetMatchAction(action) {
             }
             break;
         case "Sex changed":
-            (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-            (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-            (action.parameters.newSex == "1" ? action.description += "Changed sex from male to female." : action.description += "Changed sex from female to male.");
-            action.description += "<br>That makes " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
-            (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
-            if (myTry.remediationInProgress) {
-                action.description += "<b>Remediation in progress. Action doesn't count.</b><br>";
-            } else if (action.newTry) {
-                action.description += "This is the start of a new try with the same drake. " + myActivity.tries.length + triesStr + "so far.<br>";
-                break;
+            if (typeof myTry === "undefined") {
+                console.log("myTry.targetMatchMoves is undefined.");
+            } else {
+                (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+                (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+                (action.parameters.newSex == "1" ? action.description += "Changed sex from male to female." : action.description += "Changed sex from female to male.");
+                action.description += "<br>That makes " + myTry.targetMatchMoves + moveStr + " on this challenge so far.<br>";
+                (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
+                if (myTry.remediationInProgress) {
+                    action.description += "<b>Remediation in progress. Action doesn't count.</b><br>";
+                } else if (action.newTry) {
+                    action.description += "This is the start of a new try with the same drake. " + myActivity.tries.length + triesStr + "so far.<br>";
+                    break;
+                }
             }
             break;
         case "Navigated":
             if (typeof myTry == "undefined") {
-                console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
+     //           console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
                 level = parseInt(action.parameters.level) + 1;
                 mission = parseInt(action.parameters.mission) + 1;
-                targetGenotype = action.parameters.targetDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
-                initialGenotype = action.parameters.initialDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
-                //Get rid of that pesky comma and quotation mark at the end
-                tg = targetGenotype.slice(0, targetGenotype.length - 2);
-                ig = initialGenotype.slice(0, initialGenotype.length - 2);
-                targetSexInteger = action.parameters.targetDrake.match(/(?<="sex"=>)([\d])/)[1];
-                initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
-                (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
-                (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
+                if (typeof action.parameters.targetDrake.alleleString != "undefined") { //2020 student
+                    ig = action.parameters.initialDrake.alleleString;
+                    if (typeof action.parameters.initialDrake.secondXAlleles != "undefined") {
+                        initialSex = "female";
+                        initialSexInteger = 1;
+                    } else {
+                        initialSex = "male";
+                        initialSexInteger = 0;
+                    }
+                    tg = action.parameters.targetDrake.alleleString;
+                    if (typeof action.parameters.targetDrake.secondXAlleles != "undefined") {
+                        targetSex = "female";
+                        targetSexInteger = 1;
+                    } else {
+                        targetSex = "male";
+                        targetSexInteger = 0;
+                    }
+                } else {
+                    targetGenotype = action.parameters.targetDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
+                    initialGenotype = action.parameters.initialDrake.match(/(?<="alleleString"=>")([^\s]+)/)[1];
+                    //Get rid of that pesky comma and quotation mark at the end
+                    tg = targetGenotype.slice(0, targetGenotype.length - 2);
+                    ig = initialGenotype.slice(0, initialGenotype.length - 2);
+                    targetSexInteger = action.parameters.targetDrake.match(/(?<="sex"=>)([\d])/)[1];
+                    initialSexInteger = action.parameters.initialDrake.match(/(?<="sex"=>)([\d])/)[1];
+                    (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
+                    (initialSexInteger == "1" ? initialSex = "female" : initialSex = "male");
+                }
+                myTry.targetGenotype = tg;
+                myTry.targetSexInteger = targetSexInteger;
+                myTry.targetSex = targetSex;
+                myTry.initialGenotype = ig;
+                myTry.initialSex = initialSex;
                 action.description += "Level " + level + " mission " + mission + ".<br>Target genotype = " + tg + "<br>Initial genotype = " + ig + "<br>Target sex = " + targetSex + ", initial sex = " + initialSex + ".<br>" + "Minimum moves = " + myTry.minimumTargetMatchMoves + ".<br>";
                 (myActivity.tries.length == 1 ? triesStr = " try " : triesStr = " tries ");
                 action.description += "This is the start of a new try with a new drake. " + myActivity.tries.length + triesStr + "so far.<br>";
@@ -554,22 +585,40 @@ function describeTargetMatchAction(action) {
             break;
         case "Drake submitted":
             if (typeof myTry == "undefined") {
-                console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
+      //          console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
                 target = action.parameters.target;
                 selected = action.parameters.selected;
-                selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
-                targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
-                (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
-                selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
-                (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
-                targetPhenotype = "\'" + target.match(/(?<="phenotype"=>{")([^}]+)/)[1] + "\'";
-                tp = targetPhenotype.match(/(?<="=>")([^"]+)/g);
-                selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
-                sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
-                selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
-                sp = selectedOrg.phenotype.allCharacteristics;
+                if (target.sex === "*** PARSE ERROR #1: MISSING VALUE") {
+                    sg = selected.alleles;
+                    if (selected.alleles.length == 92) {
+                        selectedSex = "male";
+                        selectedSexInteger = 0;
+                    } else {
+                        selectedSex = "female";
+                        selectedSexInteger = 1;
+                    }
+                    selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
+                    sp = selectedOrg.phenotype.allCharacteristics;
+                    targetGenotype = myTry.targetGenotype;
+                    targetSexInteger = myTry.targetSexInteger;
+                    targetSex = myTry.targetSex;
+                    selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, targetGenotype, targetSexInteger);
+                    tp = selectedOrg.phenotype.allCharacteristics;
+                } else {
+                    selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
+                    targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
+                    (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
+                    selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
+                    (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
+                    targetPhenotype = "\'" + target.match(/(?<="phenotype"=>{")([^}]+)/)[1] + "\'";
+                    tp = targetPhenotype.match(/(?<="=>")([^"]+)/g);
+                    selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
+                    sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
+                    selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
+                    sp = selectedOrg.phenotype.allCharacteristics;
+                }
                 let correct = action.parameters.correct;
                 (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
                 (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");

@@ -38,6 +38,71 @@ function openFiles(evt) {
     }
 }
 
+function open2020PrePostFiles(evt) {
+    var fileCount = 0;
+    var files = evt.target.files; // FileList object
+    for (var i = 0, f;
+        (f = files[i]); i++) {
+        var reader = new FileReader();
+        reader.onerror = function (err) {
+            console.log(err);
+        };
+        //closure to capture the file information
+        reader.onloadend = (function (f) {
+            return function (e) {
+                fileCount++;
+                let csvStr = e.target.result;
+                let csvArr = Papa.parse(csvStr);
+                let data = csvArr.data;
+                if (data[0][20] === "Geniventure Pre-Quiz Section") {
+                    testType = "pre";
+                } else if (data[0][20] === "Geniventure Post-Quiz and Survey Section") {
+                    testType = "post";
+                } else {
+                    console.log("Neither pre nor post!");
+                }
+                let header = data[1];
+                let id = "",
+                    questionNum;
+                for (let j = 3; j < data.length; j++) {
+                    dataRow = data[j];
+                    id = dataRow[5];
+                    if (typeof newStudentsObj[id] == "undefined") {
+                        newStudent = new Object;
+                        newStudent.id = id;
+                        newStudent["pre"] = false;
+                        newStudent["post"] = false;
+                    } else { //Student already exists
+                        newStudent = newStudentsObj[id];
+                    }
+                    newStudent[testType] = true;
+                    newStudent[testType + "_total_score"] = 0;
+                    newStudent[testType + "_protein_score"] = 0;
+                    newStudent[testType + "_allele_score"] = 0;
+                    newStudent[testType + "_wrong_score"] = 0;
+                    newStudent[testType + "_date"] = dataRow[13];
+                    for (let i = 17; i < 44; i++) {
+                        questionNum = parseInt(header[i].split(":")[0]);
+                        if (dataRow[i].split(" ")[0] == "(correct)") {
+                            newStudent[testType + "_total_score"]++;
+                            if ((questionNum >= 19) && (questionNum <= 24)) {
+                                newStudent[testType + "_protein_score"]++;
+                            } else {
+                                newStudent[testType + "_allele_score"]++;
+                            }
+                        } else {
+                            newStudent[testType + "_wrong_score"]++;
+                        }
+                    }
+                    newStudentsObj[id] = newStudent;
+                    newStudentsArr.push(newStudent);
+                }
+            }
+        })(f);
+        reader.readAsText(f);
+    }
+}
+
 function openPrePostFiles(evt) {
     var fileCount = 0;
     var files = evt.target.files; // FileList object
@@ -214,6 +279,74 @@ function makeTargetMatchChallengesFile() {
                 } //New challenge
                 if (chalFound) {
                     tableStr += testStr + ',' + totalScore;
+                }
+            } else {
+                //console.log("No pre-post info for student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + ".");
+            }
+        } else {
+            //console.log("Student " + n.id + " of teacher " + s.teacher.id + " in class " + s.class.id + " did not do the pre- and post-tests.");
+        }
+    } //New student
+    let fileName = prompt('Enter file name') + '_challenge_scores';
+    saveData()(tableStr, fileName);
+}
+
+//Create a csv table that reports on the differences between proficiency scores each student got on the first and last target match challenges in each category. Aimed at detecting learning.
+function makeChallengeDiffsFile() {
+    let totalScore = 0,
+        head = '',
+        tableStr,
+        testStr,
+        totalDiffs,
+        chalFound;
+    head = 'Teacher,Class,Student,Pre-total,Pre-allele,Pre-protein,Post-total,Post-allele,Post-protein,Gain-total,Gain-allele,Gain-protein,simpleDomVisible,simpleDomHidden,armorHornsVisible,armorHornsHidden,simpleColorVisible,simpleColorHidden,harderTraitsVisible,harderTraitsHidden,Total diffs';
+    tableStr = head;
+    for (s of students) {
+        n = newStudentsObj[s.id];
+        if (typeof n != "undefined") {
+            if (n.pre && n.post) {
+                diff = [];
+                testStr = '\n'
+                testStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_total_score + ',' + n.pre_allele_score + ',' + n.pre_protein_score + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score + ',' + (n.post_total_score - n.pre_total_score) + ',' + (n.post_allele_score - n.pre_allele_score) + ',' + (n.post_protein_score - n.pre_protein_score));
+                totalScore = 0;
+                chalFound = true;
+                c = new Object();
+                //We don't want to include students who have not completed all the target match challenges so we populate a test string and only add that to the table if all the challenges are there. So the first time a challenge is missing we set chalFound false and don't reset it until we move to another student.
+                for (name of targetMatchArray) {
+                    chal = s.activitiesByName[name]
+                    if (typeof chal === "undefined") {
+                        chalFound = false;
+                    } else {
+                        c[chal.name] = chal;
+                    }
+                }
+                if (chalFound) {
+                    try {
+                        diff.push(c["allele-targetMatch-visible-simpleDom2"].score[0] - c["allele-targetMatch-visible-simpleDom"].score[0]);
+
+                        diff.push(c["allele-targetMatch-hidden-simpleDom2"].score[0] - c["allele-targetMatch-hidden-simpleDom"].score[0]);
+
+                        diff.push(c["allele-targetMatch-visible-armorHorns3"].score[0] - c["allele-targetMatch-visible-armorHorns"].score[0]);
+
+                        diff.push(c["allele-targetMatch-hidden-armorHorns3"].score[0] - c["allele-targetMatch-hidden-armorHorns"].score[0]);
+
+                        diff.push(c["allele-targetMatch-visible-simpleColors5"].score[0] - c["allele-targetMatch-visible-simpleColors"].score[0])
+
+                        diff.push(c["allele-targetMatch-hidden-simpleColors3"].score[0] - c["allele-targetMatch-hidden-simpleColors"].score[0]);
+
+                        diff.push(c["allele-targetMatch-visible-harderTraits2"].score[0] - c["allele-targetMatch-visible-harderTraits"].score[0])
+
+                        diff.push(c["allele-targetMatch-hidden-harderTraits2"].score[0] - c["allele-targetMatch-hidden-harderTraits"].score[0]);
+                    } catch (err) {
+                        console.log(err);
+                    }
+                    tableStr += testStr;
+                    totalDiffs = 0;
+                    for (d of diff) {
+                        tableStr += "," + d;
+                        totalDiffs += d;
+                    }
+                    tableStr += "," + totalDiffs;
                 }
             } else {
                 //console.log("No pre-post info for student " + s.id + " of teacher " + s.teacher.id + " in class " + s.class.id + ".");
