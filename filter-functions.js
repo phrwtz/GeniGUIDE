@@ -22,7 +22,7 @@ function pruneData(teacher) { //Loop over all the classes for teacher, eliminati
                 myStudent = myClass.studentsObj[myStudentId];
                 myActivityIds = Object.keys(myStudent.activitiesObj);
                 if (myActivityIds.length < 2) {
-                    console.log("Student " + myStudentId + " has fewer than two activities and is being eliminated");
+        //            console.log("Student " + myStudentId + " has fewer than two activities and is being eliminated");
                     delete teacher.studentsObj[myStudentId];
                     delete myClass.studentsObj[myStudentId];
                     myClass.studentIds = Object.keys(myClass.studentsObj);

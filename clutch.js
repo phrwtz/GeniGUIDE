@@ -133,8 +133,13 @@ function describeClutchAction(action) {
             }
             break;
         case "Guide hint received":
-            if (action.parameters.data.sequence === "*** PARSE ERROR #1: MISSING VALUE") {
-                description = "*** PARSE ERROR #1: MISSING VALUE";
+            if (action.parameters.data.sequence) {
+                data = action.parameters.data;
+                conceptId = data.context.conceptId;
+                score = Math.round(1000 * parseFloat(data.context.conceptScore)) / 1000;
+                trait = data.context.attribute;
+                message = data.context.hintDialog;
+                hintLevel = data.context.hintLevel;
             } else {
                 data = action.parameters.data;
                 conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
@@ -142,11 +147,8 @@ function describeClutchAction(action) {
                 trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
                 message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
                 hintLevel = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
-                if (hintLevel != 1) {
-                    //            console.log("Hint level for clutch challenge = " + hintLevel);
-                }
-                description = "Level " + hintLevel + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";
             }
+            description = "Level " + hintLevel + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";    
             break;
         case "Drake submitted":
             var correct = (action.parameters.correct === "true");

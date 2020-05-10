@@ -117,11 +117,11 @@ function scoreChallenge(challenge) {
     //Rows are tries (if blue obtained before the end, later tries don't count), columns are crystal values (0 => no crystal – hard to do, must navigate to next challenge!)
     // proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal];
     const proficiencyScoreArray = [
-        [0, 0, 1, 3, 5], //1 try for blue
-        [0, 0, 0, 2, 4], //2 tries for yellow
-        [0, 0, 0, 1, 3], //3 tries for red
-        [0, 0, 0, 0, 1], //4 tries for black
-        [0, 0, 0, 0, 0] //5 tries for none
+        [1, 2, 3, 4, 5], //1 try for blue
+        [0, 1, 2, 3, 4], //2 tries for yellow
+        [0, 0, 1, 2, 3], //3 tries for red
+        [0, 0, 0, 1, 2], //4 tries for black
+        [0, 0, 0, 0, 1] //5 tries for none
         //no, black, red, yellow, blue crystal
     ];
     const engagementScoreArray = [
@@ -484,8 +484,12 @@ function describeTargetMatchAction(action) {
     switch (action.event) {
         case "Guide hint received":
             data = action.parameters.data;
-            if (data.sequence == "*** PARSE ERROR #1: MISSING VALUE") {
-                action.description = "Parse error: hint not logged."
+            if (data.sequence) {
+                conceptId = data.context.conceptId;
+                score = Math.round(1000 * parseFloat(data.context.conceptScore)) / 1000;
+                trait = data.context.attribute;
+                message = data.context.hintDialog;
+                hintLevel = data.context.hintLevel;
             } else {
                 conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
                 score = Math.round(1000 * parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0])) / 1000;
@@ -590,7 +594,7 @@ function describeTargetMatchAction(action) {
             } else {
                 target = action.parameters.target;
                 selected = action.parameters.selected;
-                if (target.sex === "*** PARSE ERROR #1: MISSING VALUE") {
+                if (typeof (target.sex) != "undefined") {
                     sg = selected.alleles;
                     if (selected.alleles.length == 92) {
                         selectedSex = "male";

@@ -301,7 +301,7 @@ function parseJSON(myTeacher) {
                                 myStudent.probsArray.push(myProbs); //and push them to the student's array of probs
                             }
                         } catch (err) {
-                            console.log("Problem with getProbs. Error = " + err);
+           //                 console.log("Problem with getProbs. Error = " + err);
                         }
                     } else if (myStudent.probsArray.length > 0) { //If the event is not a data update and the student's probs array is not empty then the action inherits its probs as the last element in the student's probs array
                         myRow.probs = myStudent.probsArray[myStudent.probsArray.length - 1];
