@@ -116,6 +116,10 @@ function describeClutchAction(action) {
         message,
         description = "";
     switch (action.event) {
+        case "Guide remediation requested":
+            clutchRemediations++;
+       //     console.log(`Clutch remediation observed. ${clutchRemediations} so far.`)
+            break;
         case "Navigated":
             var level = parseInt(action.parameters.level) + 1,
                 mission = parseInt(action.parameters.mission) + 1,
@@ -133,13 +137,17 @@ function describeClutchAction(action) {
             }
             break;
         case "Guide hint received":
+            desription = "Parse error!";
             if (action.parameters.data.sequence) {
-                data = action.parameters.data;
-                conceptId = data.context.conceptId;
-                score = Math.round(1000 * parseFloat(data.context.conceptScore)) / 1000;
-                trait = data.context.attribute;
-                message = data.context.hintDialog;
-                hintLevel = data.context.hintLevel;
+                if (action.parameters.data.sequence !== "*** PARSE ERROR #1: MISSING VALUE") {
+                    data = action.parameters.data;
+                    conceptId = data.context.conceptId;
+                    score = Math.round(1000 * parseFloat(data.context.conceptScore)) / 1000;
+                    trait = data.context.attribute;
+                    message = data.context.hintDialog;
+                    hintLevel = data.context.hintLevel;
+                    description = "Level " + hintLevel + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";
+                }
             } else {
                 data = action.parameters.data;
                 conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
@@ -147,13 +155,17 @@ function describeClutchAction(action) {
                 trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
                 message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
                 hintLevel = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
-            }
-            description = "Level " + hintLevel + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";    
+                description = "Level " + hintLevel + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";
+            }  
             break;
         case "Drake submitted":
+            var femaleAlleles = action.parameters.selected.femaleAlleles;
+            var maleAlleles = action.parameters.selected.maleAlleles;
+            var offspringAlleles = action.parameters.selected.offspringAlleles;
+            var offspringSex = action.parameters.selected.offspringSex;
             var correct = (action.parameters.correct === "true");
             var correctStr = (correct ? "Correct" : "Wrong");
-            description = correctStr + " drake submitted after " + action.alleleChanges + " allele changes.";
+            description = `${correctStr} ${offspringSex} drake submitted after ${action.alleleChanges}  allele changes.`;
             break;
         case "Allele changed":
             var side = action.parameters.side,

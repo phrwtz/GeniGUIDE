@@ -80,6 +80,7 @@ function open2020PrePostFiles(evt) {
                     newStudent[testType + "_protein_score"] = 0;
                     newStudent[testType + "_allele_score"] = 0;
                     newStudent[testType + "_wrong_score"] = 0;
+                    newStudent[testType + "_not_answered"] = 0;
                     newStudent[testType + "_date"] = dataRow[13];
                     for (let i = 17; i < 44; i++) {
                         questionNum = parseInt(header[i].split(":")[0]);
@@ -90,8 +91,10 @@ function open2020PrePostFiles(evt) {
                             } else {
                                 newStudent[testType + "_allele_score"]++;
                             }
-                        } else {
+                        } else if (dataRow[i].split(" ")[0] == "(wrong)") {
                             newStudent[testType + "_wrong_score"]++;
+                        } else if (dataRow[i].split(" ")[0] == "not answered") {
+                            newStudent[testType + "_not_answered"]++;
                         }
                     }
                     newStudentsObj[id] = newStudent;
@@ -262,7 +265,7 @@ function makeTargetMatchChallengesFile() {
     for (s of students) {
         n = newStudentsObj[s.id];
         if (typeof n != "undefined") {
-            if (n.pre && n.post) {
+            if (n.pre && n.post && (n.pre_not_answered < 15) && (n.post_not_answered < 15)) {
                 testStr = '\n'
                 testStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_total_score + ',' + n.pre_allele_score + ',' + n.pre_protein_score + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score + ',' + (n.post_total_score - n.pre_total_score) + ',' + (n.post_allele_score - n.pre_allele_score) + ',' + (n.post_protein_score - n.pre_protein_score));
                 totalScore = 0;

@@ -1,4 +1,5 @@
 // Global variables
+var clutchRemediations = 0; //temporary use
 var teachersArray = []; //filled by openFiles function when files are read.
 var teacherIds = [];
 var ppStudents = []; //An array of student objects with ids and pre and post scores (obtained from Danielle's file). Note: not all students are contained in this array).

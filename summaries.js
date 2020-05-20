@@ -249,19 +249,27 @@ function addHintRow(myTeacher) {
 function parseHint(row) {
     var hint = new Object();
     var data = row.parameters.data;
-    if (data.sequence) {
-        conceptId = data.context.conceptId;
-        score = Math.round(1000 * parseFloat(data.context.conceptScore)) / 1000;
-        trait = data.context.attribute;
-        message = data.context.hintDialog;
-        hintLevel = data.context.hintLevel;
-    } else {
-        hint.conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
-        hint.score = parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0]);
-        hint.activity = data.match(/(?<="challengeId"=>")([^"]+)/g)[0];
-        hint.trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
-        hint.dialog = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
-        hint.level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
-        return hint;
+    try {
+        if (data.sequence) {
+            if (data.sequence != "*** PARSE ERROR #1: MISSING VALUE") {
+                conceptId = data.context.conceptId;
+                score = Math.round(1000 * parseFloat(data.context.conceptScore)) / 1000;
+                trait = data.context.attribute;
+                message = data.context.hintDialog;
+                hintLevel = data.context.hintLevel;
+            } else {
+      //          console.log(`Parse error. Student: ${row.student.id},of teacher: ${row.student.teacher.id}, action: ${row.index}.`);
+            }
+        } else {
+            hint.conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
+            hint.score = parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0]);
+            hint.activity = data.match(/(?<="challengeId"=>")([^"]+)/g)[0];
+            hint.trait = data.match(/(?<="attribute"=>")([^"]+)/g)[0];
+            hint.dialog = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
+            hint.level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
+            return hint;
+        }
+    } catch (err) {
+        console.log(err);
     }
 }

@@ -114,14 +114,15 @@ function averageChallengeScores(student) {
 
 //Score <challenge>. Return an array for proficiency and engagement.
 function scoreChallenge(challenge) {
-    //Rows are tries (if blue obtained before the end, later tries don't count), columns are crystal values (0 => no crystal – hard to do, must navigate to next challenge!)
-    // proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal];
+    /*Rows are tries (if blue obtained before the end, later tries don't count). Columns are crystal values (0 => no crystal)
+    proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal];
+    */
     const proficiencyScoreArray = [
-        [1, 2, 3, 4, 5], //1 try for blue
-        [0, 1, 2, 3, 4], //2 tries for yellow
-        [0, 0, 1, 2, 3], //3 tries for red
-        [0, 0, 0, 1, 2], //4 tries for black
-        [0, 0, 0, 0, 1] //5 tries for none
+        [0, 0, 1, 3, 5], //tries for blue
+        [0, 0, 0, 2, 4], //tries for yellow
+        [0, 0, 0, 1, 3], //tries for red
+        [0, 0, 0, 0, 2], //tries for black
+        [0, 0, 0, 0, 0] //tries for none
         //no, black, red, yellow, blue crystal
     ];
     const engagementScoreArray = [
@@ -277,10 +278,14 @@ function updateTargetMatchChallenge(chal) {
             outcomesStr += myTry.outcome + "-";
             chal.outcomesArr.push(myTry.outcome);
         }
-        chal.outcomesStr = outcomesStr.slice(0, outcomesStr.length - 1);
-        chal.category = categorizeChallenge(chal);
-        chal.score = scoreChallenge(chal);
-        return [chal.noSubmissionOver, chal.noSubmissionZero, chal.noSubmissionUnder, chal.badSubmission, chal.blackSubmission, chal.redSubmission, chal.yellowSubmission, chal.blueSubmission];
+        try {
+            chal.outcomesStr = outcomesStr.slice(0, outcomesStr.length - 1);
+            chal.category = categorizeChallenge(chal);
+            chal.score = scoreChallenge(chal);
+            return [chal.noSubmissionOver, chal.noSubmissionZero, chal.noSubmissionUnder, chal.badSubmission, chal.blackSubmission, chal.redSubmission, chal.yellowSubmission, chal.blueSubmission];
+        } catch (e) {
+            console.log(e);
+        }
     }
 }
 
@@ -485,11 +490,15 @@ function describeTargetMatchAction(action) {
         case "Guide hint received":
             data = action.parameters.data;
             if (data.sequence) {
-                conceptId = data.context.conceptId;
-                score = Math.round(1000 * parseFloat(data.context.conceptScore)) / 1000;
-                trait = data.context.attribute;
-                message = data.context.hintDialog;
-                hintLevel = data.context.hintLevel;
+                if (data.sequence != "*** PARSE ERROR #1: MISSING VALUE") {
+                    conceptId = data.context.conceptId;
+                    score = Math.round(1000 * parseFloat(data.context.conceptScore)) / 1000;
+                    trait = data.context.attribute;
+                    message = data.context.hintDialog;
+                    hintLevel = data.context.hintLevel;
+                } else {
+         //           console.log(`Parse error. Student: ${action.student.id},of teacher: ${action.student.teacher.id}, action: ${action.index}.`);
+                }
             } else {
                 conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
                 score = Math.round(1000 * parseFloat(data.match(/(?<="conceptScore"=>)([\d|.]+)/g)[0])) / 1000;
@@ -498,6 +507,7 @@ function describeTargetMatchAction(action) {
                 level = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
                 action.description += "<pre>" + tab4 + "<b>Level " + level + "</b> hint received for <b>" + trait + ".<br>" + tab4 + "Message = </b>" + message + "<br>" + tab4 + "<b>Concept = </b>" + conceptId + ", <b>probability learned =</b> " + score + ".</pre>";
             }
+            break;
         case "Allele changed":
             chromosome = action.parameters.chromosome;
             side = action.parameters.side;
@@ -536,7 +546,7 @@ function describeTargetMatchAction(action) {
             break;
         case "Navigated":
             if (typeof myTry == "undefined") {
-     //           console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
+                //           console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
                 level = parseInt(action.parameters.level) + 1;
@@ -589,7 +599,7 @@ function describeTargetMatchAction(action) {
             break;
         case "Drake submitted":
             if (typeof myTry == "undefined") {
-      //          console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
+                //          console.log("No try defined for student " + action.student.id + " of teacher " + action.student.teacher.id + ", on action number " + action.index + " in challenge " + action.activity + ". The event is " + action.event);
                 action.description = "No try defined for this action."
             } else {
                 target = action.parameters.target;
