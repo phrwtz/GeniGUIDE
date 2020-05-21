@@ -100,6 +100,7 @@ function open2020PrePostFiles(evt) {
                     newStudentsObj[id] = newStudent;
                     newStudentsArr.push(newStudent);
                 }
+                console.log(`File ${f.name} has finished loading. ${fileCount} files out of ${files.length} loaded so far.`);
             }
         })(f);
         reader.readAsText(f);
@@ -249,7 +250,7 @@ function savePPStudentsFile(ppStudentsArr) {
     saveData()(tblStr, fileName);
 }
 
-//Create a csv table that reports on the proficiency score each student got on the target match challenges.
+//Create a csv table that reports on the proficiency score each student got on the target match challenges and compares them to the pre- and post-test scores and gains.
 function makeTargetMatchChallengesFile() {
     let totalScore = 0,
         head = '',
@@ -291,6 +292,49 @@ function makeTargetMatchChallengesFile() {
         }
     } //New student
     let fileName = prompt('Enter file name') + '_challenge_scores';
+    saveData()(tableStr, fileName);
+}
+
+//Create a csv table that reports on the proficiency score each student got on the target match challenges and keeps track of just the post-test score.
+function makePostTestOnlyChallengesFile() {
+    let totalScore = 0,
+        head = '',
+        tableStr,
+        testStr,
+        chalFound;
+    head = 'Teacher,Class,Student,Post-total, Post-allele, Post-protein';
+    for (name of targetMatchArray) {
+        head += ',' + name;
+    }
+    head += ", Total score";
+    tableStr = head;
+    for (s of students) {
+        n = newStudentsObj[s.id];
+        if (typeof n != "undefined") {
+            if (n.post && (n.post_not_answered < 15)) {
+                testStr = '\n'
+                testStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score);
+                totalScore = 0;
+                chalFound = true;
+                //We don't want to include students who have not completed all the target match challenges so we populate a test string and only add that to the table if all the challenges are there. So the first time a challenge is missing we set chalFound false and don't reset it until we move to another student.
+                for (name of targetMatchArray) {
+                    chal = s.activitiesByName[name]
+                    if (typeof chal === "undefined") {
+                        chalFound = false;
+                    } else {
+                        testStr += ',' + chal.score[0];
+                        totalScore += chal.score[0];
+                    }
+                } //New challenge
+                if (chalFound) {
+                    tableStr += testStr + ',' + totalScore;
+                }
+            } else {
+            }
+        } else {
+        }
+    } //New student
+    let fileName = prompt('Enter file name') + 'post_and_challenge_scores';
     saveData()(tableStr, fileName);
 }
 
