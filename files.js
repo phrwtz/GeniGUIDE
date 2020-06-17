@@ -38,7 +38,7 @@ function openFiles(evt) {
     }
 }
 
-function open2020PrePostFiles(evt) {
+function openNCSUPrePostFiles(evt) {
     var fileCount = 0;
     var files = evt.target.files; // FileList object
     for (var i = 0, f;
@@ -51,61 +51,77 @@ function open2020PrePostFiles(evt) {
         reader.onloadend = (function (f) {
             return function (e) {
                 fileCount++;
+                let ppStudentsArr = [];
                 let csvStr = e.target.result;
                 let csvArr = Papa.parse(csvStr);
                 let data = csvArr.data;
-                if (data[0][20] === "Geniventure Pre-Quiz Section") {
-                    testType = "pre";
-                } else if (data[0][20] === "Geniventure Post-Quiz and Survey Section") {
-                    testType = "post";
-                } else {
-                    console.log("Neither pre nor post!");
-                }
-                let header = data[1];
-                let id = "",
-                    questionNum;
-                for (let j = 3; j < data.length; j++) {
-                    dataRow = data[j];
-                    id = dataRow[5];
-                    if (typeof newStudentsObj[id] == "undefined") {
-                        newStudent = new Object;
-                        newStudent.id = id;
-                        newStudent["pre"] = false;
-                        newStudent["post"] = false;
-                    } else { //Student already exists
-                        newStudent = newStudentsObj[id];
-                    }
-                    newStudent[testType] = true;
-                    newStudent[testType + "_total_score"] = 0;
-                    newStudent[testType + "_protein_score"] = 0;
-                    newStudent[testType + "_allele_score"] = 0;
-                    newStudent[testType + "_wrong_score"] = 0;
-                    newStudent[testType + "_not_answered"] = 0;
-                    newStudent[testType + "_date"] = dataRow[13];
-                    for (let i = 17; i < 44; i++) {
-                        questionNum = parseInt(header[i].split(":")[0]);
-                        if (dataRow[i].split(" ")[0] == "(correct)") {
-                            newStudent[testType + "_total_score"]++;
-                            if ((questionNum >= 19) && (questionNum <= 24)) {
-                                newStudent[testType + "_protein_score"]++;
+                let header = data[0];
+                for (let i = 1; i < data.length; i++) {
+                    newStudent = new Object();
+                    for (let j = 0; j < header.length; j++) {
+                        newStudent[header[j]] = data[i][j]
+                    };
+                    newStudent.id = newStudent["userID"];
+                    newStudent["pre"] = false;
+                    newStudent["post"] = false;
+                    newStudent["pre_total_score"] = 0;
+                    newStudent["pre_protein_score"] = 0;
+                    newStudent["pre_allele_score"] = 0;
+                    newStudent["pre_wrong_score"] = 0;
+                    newStudent["pre_not_answered"] = 0;
+
+                    newStudent["post_total_score"] = 0;
+                    newStudent["post_protein_score"] = 0;
+                    newStudent["post_allele_score"] = 0;
+                    newStudent["post_wrong_score"] = 0;
+                    newStudent["post_not_answered"] = 0;
+
+                    for (let k = 1; k < 28; k++) {
+                        newStudent.pre = (Boolean(newStudent.pre_score));
+                        newStudent.post = (Boolean(newStudent.post_score));
+                        let preQuestion = newStudent["pre_" + k];
+                        let postQuestion = newStudent["post_" + k];
+                        if (preQuestion === 'not answered') {
+                            newStudent.pre_not_answered++
+                        } else if (preQuestion.split(" ")[0] === "(correct)") {
+                            newStudent.pre_total_score++
+                            if ((k < 25) && (k > 18)) {
+                                newStudent.pre_protein_score++;
                             } else {
-                                newStudent[testType + "_allele_score"]++;
+                                newStudent.pre_allele_score++
                             }
-                        } else if (dataRow[i].split(" ")[0] == "(wrong)") {
-                            newStudent[testType + "_wrong_score"]++;
-                        } else if (dataRow[i].split(" ")[0] == "not answered") {
-                            newStudent[testType + "_not_answered"]++;
+                        } else {
+                            newStudent.pre_wrong_score++
+                        }
+
+                        if (postQuestion === 'not answered') {
+                            newStudent.post_not_answered++
+                        } else if (postQuestion.split(" ")[0] === "(correct)") {
+                            newStudent.post_total_score++
+                            if ((k < 25) && (k > 18)) {
+                                newStudent.post_protein_score++;
+                            } else {
+                                newStudent.post_allele_score++
+                            }
+                        } else {
+                            newStudent.post_wrong_score++
                         }
                     }
-                    newStudentsObj[id] = newStudent;
+                    if (Math.abs(newStudent.pre_score - newStudent.total_pre_score) > 1) {
+                    console.log(`Student ${newStudent.id} has an anomalous pre-score.`);
+                    }
+                    if (Math.abs(newStudent.post_score - newStudent.total_post_score) > 1) {
+                    console.log(`Student ${newStudent.id} has an anomalous post-score.`);
+                    } 
+                    newStudentsObj[newStudent.id] = newStudent;
                     newStudentsArr.push(newStudent);
                 }
-                console.log(`File ${f.name} has finished loading. ${fileCount} files out of ${files.length} loaded so far.`);
             }
         })(f);
         reader.readAsText(f);
     }
-}
+};
+
 
 function openPrePostFiles(evt) {
     var fileCount = 0;
@@ -148,6 +164,7 @@ function openPrePostFiles(evt) {
                     newStudent[testType + "_protein_score"] = 0;
                     newStudent[testType + "_allele_score"] = 0;
                     newStudent[testType + "_wrong_score"] = 0;
+                    newStudent[testType + "_not_answered"] = 0;
                     newStudent[testType + "_date"] = dataRow[13];
                     for (let i = 15; i < 42; i++) {
                         questionNum = parseInt(header[i].split(":")[0]);
@@ -158,6 +175,8 @@ function openPrePostFiles(evt) {
                             } else {
                                 newStudent[testType + "_allele_score"]++;
                             }
+                        } else if (dataRow[i] == "not answered") {
+                            newStudent[testType + "_not_answered"]++
                         } else {
                             newStudent[testType + "_wrong_score"]++;
                         }
@@ -165,11 +184,12 @@ function openPrePostFiles(evt) {
                     newStudentsObj[id] = newStudent;
                     newStudentsArr.push(newStudent);
                 }
+                console.log(`File ${f.name} has finished loading. ${fileCount} files out of ${files.length} loaded so far.`);
             }
         })(f);
         reader.readAsText(f);
     }
-}
+};
 
 function countNewStudents() {
     let countPre = 0;
@@ -266,7 +286,7 @@ function makeTargetMatchChallengesFile() {
     for (s of students) {
         n = newStudentsObj[s.id];
         if (typeof n != "undefined") {
-            if (n.pre && n.post && (n.pre_not_answered < 15) && (n.post_not_answered < 15)) {
+            if (n.pre && n.post && (n.pre_not_answered < 5) && (n.post_not_answered < 5)) {
                 testStr = '\n'
                 testStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n.pre_total_score + ',' + n.pre_allele_score + ',' + n.pre_protein_score + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score + ',' + (n.post_total_score - n.pre_total_score) + ',' + (n.post_allele_score - n.pre_allele_score) + ',' + (n.post_protein_score - n.pre_protein_score));
                 totalScore = 0;
@@ -329,10 +349,8 @@ function makePostTestOnlyChallengesFile() {
                 if (chalFound) {
                     tableStr += testStr + ',' + totalScore;
                 }
-            } else {
-            }
-        } else {
-        }
+            } else {}
+        } else {}
     } //New student
     let fileName = prompt('Enter file name') + 'post_and_challenge_scores';
     saveData()(tableStr, fileName);

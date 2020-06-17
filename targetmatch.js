@@ -604,7 +604,7 @@ function describeTargetMatchAction(action) {
             } else {
                 target = action.parameters.target;
                 selected = action.parameters.selected;
-                if (typeof (target.sex) != "undefined") {
+                if ((typeof (target.sex) != "undefined") && (typeof (target) != "undefined")) {
                     sg = selected.alleles;
                     if (selected.alleles.length == 92) {
                         selectedSex = "male";
