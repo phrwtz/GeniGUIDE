@@ -14,7 +14,8 @@ const clutchArray = [
     "test-cross-3",
     "test-cross-nosespike-dilute-tail-1",
     "test-cross-nosespike-dilute-tail-2",
-    "test-cross-nosespike-dilute-tail-3"];
+    "test-cross-nosespike-dilute-tail-3"
+];
 
 //Populate a specific clutch challenge for a specific student with an array of outcomes of all the tries on that challenge.
 
@@ -118,7 +119,7 @@ function describeClutchAction(action) {
     switch (action.event) {
         case "Guide remediation requested":
             clutchRemediations++;
-       //     console.log(`Clutch remediation observed. ${clutchRemediations} so far.`)
+            //     console.log(`Clutch remediation observed. ${clutchRemediations} so far.`)
             break;
         case "Navigated":
             var level = parseInt(action.parameters.level) + 1,
@@ -156,16 +157,17 @@ function describeClutchAction(action) {
                 message = data.match(/(?<="hintDialog"=>")([^"]+)/g)[0];
                 hintLevel = parseInt(data.match(/(?<="hintLevel"=>)([\d])/g)[0]);
                 description = "Level " + hintLevel + " hint received for  " + trait + ".<br>Message = " + message + "<br>Concept = " + conceptId + ", probability learned = " + score + ".";
-            }  
+            }
             break;
         case "Drake submitted":
-            var femaleAlleles = action.parameters.selected.femaleAlleles;
+            /* var femaleAlleles = action.parameters.selected.femaleAlleles;
             var maleAlleles = action.parameters.selected.maleAlleles;
-            var offspringAlleles = action.parameters.selected.offspringAlleles;
+            var offspringAlleles = action.parameters.selected.offspringAlleles; 
             var offspringSex = action.parameters.selected.offspringSex;
+            */
             var correct = (action.parameters.correct === "true");
             var correctStr = (correct ? "Correct" : "Wrong");
-            description = `${correctStr} ${offspringSex} drake submitted after ${action.alleleChanges}  allele changes.`;
+            description = `${correctStr} drake submitted after ${action.alleleChanges}  allele changes.`;
             break;
         case "Allele changed":
             var side = action.parameters.side,

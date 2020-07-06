@@ -61,13 +61,8 @@
     </style>
 
     <h2>Parse Geniventure JSON log files</h2>
-    <div id="newFiles" style="display:none">
-        Input new pre-post files
-        <input type="file" multiple onchange="openNewPrePostFiles(event)"> <br><br>
-        </input>
-    </div>
     <div id="JSONfiles" style="display:block">
-        Input Teachers files
+        Input log files
         <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
         </input>
     </div>
@@ -75,10 +70,10 @@
         Analyze
     </button>
     <div id="CSVfile" style="display:block">
-        Input Students files
-        <input type="file" id="csvInput" multiple onchange="openPrePostFiles(event)"> <br><br>
-        Input 2020 Students files from NCSU
-        <input type="file" id="csvInput" multiple onchange="openNCSUPrePostFiles(event)"> <br><br>
+        Input 2019 pre-post scores
+        <input type="file" id="csvInput" multiple onchange="open2019PrePostFiles(event)"> <br><br>
+        Input 2020 pre-post scores
+        <input type="file" id="csvInput" multiple onchange="open2020PrePostFiles(event)"> <br><br>
     </div>
     <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
         challenge file

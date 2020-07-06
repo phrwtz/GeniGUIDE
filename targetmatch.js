@@ -497,7 +497,7 @@ function describeTargetMatchAction(action) {
                     message = data.context.hintDialog;
                     hintLevel = data.context.hintLevel;
                 } else {
-         //           console.log(`Parse error. Student: ${action.student.id},of teacher: ${action.student.teacher.id}, action: ${action.index}.`);
+                    //           console.log(`Parse error. Student: ${action.student.id},of teacher: ${action.student.teacher.id}, action: ${action.index}.`);
                 }
             } else {
                 conceptId = data.match(/(?<="conceptId"=>")([^"]+)/g)[0];
@@ -604,41 +604,43 @@ function describeTargetMatchAction(action) {
             } else {
                 target = action.parameters.target;
                 selected = action.parameters.selected;
-                if ((typeof (target.sex) != "undefined") && (typeof (target) != "undefined")) {
-                    sg = selected.alleles;
-                    if (selected.alleles.length == 92) {
-                        selectedSex = "male";
-                        selectedSexInteger = 0;
+                if (typeof (target) != "undefined") {
+                    if (typeof (target.sex) != "undefined") {
+                        sg = selected.alleles;
+                        if (selected.alleles.length == 92) {
+                            selectedSex = "male";
+                            selectedSexInteger = 0;
+                        } else {
+                            selectedSex = "female";
+                            selectedSexInteger = 1;
+                        }
+                        selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
+                        sp = selectedOrg.phenotype.allCharacteristics;
+                        targetGenotype = myTry.targetGenotype;
+                        targetSexInteger = myTry.targetSexInteger;
+                        targetSex = myTry.targetSex;
+                        selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, targetGenotype, targetSexInteger);
+                        tp = selectedOrg.phenotype.allCharacteristics;
                     } else {
-                        selectedSex = "female";
-                        selectedSexInteger = 1;
+                        selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
+                        targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
+                        (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
+                        selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
+                        (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
+                        targetPhenotype = "\'" + target.match(/(?<="phenotype"=>{")([^}]+)/)[1] + "\'";
+                        tp = targetPhenotype.match(/(?<="=>")([^"]+)/g);
+                        selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
+                        sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
+                        selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
+                        sp = selectedOrg.phenotype.allCharacteristics;
                     }
-                    selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
-                    sp = selectedOrg.phenotype.allCharacteristics;
-                    targetGenotype = myTry.targetGenotype;
-                    targetSexInteger = myTry.targetSexInteger;
-                    targetSex = myTry.targetSex;
-                    selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, targetGenotype, targetSexInteger);
-                    tp = selectedOrg.phenotype.allCharacteristics;
-                } else {
-                    selectedGenotype = selected.match(/(?<=alleles"=>")([^"]+)/)[1];
-                    targetSexInteger = target.match(/(?<="sex"=>)([\d])/)[1];
-                    (targetSexInteger == "1" ? targetSex = "female" : targetSex = "male");
-                    selectedSexInteger = parseInt(selected.match(/(?<="sex"=>)([\d])/)[1]);
-                    (selectedSexInteger == "1" ? selectedSex = "female" : selectedSex = "male");
-                    targetPhenotype = "\'" + target.match(/(?<="phenotype"=>{")([^}]+)/)[1] + "\'";
-                    tp = targetPhenotype.match(/(?<="=>")([^"]+)/g);
-                    selectedGenotype = selected.match(/(?<="alleles"=>")([^\s]+)/)[1];
-                    sg = selectedGenotype.slice(0, selectedGenotype.length - 2);
-                    selectedOrg = new BioLogica.Organism(BioLogica.Species.Drake, sg, selectedSexInteger);
-                    sp = selectedOrg.phenotype.allCharacteristics;
-                }
-                let correct = action.parameters.correct;
-                (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
-                (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
-                action.description += "Target phenotype = " + tp + "<br>Selected phenotype = " + sp + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + myTry.targetMatchMoves + moveStr + "  taken. The minimum was " + myTry.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + myTry.crystalIndex + ".<br>";
-                if (myTry.remediationInProgress) {
-                    action.description += "<b>Remediation in progress. Crystal index doesn't count.</b><br>";
+                    let correct = action.parameters.correct;
+                    (correct == "true" ? correctStr = "<b>good</b>" : correctStr = "<b>bad</b>");
+                    (myTry.targetMatchMoves == 1 ? moveStr = " move" : moveStr = " moves");
+                    action.description += "Target phenotype = " + tp + "<br>Selected phenotype = " + sp + "<br>Selected genotype = " + sg + "<br>Target sex = " + targetSex + ", selected sex = " + selectedSex + "<br>" + myTry.targetMatchMoves + moveStr + "  taken. The minimum was " + myTry.minimumTargetMatchMoves + "<br>The submission is " + correctStr + ". The crystal index is " + myTry.crystalIndex + ".<br>";
+                    if (myTry.remediationInProgress) {
+                        action.description += "<b>Remediation in progress. Crystal index doesn't count.</b><br>";
+                    }
                 }
             }
             break;
