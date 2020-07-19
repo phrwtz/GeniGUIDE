@@ -150,7 +150,7 @@ function openPrePostFiles(evt) {
 					addAnswers(student, row, header, testType);
 					scoreAnswers(student, testType);
 					prepostStudentsArr.push(student);
-					prepostStudentsObj.id = student;
+					prepostStudentsObj[student.id] = student;
 				}
 				console.log(`File ${f.name} has finished loading. ${fileCount} files out of ${files.length} loaded so far.`);
 			}
@@ -169,7 +169,7 @@ function scoreAnswers(student, testType) {
 	student[testType + "_open_ended"] = 0;
 	student[testType + "_not_answered"] = 0;
 	student[testType + "_wrong"] = 0;
-	for (num = 1; num < 28; num++) {
+	for (num = 1; num < 29; num++) {
 		try {
 			ans = student[testType + '_' + num.toString()]
 			if (ans[0] === '(') {
@@ -200,12 +200,20 @@ function scoreAnswers(student, testType) {
 	}
 }
 
-//Adds the permForm field and the answers for all the multiple choice questions, prefacing them with testType.
+//Adds the permForm field, the %completed, the #correct, and the answers for all the multiple choice questions, prefacing everything with testType_.
 function addAnswers(student, row, header, testType) {
 	student[testType + '_permForm'] = row[6];
-	for (i = 17; i < 44; i++) {
-		student[testType + '_' + header[i].split(':')[0]] = row[i];
+	for (i = 10; i < header.length; i++) {
+		try {
+			student[testType + '_' + header[i].split(':')[0]] = row[i];
+		} catch (err) {
+			console.log(err);
+		}
 	}
+	percentCompleted = student[testType + '_' + '% Completed'];
+	numberCorrect = student[testType + '_' + '# Correct'];
+	student[testType + '_%completed'] = percentCompleted.substring(0, percentCompleted.length - 1);
+	student[testType + '_#correct'] = parseInt(numberCorrect.split('/')[0]);
 }
 
 //Figures out whether this is a new student or not by looking at the id. If we already have a student with that id it returns that student; if not, it creates a new student and gives it an id, a permission form and a teacher.

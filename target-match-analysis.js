@@ -8,8 +8,9 @@ function makeEnhancedTargetMatchChallengesFile() {
 		aggregates = {},
 		totalScore = 0,
 		visibleScore = 0,
-		hiddenScore = 0;
-	tableStr = 'Teacher,Class,Student,Permission, Pre-total,Pre-allele,Pre-protein,Post-total,Post-allele,Post-protein,Gain-total,Gain-allele,Gain-protein,';
+		hiddenScore = 0,
+		permissions = false;
+	tableStr = 'Teacher,Class,Student,Permission?, Pre-total,Pre-allele,Pre-protein,Post-total,Post-allele,Post-protein,Gain-total,Gain-allele,Gain-protein,';
 	for (name of targetMatchArray) {
 		tableStr += name + ',';
 	}
@@ -17,11 +18,13 @@ function makeEnhancedTargetMatchChallengesFile() {
 	for (s of students) {
 		n = prepostStudentsObj[s.id];
 		if (typeof n != "undefined") {
-			if (n.pre && n.post && (n['pre_%completed'] > 80) && (n['post_%completed'] > 80) && (n["Perm. Forms"] != 'none')) {
+			permissions =
+				(n["pre_permForm"] != 'none') && (n["post_permForm"] != 'none');
+			if (n.pre && n.post && (n['pre_%completed'] > 80) && (n['post_%completed'] > 80)) {
 				chalFound = true;
 				//We don't want to include students who have not completed all the target match challenges so we populate a test string and only add that to the table if all the challenges are there. So the first time a challenge is missing we set chalFound false and don't reset it until we move to another student.
 				testStr = '\n';
-				testStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + n["Perm. Forms"] + ',' + n.pre_total_score + ',' + n.pre_allele_score + ',' + n.pre_protein_score + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score + ',' + (n.post_total_score - n.pre_total_score) + ',' + (n.post_allele_score - n.pre_allele_score) + ',' + (n.post_protein_score - n.pre_protein_score));
+				testStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + permissions + ',' + n.pre_total_score + ',' + n.pre_allele_score + ',' + n.pre_protein_score + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score + ',' + (n.post_total_score - n.pre_total_score) + ',' + (n.post_allele_score - n.pre_allele_score) + ',' + (n.post_protein_score - n.pre_protein_score));
 				testStr += ',';
 				for (name of targetMatchArray) {
 					chal = s.activitiesByName[name]
@@ -31,7 +34,7 @@ function makeEnhancedTargetMatchChallengesFile() {
 						scores[name] = chal.score[0];
 						testStr += scores[name] + ',';
 					}
-				}//new challenge
+				} //new challenge
 				if (chalFound) {
 					tableStr += testStr;
 					tableStr += getMean("simpleDom", "visible", scores) + ',';
