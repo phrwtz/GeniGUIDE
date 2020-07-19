@@ -63,17 +63,15 @@
     <h2>Parse Geniventure JSON log files</h2>
     <div id="JSONfiles" style="display:block">
         Input log files
-        <input type="file" id="fileInput" multiple onchange="openFiles(event)"> <br><br>
+        <input type="file" id="fileInput" multiple onchange="openLogFiles(event)"> <br><br>
         </input>
     </div>
     <button type="button" id="analyzeButton" style="display:none" onclick="filter()">
         Analyze
     </button>
     <div id="CSVfile" style="display:block">
-        Input 2019 pre-post scores
-        <input type="file" id="csvInput" multiple onchange="open2019PrePostFiles(event)"> <br><br>
-        Input 2020 pre-post scores
-        <input type="file" id="csvInput" multiple onchange="open2020PrePostFiles(event)"> <br><br>
+        Input pre-post files
+        <input type="file" id="csvInput" multiple onchange="openPrePostFiles(event)"> <br><br>
     </div>
     <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
         challenge file
@@ -748,6 +746,7 @@
     <script src="actions.js"></script>
     <script src="summaries.js"></script>
     <script src="files.js"></script>
+    <script src="target-match-analysis.js"></script>
     <script src="jquery.csv.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js">

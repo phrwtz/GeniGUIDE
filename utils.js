@@ -735,7 +735,7 @@ function openNewPrePostFiles(evt) {
                 for (let j = 3; j < data.length; j++) {
                     dataRow = data[j];
                     id = dataRow[5];
-                    if (typeof newStudentsObj[id] == "undefined") {
+                    if (typeof prepostStudentsObj[id] == "undefined") {
                         newStudent = new Object;
                         newStudent.id = id;
                         newStudent.teacher = dataRow[9];
@@ -749,10 +749,10 @@ function openNewPrePostFiles(evt) {
                                 newStudent[testType + "_score"]++;
                             }
                         }
-                        newStudentsObj[id] = newStudent;
-                        newStudentsArr.push(newStudent);
+                        prepostStudentsObj[id] = newStudent;
+                        prepostStudentsArr.push(newStudent);
                     } else { //Student already exists
-                        newStudent = newStudentsObj[id];
+                        newStudent = prepostStudentsObj[id];
                         newStudent[testType] = true;
                         newStudent[testType + "_date"] = dataRow[13];
                         newStudent[testType + "_score"] = 0;
@@ -772,8 +772,8 @@ function openNewPrePostFiles(evt) {
 function findNewTeachersWhoDidPreAndPost() {
     let teachers = [],
         teacherNames = [];
-    for (s of newStudentsArr) {
-        stud = newStudentsObj[s.id]
+    for (s of prepostStudentsArr) {
+        stud = prepostStudentsObj[s.id]
         if (stud.pre && stud.post) {
             if (!teacherNames.includes(stud.teacher)) {
                 t = new Object();

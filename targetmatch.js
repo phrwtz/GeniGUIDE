@@ -116,7 +116,7 @@ function averageChallengeScores(student) {
 function scoreChallenge(challenge) {
     /*Rows are tries (if blue obtained before the end, later tries don't count). Columns are crystal values (0 => no crystal)
     proficiencyScore = proficiencyScoreArray[triesForBlue - 1][bestCrystal];
-    */
+    
     const proficiencyScoreArray = [
         [0, 0, 1, 3, 5], //tries for blue
         [0, 0, 0, 2, 4], //tries for yellow
@@ -125,6 +125,17 @@ function scoreChallenge(challenge) {
         [0, 0, 0, 0, 0] //tries for none
         //no, black, red, yellow, blue crystal
     ];
+				*/
+
+				    const proficiencyScoreArray = [
+        [1, 2, 3, 4, 5], //tries for blue
+        [0, 1, 2, 3, 4], //tries for yellow
+        [0, 0, 1, 2, 3], //tries for red
+        [0, 0, 0, 1, 2], //tries for black
+        [0, 0, 0, 0, 1] //tries for none
+        //no, black, red, yellow, blue crystal
+    ];
+
     const engagementScoreArray = [
         [0, 0, 0, 0, null],
         [0, 1, 1, 1, 2],
@@ -132,6 +143,7 @@ function scoreChallenge(challenge) {
         [0, 2, 3, 3, 5],
         [0, 3, 4, 4, 5]
     ];
+				
     let triesArr = challenge.outcomesArr;
     let subsArr = getSubmissions(triesArr);
     let subs = subsArr.length;
