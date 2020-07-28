@@ -9,8 +9,9 @@ function makeEnhancedTargetMatchChallengesFile() {
 		totalScore = 0,
 		visibleScore = 0,
 		hiddenScore = 0,
+		filteredOutStudents = [];
 		permissions = false;
-	tableStr = 'Teacher,Class,Student,Permission?, Pre-total,Pre-allele,Pre-protein,Post-total,Post-allele,Post-protein,Gain-total,Gain-allele,Gain-protein,';
+	tableStr = 'Teacher,Class,Student,Permission?, Pre-total,Pre-allele,Pre-protein,Post-total,Post-allele,Post-protein,Gain-total,Gain-allele,Gain-protein,Pre-lastRun,Post-lastRun,';
 	for (name of targetMatchArray) {
 		tableStr += name + ',';
 	}
@@ -24,7 +25,7 @@ function makeEnhancedTargetMatchChallengesFile() {
 				chalFound = true;
 				//We don't want to include students who have not completed all the target match challenges so we populate a test string and only add that to the table if all the challenges are there. So the first time a challenge is missing we set chalFound false and don't reset it until we move to another student.
 				testStr = '\n';
-				testStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + permissions + ',' + n.pre_total_score + ',' + n.pre_allele_score + ',' + n.pre_protein_score + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score + ',' + (n.post_total_score - n.pre_total_score) + ',' + (n.post_allele_score - n.pre_allele_score) + ',' + (n.post_protein_score - n.pre_protein_score));
+				testStr += (s.teacher.id + ',' + s.class.id + ',' + s.id + ',' + permissions + ',' + n.pre_total_score + ',' + n.pre_allele_score + ',' + n.pre_protein_score + ',' + n.post_total_score + ',' + n.post_allele_score + ',' + n.post_protein_score + ',' + (n.post_total_score - n.pre_total_score) + ',' + (n.post_allele_score - n.pre_allele_score) + ',' + (n.post_protein_score - n.pre_protein_score) + ',' + n.pre_lastRun + ',' + n.post_lastRun);
 				testStr += ',';
 				for (name of targetMatchArray) {
 					chal = s.activitiesByName[name]
@@ -49,9 +50,12 @@ function makeEnhancedTargetMatchChallengesFile() {
 					tableStr += getMean("", "hidden", scores) + ',';
 					tableStr += getMean("", "", scores);
 				}
+			} else {
+				filteredOutStudents.push(n);
 			}
 		}
 	} //next student
+	console.log(filteredOutStudents.length + 'students filtered out.');
 	let fileName = prompt('Enter file name') + '_challenge_scores_with_means';
 	saveData()(tableStr, fileName);
 }

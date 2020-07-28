@@ -72,6 +72,13 @@
     <div id="CSVfile" style="display:block">
         Input pre-post files
         <input type="file" id="csvInput" multiple onchange="openPrePostFiles(event)"> <br><br>
+								</input>
+        Open sig-nosig files
+        <input type="file" id="studentIDs" multiple onchange="compareSigNosig(event)"> <br><br>
+								</input>
+								Open Trudi files
+        <input type="file" id="studentIDs" onchange="inspectTrudiPrePost(event)"> <br><br>
+								</input>
     </div>
     <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
         challenge file

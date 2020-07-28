@@ -8,6 +8,13 @@ function openLogFiles(evt) {
 			console.log(err);
 		};
 		//closure to capture the file information
+		reader.onloadstart = (function (f) {
+			return function (e) {
+				let today = new Date();
+				let time = today.getMinutes() + ":" + today.getSeconds() + "." + today.getMilliseconds();;
+				console.log("File " + f.name + " has started to load at " + time + ".");
+			}
+		})(f);
 		reader.onloadend = (function (f) {
 			return function (e) {
 				let today = new Date();
@@ -23,102 +30,6 @@ function openLogFiles(evt) {
 					document.getElementById("JSONfiles").style.display = "none";
 					document.getElementById("analyzeButton").style.display = "block";
 					document.getElementById("fileInput").disabled = true;
-				}
-			}
-		})(f);
-
-		reader.onloadstart = (function (f) {
-			return function (e) {
-				let today = new Date();
-				let time = today.getMinutes() + ":" + today.getSeconds() + "." + today.getMilliseconds();;
-				console.log("File " + f.name + " has started to load at " + time + ".");
-			}
-		})(f);
-		reader.readAsText(f);
-	}
-}
-
-function open2019PrePostFiles(evt) {
-	var fileCount = 0;
-	var files = evt.target.files; // FileList object
-	for (var i = 0, f;
-		(f = files[i]); i++) {
-		var reader = new FileReader();
-		reader.onerror = function (err) {
-			console.log(err);
-		};
-		//closure to capture the file information
-		reader.onloadend = (function (f) {
-			return function (e) {
-				fileCount++;
-				let ppStudentsArr = [];
-				let csvStr = e.target.result;
-				let csvArr = Papa.parse(csvStr);
-				let data = csvArr.data;
-				let header = data[0];
-				let questions = [];
-				let shortQuestions = [];
-				let lastQuestion = "";
-				let testType = header[13].split("-")[0].split(" ")[1].toLowerCase();
-				for (s = 15; s < header.length; s++) {
-					header[s] = testType + '_' + header[s].split(':')[0]
-				}
-				for (let i = 1; i < data.length; i++) {
-					let userId = data[i][5];
-					if (userId != "") {
-						if (typeof prepostStudentsObj[userId] != "undefined") {
-							newStudent = prepostStudentsObj[userId];
-						} else {
-							newStudent = new Object();
-						}
-						for (let j = 0; j < header.length; j++) {
-							newStudent[header[j]] = data[i][j];
-						}
-						newStudent.id = newStudent["UserID"];
-						newStudent[testType] = true;
-						newStudent[testType + '_%completed'] = newStudent['% Completed'].substring(0, newStudent['% Completed'].length - 1);
-						newStudent[testType + '_#correct'] = parseInt(newStudent['# Correct'].split('/')[0]);
-						newStudent[testType + "_total_score"] = 0;
-						newStudent[testType + "_protein_score"] = 0;
-						newStudent[testType + "_allele_score"] = 0;
-						newStudent[testType + "_open_ended"] = 0;
-						newStudent[testType + "_not_answered"] = 0;
-						newStudent[testType + "_wrong"] = 0;
-						for (y = 1; y < 30; y++) {
-							q = testType + '_' + y;
-							if (typeof newStudent[q] != 'undefined') {
-								let ans = newStudent[q].split(' ')[0];
-								let num = parseInt(q.split('_')[1]);
-								switch (ans) {
-									case 'not answered':
-										newStudent[testType + "_not_answered"]++;
-										break;
-									case '(correct)':
-										newStudent[testType + "_total_score"]++;
-										if ((num < 25) && (num > 18)) {
-											newStudent[testType + '_protein_score']++;
-										} else {
-											newStudent[testType + '_allele_score']++;
-										}
-										break;
-									case '(wrong)':
-										newStudent[testType + "_wrong"]++;
-										break;
-									default:
-										newStudent[testType + '_open_ended']++;
-										break;
-								}
-							}
-						}
-						if (Math.abs(newStudent.pre_score - newStudent.total_pre_score) > 1) {
-							console.log(`Student ${newStudent.id} has an anomalous pre-score.`);
-						}
-						if (Math.abs(newStudent.post_score - newStudent.total_post_score) > 1) {
-							console.log(`Student ${newStudent.id} has an anomalous post-score.`);
-						}
-						prepostStudentsObj[newStudent.id] = newStudent;
-						prepostStudentsArr.push(newStudent);
-					}
 				}
 			}
 		})(f);
@@ -153,9 +64,87 @@ function openPrePostFiles(evt) {
 					prepostStudentsObj[student.id] = student;
 				}
 				console.log(`File ${f.name} has finished loading. ${fileCount} files out of ${files.length} loaded so far.`);
+
+				if (fileCount >= files.length) {
+					sortPrepostdata(prepostStudentsArr, trudiStudentsObj)
+				}
 			}
 		})(f);
 		reader.readAsText(f);
+	}
+}
+
+function sortPrepostdata(prepostStudentsArr, trudiStudentsObj) {
+	let notInTrudi = [],
+		differentPreDate = [],
+		differentPostDate = [],
+		laterPostTime = 0,
+		earlierPostTime = 0,
+		newNever = 0,
+		trudiNever = 0;
+	for (newStudent of prepostStudentsArr) {
+		trudiStudent = trudiStudentsObj[newStudent.id];
+		if (typeof trudiStudent === 'undefined') {
+			notInTrudi.push(newStudent);
+		} else {
+			if (newStudent.pre_lastRun != trudiStudent.pre_lastRun) {
+				differentPreDate.push(newStudent);
+			}
+			if (newStudent.post_lastRun != trudiStudent.post_lastRun) {
+				differentPostDate.push(newStudent);
+			}
+		}
+	}
+	console.log(`${notInTrudi.length} students not in Trudi cohort, ${differentPreDate.length} students have different pre date, ${differentPostDate.length} have different post date.`);
+	examineDifferences(trudiStudentsObj, differentPostDate);
+}
+
+function examineDifferences(trudiStudentsObj, differentPostDate) {
+	let newNever = [],
+		trudiNever = [],
+		trudiLaterTrudiStudents = [],
+		newLaterTrudiStudents = [];
+		trudiLaterNewStudents = [],
+		newLaterNewStudents = [];
+	for (newStudent of differentPostDate) {
+		trudiStudent = trudiStudentsObj[newStudent.id];
+		newPost = (typeof newStudent.post_lastRun != 'undefined')
+		trudiPost = (typeof trudiStudent.post_lastRun != 'undefined')
+		if (newPost && trudiPost) {
+		trudiTime = getPostTestUnixTime(trudiStudent);
+		newTime = getPostTestUnixTime(newStudent);
+			if (newTime > trudiTime) {
+				newLaterTrudiStudents.push(trudiStudent);
+				newLaterNewStudents.push(newStudent);
+			} else if (newTime <= trudiTime) {
+				trudiLaterTrudiStudents.push(trudiStudent);
+				trudiLaterNewStudents.push(newStudent);
+			} else if (!newPost) {
+				newNever++;
+			} else if (!trudiPost) {
+				trudiNever++;
+			}
+		}
+	}
+	console.log(`${trudiNever} Trudi students never did the post test.`);
+	console.log(`${newNever} new students never did the post test.`);
+console.log(`${trudiLaterTrudiStudents.length} Trudi students did the post date later than the new students.`);
+	console.log(`${newLaterNewStudents.length} new students did the post date later than the Trudi students.`)
+	console.log('stopping here.')
+}
+
+
+
+function getPostTestUnixTime(stud) {
+	let r = stud.post_lastRun;
+	if (r === 'never') {
+		console.log(`Last run is never for student ${stud.id}`)
+	} else {
+		m = parseInt(r.split('/')[0]),
+			d = parseInt(r.split('/')[1]),
+			y = parseInt('20' + r.split('/')[2]);
+		time = new Date(y, m, d).getTime();
+		return time;
 	}
 }
 
@@ -169,7 +158,7 @@ function scoreAnswers(student, testType) {
 	student[testType + "_open_ended"] = 0;
 	student[testType + "_not_answered"] = 0;
 	student[testType + "_wrong"] = 0;
-	for (num = 1; num < 29; num++) {
+	for (num = 1; num < 28; num++) {
 		try {
 			ans = student[testType + '_' + num.toString()]
 			if (ans[0] === '(') {
@@ -180,7 +169,9 @@ function scoreAnswers(student, testType) {
 		}
 		switch (ans) {
 			case 'not answered':
-				student[testType + "_not_answered"]++;
+				if ((num <= 18) || (num >= 25)) {
+					student[testType + "_not_answered"]++;
+				}
 				break;
 			case 'correct':
 				student[testType + "_total_score"]++;
@@ -200,9 +191,10 @@ function scoreAnswers(student, testType) {
 	}
 }
 
-//Adds the permForm field, the %completed, the #correct, and the answers for all the multiple choice questions, prefacing everything with testType_.
+//Adds the permForm field, the %completed, the #correct, the Last run, and the answers for all the multiple choice questions, prefacing everything with testType_.
 function addAnswers(student, row, header, testType) {
 	student[testType + '_permForm'] = row[6];
+	student[testType + '_lastRun'] = row[13];
 	for (i = 10; i < header.length; i++) {
 		try {
 			student[testType + '_' + header[i].split(':')[0]] = row[i];
@@ -216,14 +208,14 @@ function addAnswers(student, row, header, testType) {
 	student[testType + '_#correct'] = parseInt(numberCorrect.split('/')[0]);
 }
 
-//Figures out whether this is a new student or not by looking at the id. If we already have a student with that id it returns that student; if not, it creates a new student and gives it an id, a permission form and a teacher.
+//Figures out whether this is a new student or not by looking at the id. If we already have a student with that id it returns that student; if not, it creates a new student and gives it an id and a teacher.
 
 function getNewStudent(row) {
 	let id = row[5];
 	if (typeof prepostStudentsObj[id] === "undefined") {
 		newStudent = {
-			id: row[5],
-			teacher: row[9]
+			id: id,
+			teacher: row[9],
 		}
 	} else {
 		newStudent = prepostStudentsObj[id];
