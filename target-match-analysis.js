@@ -21,7 +21,7 @@ function makeEnhancedTargetMatchChallengesFile() {
 		if (typeof n != "undefined") {
 			permissions =
 				(n["pre_permForm"] != 'none') && (n["post_permForm"] != 'none');
-			if (n.pre && n.post && (n['pre_%completed'] > 80) && (n['post_%completed'] > 80)) {
+			if (n.pre && n.post && (n['pre_not_answered'] < 2) && (n['post_not_answered'] < 2)) {
 				chalFound = true;
 				//We don't want to include students who have not completed all the target match challenges so we populate a test string and only add that to the table if all the challenges are there. So the first time a challenge is missing we set chalFound false and don't reset it until we move to another student.
 				testStr = '\n';

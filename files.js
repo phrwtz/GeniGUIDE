@@ -104,15 +104,15 @@ function examineDifferences(trudiStudentsObj, differentPostDate) {
 		trudiNever = [],
 		trudiLaterTrudiStudents = [],
 		newLaterTrudiStudents = [];
-		trudiLaterNewStudents = [],
+	trudiLaterNewStudents = [],
 		newLaterNewStudents = [];
 	for (newStudent of differentPostDate) {
 		trudiStudent = trudiStudentsObj[newStudent.id];
 		newPost = (typeof newStudent.post_lastRun != 'undefined')
 		trudiPost = (typeof trudiStudent.post_lastRun != 'undefined')
 		if (newPost && trudiPost) {
-		trudiTime = getPostTestUnixTime(trudiStudent);
-		newTime = getPostTestUnixTime(newStudent);
+			trudiTime = getPostTestUnixTime(trudiStudent);
+			newTime = getPostTestUnixTime(newStudent);
 			if (newTime > trudiTime) {
 				newLaterTrudiStudents.push(trudiStudent);
 				newLaterNewStudents.push(newStudent);
@@ -128,7 +128,7 @@ function examineDifferences(trudiStudentsObj, differentPostDate) {
 	}
 	console.log(`${trudiNever} Trudi students never did the post test.`);
 	console.log(`${newNever} new students never did the post test.`);
-console.log(`${trudiLaterTrudiStudents.length} Trudi students did the post date later than the new students.`);
+	console.log(`${trudiLaterTrudiStudents.length} Trudi students did the post date later than the new students.`);
 	console.log(`${newLaterNewStudents.length} new students did the post date later than the Trudi students.`)
 	console.log('stopping here.')
 }

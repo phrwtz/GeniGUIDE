@@ -2,762 +2,762 @@
 <html>
 
 <head>
-    <title>Geniventure data analysis</title>
+	<title>Geniventure data analysis</title>
 </head>
 
 <body>
-    <style>
-        table {
-            padding: 10px;
-            border-collapse: collapse;
-            text-align: center;
-            margin-left: 20px;
-            margin-right: 20px;
-        }
+	<style>
+		table {
+			padding: 10px;
+			border-collapse: collapse;
+			text-align: center;
+			margin-left: 20px;
+			margin-right: 20px;
+		}
 
-        th,
-        td {
-            border: 1px solid black;
-            padding: 10px;
-            text-align: center;
-            vertical-align: text-top;
-        }
+		th,
+		td {
+			border: 1px solid black;
+			padding: 10px;
+			text-align: center;
+			vertical-align: text-top;
+		}
 
-        th {
-            background-color: blanchedalmond;
-            style="border-bottom-width:3px"
-            style="border-top-width:3px"
-        }
+		th {
+			background-color: blanchedalmond;
+			style="border-bottom-width:3px"
+			style="border-top-width:3px"
+		}
 
-        select {
-            margin-top: 30px;
-            margin-left: 20px;
-        }
+		select {
+			margin-top: 30px;
+			margin-left: 20px;
+		}
 
-        button {
-            background-color: lightcyan;
-            padding: 5px;
-            margin-left: 20px;
-        }
+		button {
+			background-color: lightcyan;
+			padding: 5px;
+			margin-left: 20px;
+		}
 
-        p {
-            font-size: 20;
-            font-display: bold;
-            margin-left: 30px;
-            margin-top: 10px;
-        }
+		p {
+			font-size: 20;
+			font-display: bold;
+			margin-left: 30px;
+			margin-top: 10px;
+		}
 
-        input[type="button"] {
-            background: azure;
-            color: blue;
-            height: 30px;
-            width: 120px;
-            font-size: 20;
-        }
+		input[type="button"] {
+			background: azure;
+			color: blue;
+			height: 30px;
+			width: 120px;
+			font-size: 20;
+		}
 
-        input[type="range"] {
-            margin-left: 30px;
-        }
-    </style>
+		input[type="range"] {
+			margin-left: 30px;
+		}
+	</style>
 
-    <h2>Parse Geniventure JSON log files</h2>
-    <div id="JSONfiles" style="display:block">
-        Input log files
-        <input type="file" id="fileInput" multiple onchange="openLogFiles(event)"> <br><br>
-        </input>
-    </div>
-    <button type="button" id="analyzeButton" style="display:none" onclick="filter()">
-        Analyze
-    </button>
-    <div id="CSVfile" style="display:block">
-        Input pre-post files
-        <input type="file" id="csvInput" multiple onchange="openPrePostFiles(event)"> <br><br>
-								</input>
-        Open sig-nosig files
-        <input type="file" id="studentIDs" multiple onchange="compareSigNosig(event)"> <br><br>
-								</input>
-								Open Trudi files
-        <input type="file" id="studentIDs" onchange="inspectTrudiPrePost(event)"> <br><br>
-								</input>
-    </div>
-    <button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
-        challenge file
-    </button>
-    <button type="button" id="singleStudentChalButton" style="display:none" onClick="checkoutSelectedStudent()"> <span
-            id="singleSpan">
-            Show selected student profile
-        </span>
-    </button>
+	<h2>Parse Geniventure JSON log files</h2>
+	<div id="JSONfiles" style="display:block">
+		Input log files
+		<input type="file" id="fileInput" multiple onchange="openLogFiles(event)"> <br><br>
+		</input>
+	</div>
+	<button type="button" id="analyzeButton" style="display:none" onclick="filter()">
+		Analyze
+	</button>
+	<div id="CSVfile" style="display:block">
+		Input pre-post files
+		<input type="file" id="csvInput" multiple onchange="openPrePostFiles(event)"> <br><br>
+		</input>
+		Open sig-nosig files
+		<input type="file" id="studentIDs" multiple onchange="compareSigNosig(event)"> <br><br>
+		</input>
+		Open PrePost files
+		<input type="file" id="studentIDs" multiple onchange="createPrePostArrays(event)"> <br><br>
+		</input>
+	</div>
+	<button type="button" id="chalDownloadButton" style="display:none" onClick="downloadChallengeFile()">Download
+		challenge file
+	</button>
+	<button type="button" id="singleStudentChalButton" style="display:none" onClick="checkoutSelectedStudent()"> <span
+			id="singleSpan">
+			Show selected student profile
+		</span>
+	</button>
 
-    <select id="challengeType" style="display:none" onchange="makeHintGraph()">
-        <option value="null">
-            Select challenge type
-        </option>
-        <option value="targetMatch">
-            Target match
-        </option>
-        <option value="eggDrop">
-            Egg drop
-        </option>
-        <option value="gamete">
-            Gamete
-        </option>
-        <option value="clutch">
-            Clutch
-        </option>
-    </select>
+	<select id="challengeType" style="display:none" onchange="makeHintGraph()">
+		<option value="null">
+			Select challenge type
+		</option>
+		<option value="targetMatch">
+			Target match
+		</option>
+		<option value="eggDrop">
+			Egg drop
+		</option>
+		<option value="gamete">
+			Gamete
+		</option>
+		<option value="clutch">
+			Clutch
+		</option>
+	</select>
 
-    <div id="filterDiv">
-        <select id="graphType" style="display:none" onchange="makeHintGraph()">
-            <option value=null>
-                Select graph type
-            </option>
-            <option value="singleCohort">
-                Single cohort
-            </option>
-            <option value="twoCohorts">
-                Cohort comparison
-            </option>
-        </select>
-        <select id="chalFilter1" style="display:none" onchange="makeHintGraph()">
-            <option value=null>
-                Select cohort 1 filter
-            </option>
-            <option value="all students">
-                All Students
-            </option>
-            <option value="lower-to-lower">
-                Lower to lower
-            </option>
-            <option value="lower-to-higher">
-                Lower to higher
-            </option>
-            <option value="higher-to-higher">
-                Higher to higher
-            </option>
-            <option value="higher-to-lower">
-                Higher to lower
-            </option>
-            <option value="filter by prescore">
-                Set filter by prescore
-            </option>
-            <option value="filter by postscore">
-                Set filter by postscore
-            </option>
-            <option value="filter by gain">
-                Set filter by gain
-            </option>
-        </select>
-        <select id="chalFilter2" style="display:none" onchange="makeHintGraph()">
-            <option value=null>
-                Select cohort 2 filter
-            </option>
-            <option value="all students">
-                All Students
-            </option>
-            <option value="lower-to-lower">
-                Lower to lower
-            </option>
-            <option value="lower-to-higher">
-                Lower to higher
-            </option>
-            <option value="higher-to-higher">
-                Higher to higher
-            </option>
-            <option value="higher-to-lower">
-                Higher to lower
-            </option>
-            <option value="filter by prescore">
-                Set filter by prescore
-            </option>
-            <option value="filter by postscore">
-                Set filter by postscore
-            </option>
-            <option value="filter by gain">
-                Set filter by gain
-            </option>
-        </select>
-    </div>
-    <table id="sliderTable" style="display:none; border-style:none">
-        <tr>
-            <td>
-                <p id="minPara1" style="display:block">Cohort 1 minimum = -30</p>
-                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange1" style="display: block"
-                    onmouseup="makeHintGraph()">
-                </input>
-            </td>
-            <td>
-                <p id="maxPara1" style="display:block">Cohort 1 maximum = 30</p>
-                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1" style="display: block"
-                    onmouseup="makeHintGraph()">
-                </input>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <p id="minPara2" style="display:block">Cohort 2 minimum = -30</p>
-                <input type="range" min="-30" max="30" value="0" class="slider" id="minrange2" style="display.block"
-                    onmouseup="makeHintGraph()" style="display:block"> </input>
-            </td>
-            <td>
-                <p id="maxPara2" style="display:block">Cohort 2 maximum = 30</p>
-                <input type="range" min="-30" max="30" value="30" class="slider" id="maxrange2" style="display.block"
-                    onmouseup="makeHintGraph()" style="display:block">
-                </input>
-            </td>
-        </tr>
-        </div>
-    </table>
-    </div>
+	<div id="filterDiv">
+		<select id="graphType" style="display:none" onchange="makeHintGraph()">
+			<option value=null>
+				Select graph type
+			</option>
+			<option value="singleCohort">
+				Single cohort
+			</option>
+			<option value="twoCohorts">
+				Cohort comparison
+			</option>
+		</select>
+		<select id="chalFilter1" style="display:none" onchange="makeHintGraph()">
+			<option value=null>
+				Select cohort 1 filter
+			</option>
+			<option value="all students">
+				All Students
+			</option>
+			<option value="lower-to-lower">
+				Lower to lower
+			</option>
+			<option value="lower-to-higher">
+				Lower to higher
+			</option>
+			<option value="higher-to-higher">
+				Higher to higher
+			</option>
+			<option value="higher-to-lower">
+				Higher to lower
+			</option>
+			<option value="filter by prescore">
+				Set filter by prescore
+			</option>
+			<option value="filter by postscore">
+				Set filter by postscore
+			</option>
+			<option value="filter by gain">
+				Set filter by gain
+			</option>
+		</select>
+		<select id="chalFilter2" style="display:none" onchange="makeHintGraph()">
+			<option value=null>
+				Select cohort 2 filter
+			</option>
+			<option value="all students">
+				All Students
+			</option>
+			<option value="lower-to-lower">
+				Lower to lower
+			</option>
+			<option value="lower-to-higher">
+				Lower to higher
+			</option>
+			<option value="higher-to-higher">
+				Higher to higher
+			</option>
+			<option value="higher-to-lower">
+				Higher to lower
+			</option>
+			<option value="filter by prescore">
+				Set filter by prescore
+			</option>
+			<option value="filter by postscore">
+				Set filter by postscore
+			</option>
+			<option value="filter by gain">
+				Set filter by gain
+			</option>
+		</select>
+	</div>
+	<table id="sliderTable" style="display:none; border-style:none">
+		<tr>
+			<td>
+				<p id="minPara1" style="display:block">Cohort 1 minimum = -30</p>
+				<input type="range" min="-30" max="30" value="0" class="slider" id="minrange1" style="display: block"
+					onmouseup="makeHintGraph()">
+				</input>
+			</td>
+			<td>
+				<p id="maxPara1" style="display:block">Cohort 1 maximum = 30</p>
+				<input type="range" min="-30" max="30" value="30" class="slider" id="maxrange1" style="display: block"
+					onmouseup="makeHintGraph()">
+				</input>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p id="minPara2" style="display:block">Cohort 2 minimum = -30</p>
+				<input type="range" min="-30" max="30" value="0" class="slider" id="minrange2" style="display.block"
+					onmouseup="makeHintGraph()" style="display:block"> </input>
+			</td>
+			<td>
+				<p id="maxPara2" style="display:block">Cohort 2 maximum = 30</p>
+				<input type="range" min="-30" max="30" value="30" class="slider" id="maxrange2" style="display.block"
+					onmouseup="makeHintGraph()" style="display:block">
+				</input>
+			</td>
+		</tr>
+		</div>
+	</table>
+	</div>
 
-    <button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
-        <span id="showChangesSpan">
-            Show changed probs only
-        </span>
-    </button>
-    <button type="button" id="reversalsButton" style="display:none" onclick="showReversals()">
-        <span id="revsSpan">
-            Show reversals table
-        </span>
-    </button>
-    <div id="csvDiv" style="display:none">
-        <button type="button" id="tableButton" style="display:inline" onclick="toggleTable()">
-            <span id="tableSpan">Show table</span>
-        </button>
+	<button type="button" id="toggleChangesButton" style="display:none" onclick="toggleShowChanges()">
+		<span id="showChangesSpan">
+			Show changed probs only
+		</span>
+	</button>
+	<button type="button" id="reversalsButton" style="display:none" onclick="showReversals()">
+		<span id="revsSpan">
+			Show reversals table
+		</span>
+	</button>
+	<div id="csvDiv" style="display:none">
+		<button type="button" id="tableButton" style="display:inline" onclick="toggleTable()">
+			<span id="tableSpan">Show table</span>
+		</button>
 
-        <input type="text" display="inline" value="file name goes here" id="csvFileName">
+		<input type="text" display="inline" value="file name goes here" id="csvFileName">
 
-        <button type="button" id="csvButton" style="display:none" onclick="downloadFile()">Download CSV
-            file</button>
-    </div>
-    <div id="graphDiv" style="display:block" width="300" px height="300px">
-    </div>
-    <p id="infoPara" style="margin-left: 20px">
+		<button type="button" id="csvButton" style="display:none" onclick="downloadFile()">Download CSV
+			file</button>
+	</div>
+	<div id="graphDiv" style="display:block" width="300" px height="300px">
+	</div>
+	<p id="infoPara" style="margin-left: 20px">
 
-        <table id="clutchTable" style="display:none" width="90%">
-            <thead>
-                <tr id="clutchHeaderRow">
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Students
-                    </th>
-                    <th>
-                        Level 1 hints/student
-                    </th>
-                    <th>
-                        Level 2 hints/student
-                    </th>
-                    <th>
-                        Level 3 hints/student
-                    </th>
-                    <th>
-                        Hint score/student
-                    </th>
-                </tr>
-                </tr>
-            </thead>
-            <tbody id="clutchBody">
-            </tbody>
-        </table>
-        <table id="gameteTable" style="display:none" width="90%">
-            <thead>
-                <tr id="gameteHeaderRow">
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Students
-                    </th>
-                    <th>
-                        Level 1 hints/student
-                    </th>
-                    <th>
-                        Level 2 hints/student
-                    </th>
-                    <th>
-                        Level 3 hints/student
-                    </th>
-                    <th>
-                        Hint score/student
-                    </th>
-                </tr>
-                </tr>
-            </thead>
-            <tbody id="gameteBody">
-            </tbody>
-        </table>
-        <table id="eggDropTable" style="display:none" width="90%">
-            <thead>
-                <tr id="eggDropHeaderRow">
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Students
-                    </th>
-                    <th>
-                        Rejected eggs/student
-                    </th>
-                    <th>
-                        Hints/student
-                    </th>
-                </tr>
-                </tr>
-            </thead>
-            <tbody id="eggDropBody">
-            </tbody>
-        </table>
-        <table id="targetMatchTable" style="display:none" width="90%">
-            <thead>
-                <tr id="targetMatchHeaderRow">
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Students
-                    </th>
-                    <th>
-                        Tries/Student
-                    </th>
-                    <th>
-                        Excess Moves/Success
-                    </th>
-                    <th>
-                        Best Crystal/Try
-                    </th>
-                    <th>
-                        Level 1 Hints/Try
-                    </th>
-                    <th>
-                        Level 2 Hints/Try
-                    </th>
-                    <th>
-                        Level 3+ Hints/Try
-                    </th>
-                    <th>
-                        Score/Try
-                    </th>
-                    <th>
-                        Total Remediations
-                    </th>
-                </tr>
-            </thead>
-            <tbody id="targetMatchBody">
-            </tbody>
-        </table>
+		<table id="clutchTable" style="display:none" width="90%">
+			<thead>
+				<tr id="clutchHeaderRow">
+					<th>
+						Challenge
+					</th>
+					<th>
+						Students
+					</th>
+					<th>
+						Level 1 hints/student
+					</th>
+					<th>
+						Level 2 hints/student
+					</th>
+					<th>
+						Level 3 hints/student
+					</th>
+					<th>
+						Hint score/student
+					</th>
+				</tr>
+				</tr>
+			</thead>
+			<tbody id="clutchBody">
+			</tbody>
+		</table>
+		<table id="gameteTable" style="display:none" width="90%">
+			<thead>
+				<tr id="gameteHeaderRow">
+					<th>
+						Challenge
+					</th>
+					<th>
+						Students
+					</th>
+					<th>
+						Level 1 hints/student
+					</th>
+					<th>
+						Level 2 hints/student
+					</th>
+					<th>
+						Level 3 hints/student
+					</th>
+					<th>
+						Hint score/student
+					</th>
+				</tr>
+				</tr>
+			</thead>
+			<tbody id="gameteBody">
+			</tbody>
+		</table>
+		<table id="eggDropTable" style="display:none" width="90%">
+			<thead>
+				<tr id="eggDropHeaderRow">
+					<th>
+						Challenge
+					</th>
+					<th>
+						Students
+					</th>
+					<th>
+						Rejected eggs/student
+					</th>
+					<th>
+						Hints/student
+					</th>
+				</tr>
+				</tr>
+			</thead>
+			<tbody id="eggDropBody">
+			</tbody>
+		</table>
+		<table id="targetMatchTable" style="display:none" width="90%">
+			<thead>
+				<tr id="targetMatchHeaderRow">
+					<th>
+						Challenge
+					</th>
+					<th>
+						Students
+					</th>
+					<th>
+						Tries/Student
+					</th>
+					<th>
+						Excess Moves/Success
+					</th>
+					<th>
+						Best Crystal/Try
+					</th>
+					<th>
+						Level 1 Hints/Try
+					</th>
+					<th>
+						Level 2 Hints/Try
+					</th>
+					<th>
+						Level 3+ Hints/Try
+					</th>
+					<th>
+						Score/Try
+					</th>
+					<th>
+						Total Remediations
+					</th>
+				</tr>
+			</thead>
+			<tbody id="targetMatchBody">
+			</tbody>
+		</table>
 
-        <table id="eggDropCompTable" style="display:none" width="90%">
-            <thead>
-                <tr id="eggDropCompHeaderRow">
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Cohort
-                    </th>
-                    <th>
-                        Students
-                    </th>
-                    <th>
-                        Rejected eggs/Student
-                    </th>
-                    <th>
-                        Hints/Student
-                    </th>
-                    </head>
-            <tbody id="eggDropCompBody">
-            </tbody>
-        </table>
+		<table id="eggDropCompTable" style="display:none" width="90%">
+			<thead>
+				<tr id="eggDropCompHeaderRow">
+					<th>
+						Challenge
+					</th>
+					<th>
+						Cohort
+					</th>
+					<th>
+						Students
+					</th>
+					<th>
+						Rejected eggs/Student
+					</th>
+					<th>
+						Hints/Student
+					</th>
+					</head>
+			<tbody id="eggDropCompBody">
+			</tbody>
+		</table>
 
-        <table id="gameteCompTable" style="display:none" width="90%">
-            <thead>
-                <tr id="gameteCompHeaderRow">
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Cohort
-                    </th>
-                    <th>
-                        Students
-                    </th>
-                    <th>
-                        Level 1 hints/Student
-                    </th>
-                    <th>
-                        Level 2 hints/Student
-                    </th>
-                    <th>
-                        Level 3 hints/Student
-                    </th>
-                    <th>
-                        Hint score/student
-                    </th>
-                    </head>
-            <tbody id="gameteCompBody">
-            </tbody>
-        </table>
-        <table id="clutchCompTable" style="display:none" width="90%">
-            <thead>
-                <tr id="clutchCompHeaderRow">
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Cohort
-                    </th>
-                    <th>
-                        Students
-                    </th>
-                    <th>
-                        Level 1 hints/Student
-                    </th>
-                    <th>
-                        Level 2 hints/Student
-                    </th>
-                    <th>
-                        Level 3 hints/Student
-                    </th>
-                    <th>
-                        Hint score/student
-                    </th>
-                    </head>
-            <tbody id="clutchCompBody">
-            </tbody>
-        </table>
-        <table id="targetMatchCompTable" style="display:none" width="90%">
-            <thead>
-                <tr id="targetMatchCompHeaderRow">
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Cohort
-                    </th>
-                    <th>
-                        Students
-                    </th>
-                    <th>
-                        Tries/Student
-                    </th>
-                    <th>
-                        Excess Moves/Success
-                    </th>
-                    <th>
-                        Best Crystal/Try
-                    </th>
-                    <th>
-                        Level 1 Hints/Try
-                    </th>
-                    <th>
-                        Level 2 Hints/Try
-                    </th>
-                    <th>
-                        Level 3+ Hints/Try
-                    </th>
-                    <th>
-                        Score/Try
-                    </th>
-                    <th>
-                        Total Remediations
-                    </th>
-                    </head>
-            <tbody id="targetMatchCompBody">
-            </tbody>
-        </table>
+		<table id="gameteCompTable" style="display:none" width="90%">
+			<thead>
+				<tr id="gameteCompHeaderRow">
+					<th>
+						Challenge
+					</th>
+					<th>
+						Cohort
+					</th>
+					<th>
+						Students
+					</th>
+					<th>
+						Level 1 hints/Student
+					</th>
+					<th>
+						Level 2 hints/Student
+					</th>
+					<th>
+						Level 3 hints/Student
+					</th>
+					<th>
+						Hint score/student
+					</th>
+					</head>
+			<tbody id="gameteCompBody">
+			</tbody>
+		</table>
+		<table id="clutchCompTable" style="display:none" width="90%">
+			<thead>
+				<tr id="clutchCompHeaderRow">
+					<th>
+						Challenge
+					</th>
+					<th>
+						Cohort
+					</th>
+					<th>
+						Students
+					</th>
+					<th>
+						Level 1 hints/Student
+					</th>
+					<th>
+						Level 2 hints/Student
+					</th>
+					<th>
+						Level 3 hints/Student
+					</th>
+					<th>
+						Hint score/student
+					</th>
+					</head>
+			<tbody id="clutchCompBody">
+			</tbody>
+		</table>
+		<table id="targetMatchCompTable" style="display:none" width="90%">
+			<thead>
+				<tr id="targetMatchCompHeaderRow">
+					<th>
+						Challenge
+					</th>
+					<th>
+						Cohort
+					</th>
+					<th>
+						Students
+					</th>
+					<th>
+						Tries/Student
+					</th>
+					<th>
+						Excess Moves/Success
+					</th>
+					<th>
+						Best Crystal/Try
+					</th>
+					<th>
+						Level 1 Hints/Try
+					</th>
+					<th>
+						Level 2 Hints/Try
+					</th>
+					<th>
+						Level 3+ Hints/Try
+					</th>
+					<th>
+						Score/Try
+					</th>
+					<th>
+						Total Remediations
+					</th>
+					</head>
+			<tbody id="targetMatchCompBody">
+			</tbody>
+		</table>
 
-    </p>
-    <div id="actionDiv" width="100%" style="margin-top: 30px; display:block">
-        <table id="hintTable" width=100% style="margin-left:50px;display:none">
-            <thead>
-                <tr>
-                    <th colspan=38 style="border-width:3px;background-color:#e9d0af;display:none;">
-                        Hints Table
-                    </th>
-                </tr>
-                <tr>
-                    <th rowSpan=4 id=" teacher" style="border-width:3px">Teacher</th>
-                    <th colspan=18 id="LG1.C2a" style="border-width:3px">
-                        Concept <span id="conceptaSpan">TBA</span></th>
-                    <th colspan=18 id="LG1.C2b" style="border-width:3px">
-                        Concept <span id="conceptbSpan">TBA</span>
-                    </th>
-                </tr>
+	</p>
+	<div id="actionDiv" width="100%" style="margin-top: 30px; display:block">
+		<table id="hintTable" width=100% style="margin-left:50px;display:none">
+			<thead>
+				<tr>
+					<th colspan=38 style="border-width:3px;background-color:#e9d0af;display:none;">
+						Hints Table
+					</th>
+				</tr>
+				<tr>
+					<th rowSpan=4 id=" teacher" style="border-width:3px">Teacher</th>
+					<th colspan=18 id="LG1.C2a" style="border-width:3px">
+						Concept <span id="conceptaSpan">TBA</span></th>
+					<th colspan=18 id="LG1.C2b" style="border-width:3px">
+						Concept <span id="conceptbSpan">TBA</span>
+					</th>
+				</tr>
 
-                <th colspan=9 style="border-width:3px; background-color:#ffffb3">
-                    Visible Simple Dominance
-                </th>
-                <th colspan=9 style="border-width:3px; background-color:#ffe6ff">
-                    Hidden Simple Dominance
-                </th>
-                <th colspan=9 style="border-width:3px; background-color:#ffffb3">
-                    Visible Simple Dominance
-                </th>
-                <th colspan=9 style="border-width:3px; background-color:#ffe6ff">
-                    Hidden Simple Dominance
-                </th>
-                </tr>
-                <tr>
-                    <th colspan=3 style=" border-width:2px; background-color:#ffffb3">Wings</th>
-                    <th colspan=3 style="border-width:2px; background-color:#ffffb3">Arms</th>
-                    <th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffffb3">Legs</th>
-                    <th colspan=3 style="border-width:2px; background-color:#ffe6ff"">Wings</th>
+				<th colspan=9 style="border-width:3px; background-color:#ffffb3">
+					Visible Simple Dominance
+				</th>
+				<th colspan=9 style="border-width:3px; background-color:#ffe6ff">
+					Hidden Simple Dominance
+				</th>
+				<th colspan=9 style="border-width:3px; background-color:#ffffb3">
+					Visible Simple Dominance
+				</th>
+				<th colspan=9 style="border-width:3px; background-color:#ffe6ff">
+					Hidden Simple Dominance
+				</th>
+				</tr>
+				<tr>
+					<th colspan=3 style=" border-width:2px; background-color:#ffffb3">Wings</th>
+					<th colspan=3 style="border-width:2px; background-color:#ffffb3">Arms</th>
+					<th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffffb3">Legs</th>
+					<th colspan=3 style="border-width:2px; background-color:#ffe6ff"">Wings</th>
                 <th colspan=3 style=" border-width:2px; background-color:#ffe6ff"">Arms</th>
-                    <th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffe6ff"">Legs</th>
+					<th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffe6ff"">Legs</th>
                 <th colspan=3 style=" border-width:2px; background-color:#ffffb3">Wings</th>
-                    <th colspan=3 style="border-width:2px; background-color:#ffffb3">Arms</th>
-                    <th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffffb3">Legs</th>
-                    <th colspan=3 style="border-width:2px; background-color:#ffe6ff" ; background-color:#ffe6ff";
-                        background-color:#ffe6ff"">Wings</th>
-                    <th colspan=3 style="border-width:2px; background-color:#ffe6ff" ; background-color:#ffe6ff"">Arms
-                    </th>
-                    <th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffe6ff"">Legs</th>
+					<th colspan=3 style="border-width:2px; background-color:#ffffb3">Arms</th>
+					<th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffffb3">Legs</th>
+					<th colspan=3 style="border-width:2px; background-color:#ffe6ff" ; background-color:#ffe6ff";
+						background-color:#ffe6ff"">Wings</th>
+					<th colspan=3 style="border-width:2px; background-color:#ffe6ff" ; background-color:#ffe6ff"">Arms
+					</th>
+					<th colspan=3 style="border-width:2px;border-right-width:3px; background-color:#ffe6ff"">Legs</th>
             </tr>
             <tr>
                 <th style=" border-bottom-width:3px; background-color:#ffffb3">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
-                    <th style="border-bottom-width:3px; background-color:#ffe6ff"">1</th>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+					<th style="border-bottom-width:3px; background-color:#ffe6ff"">1</th>
                 <th style=" border-bottom-width:3px; background-color:#ffe6ff"">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff"">3+</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff"">3+</th>
                 <th style=" border-bottom-width:3px; background-color:#ffe6ff"">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffe6ff"">2</th>
+					<th style="border-bottom-width:3px; background-color:#ffe6ff"">2</th>
                 <th style=" border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff"">3+</th>
-                    <th style="border-bottom-width:3px; background-color:#ffe6ff"">1</th>
+					<th style="border-bottom-width:3px; background-color:#ffe6ff"">1</th>
                 <th style=" border-bottom-width:3px; background-color:#ffe6ff"">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff"">3+</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff"">3+</th>
                 <th style=" border-bottom-width:3px; background-color:#ffffb3">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
-                    <th style="border-bottom-width:3px; background-color:#ffe6ff">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffe6ff">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff">3+</th>
-                    <th style="border-bottom-width:3px; background-color:#ffe6ff">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffe6ff">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff">3+</th>
-                    <th style="border-bottom-width:3px; background-color:#ffe6ff">1</th>
-                    <th style="border-bottom-width:3px; background-color:#ffe6ff">2</th>
-                    <th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff">3+</th>
-                </tr>
-            </thead>
-            <tbody id="hintBody"></tbody>
-    </div>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">1</th>
+					<th style="border-bottom-width:3px; background-color:#ffffb3">2</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffffb3">3+</th>
+					<th style="border-bottom-width:3px; background-color:#ffe6ff">1</th>
+					<th style="border-bottom-width:3px; background-color:#ffe6ff">2</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff">3+</th>
+					<th style="border-bottom-width:3px; background-color:#ffe6ff">1</th>
+					<th style="border-bottom-width:3px; background-color:#ffe6ff">2</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff">3+</th>
+					<th style="border-bottom-width:3px; background-color:#ffe6ff">1</th>
+					<th style="border-bottom-width:3px; background-color:#ffe6ff">2</th>
+					<th style="border-bottom-width:3px; border-right-width:3px; background-color:#ffe6ff">3+</th>
+				</tr>
+			</thead>
+			<tbody id="hintBody"></tbody>
+	</div>
 
-    <div id="reversalsDiv" style="display:block">
-        <table id="revsTable" style="margin-top: 30px;display:none">
-            <thead id="revsTableHead">
-                <tr id="revsHeaderRow">
-                    <th>
-                        Student
-                    </th>
-                    <th>
-                        Concept
-                    </th>
-                    <th>
-                        Reversals
-                    </th>
-                </tr>
-            </thead>
-            <tbody id="revsTableBody">
-            </tbody>
-        </table>
-    </div>
+	<div id="reversalsDiv" style="display:block">
+		<table id="revsTable" style="margin-top: 30px;display:none">
+			<thead id="revsTableHead">
+				<tr id="revsHeaderRow">
+					<th>
+						Student
+					</th>
+					<th>
+						Concept
+					</th>
+					<th>
+						Reversals
+					</th>
+				</tr>
+			</thead>
+			<tbody id="revsTableBody">
+			</tbody>
+		</table>
+	</div>
 
-    <div id="filter" style="margin-top: 10px;display:block;">
-        <p id="concepts" width=30% style="display:inline;float:left;margin:20px"></p>
-        <p id="teachers" width=20% style="display:inline;float:left;margin:20px"></p>
-        <p id="classes" width=20% style="display:inline;float:left;margin:20px"></p>
-        <p id="students" width=30% style="display:inline;float:left;margin:20px"></p>
-        <p id="activities" width=30% style="display:inline;float:left;margin:20px"></p>
-        <p id="events" width=30% style="display:inline;float:left;margin:20px"></p>
-        <p id="actions" width=30% style="display:inline;float:left;margin:20px"></p>
-        <p id="fields" width=30% style="display:inline;float:left;margin:20px"></p>
-    </div>
+	<div id="filter" style="margin-top: 10px;display:block;">
+		<p id="concepts" width=30% style="display:inline;float:left;margin:20px"></p>
+		<p id="teachers" width=20% style="display:inline;float:left;margin:20px"></p>
+		<p id="classes" width=20% style="display:inline;float:left;margin:20px"></p>
+		<p id="students" width=30% style="display:inline;float:left;margin:20px"></p>
+		<p id="activities" width=30% style="display:inline;float:left;margin:20px"></p>
+		<p id="events" width=30% style="display:inline;float:left;margin:20px"></p>
+		<p id="actions" width=30% style="display:inline;float:left;margin:20px"></p>
+		<p id="fields" width=30% style="display:inline;float:left;margin:20px"></p>
+	</div>
 
 
-    <div id="probDiv" style="margin-top: 30px; display:none;">
-        <table id="probTable" style="margin-top: 30px;display:block">
-            <thead>
-                <tr id="probHeaderRow">
-                    <th>
-                        Teacher
-                    </th>
-                    <th>
-                        Class ID
-                    </th>
-                    <th>
-                        Student ID
-                    </th>
-                    <th>
-                        Date
-                    </th>
-                    <th>
-                        Time
-                    </th>
-                    <th>
-                        Challenge
-                    </th>
-                    <th>
-                        Action index
-                    </th>
-                    <th>
-                        Prior action
-                    </th>
-                    <th>
-                        LG99.A
-                    </th>
-                    <th>
-                        LG1.P1
-                    </th>
-                    <th>
-                        LG1.P2
-                    </th>
-                    <th>
-                        LG1.A3
-                    </th>
-                    <th>
-                        LG1.C2a
-                    </th>
-                    <th>
-                        LG1.C2b
-                    </th>
-                    <th>
-                        LG1.C2c
-                    </th>
-                    <th>
-                        LG1.C2d
-                    </th>
-                    <th>
-                        LG1.C2e
-                    </th>
-                    <th>
-                        LG1.C3
-                    </th>
-                    <th>
-                        LG1.P3
-                    </th>
-                    <th>
-                        LG1.C4a
-                    </th>
-                    <th>
-                        LG1.C4b
-                    </th>
-                    <th>
-                        LG1.C4c
-                    </th>
-                    <th>
-                        LG1.C4d
-                    </th>
-                    <th>
-                        LG1.C4e
-                    </th>
-                    <th>
-                        LG2.P1
-                    </th>
-                    <th>
-                        LG3.P1
-                    </th>
-                    <th>
-                        LG3.P2
-                    </th>
-                    <th>
-                        LG3.P3
-                    </th>
-                    <th>
-                        LG3.P4
-                    </th>
-                </tr>
-            </thead>
-            <tbody id="probTableBody"></tbody>
-        </table>
-    </div>
+	<div id="probDiv" style="margin-top: 30px; display:none;">
+		<table id="probTable" style="margin-top: 30px;display:block">
+			<thead>
+				<tr id="probHeaderRow">
+					<th>
+						Teacher
+					</th>
+					<th>
+						Class ID
+					</th>
+					<th>
+						Student ID
+					</th>
+					<th>
+						Date
+					</th>
+					<th>
+						Time
+					</th>
+					<th>
+						Challenge
+					</th>
+					<th>
+						Action index
+					</th>
+					<th>
+						Prior action
+					</th>
+					<th>
+						LG99.A
+					</th>
+					<th>
+						LG1.P1
+					</th>
+					<th>
+						LG1.P2
+					</th>
+					<th>
+						LG1.A3
+					</th>
+					<th>
+						LG1.C2a
+					</th>
+					<th>
+						LG1.C2b
+					</th>
+					<th>
+						LG1.C2c
+					</th>
+					<th>
+						LG1.C2d
+					</th>
+					<th>
+						LG1.C2e
+					</th>
+					<th>
+						LG1.C3
+					</th>
+					<th>
+						LG1.P3
+					</th>
+					<th>
+						LG1.C4a
+					</th>
+					<th>
+						LG1.C4b
+					</th>
+					<th>
+						LG1.C4c
+					</th>
+					<th>
+						LG1.C4d
+					</th>
+					<th>
+						LG1.C4e
+					</th>
+					<th>
+						LG2.P1
+					</th>
+					<th>
+						LG3.P1
+					</th>
+					<th>
+						LG3.P2
+					</th>
+					<th>
+						LG3.P3
+					</th>
+					<th>
+						LG3.P4
+					</th>
+				</tr>
+			</thead>
+			<tbody id="probTableBody"></tbody>
+		</table>
+	</div>
 
-    <script>
-        //Hint tables and filter controls
-        var targetMatchTable = document.getElementById("targetMatchTable"),
-            targetMatchBody = document.getElementById("targetMatchBody"),
-            targetMatchCompTable = document.getElementById("targetMatchCompTable"),
-            targetMatchCompBody = document.getElementById("targetMatchCompBody"),
-            eggDropTable = document.getElementById("eggDropTable"),
-            eggDropBody = document.getElementById("eggDropBody"),
-            eggDropCompTable = document.getElementById("eggDropCompTable"),
-            eggDropCompBody = document.getElementById("eggDropCompBody"),
-            gameteTable = document.getElementById("gameteTable"),
-            gameteBody = document.getElementById("gameteBody"),
-            gameteCompTable = document.getElementById("gameteCompTable"),
-            gameteCompBody = document.getElementById("gameteCompBody"),
-            clutchTable = document.getElementById("clutchTable"),
-            clutchBody = document.getElementById("clutchBody"),
-            clutchCompTable = document.getElementById("clutchCompTable"),
-            clutchCompBody = document.getElementById("clutchCompBody"),
-            filterDiv = document.getElementById("filterDiv");
-        chalFilter1 = document.getElementById("chalFilter1"),
-            chalFilter2 = document.getElementById("chalFilter2"),
-            sliderTable = document.getElementById("sliderTable"),
-            maxSlider1 = document.getElementById("maxrange1"),
-            minSlider1 = document.getElementById("minrange1"),
-            maxOutput1 = document.getElementById("maxPara1"),
-            minOutput1 = document.getElementById("minPara1"),
-            maxSlider2 = document.getElementById("maxrange2"),
-            minSlider2 = document.getElementById("minrange2"),
-            maxOutput2 = document.getElementById("maxPara2"),
-            minOutput2 = document.getElementById("minPara2");
-        var graphDiv = document.getElementById("graphDiv");
-        maxSlider1.oninput = function () {
-            maxOutput1.innerHTML = "Cohort 1 maximum = " + this.value;
-        }
-        minSlider1.oninput = function () {
-            minOutput1.innerHTML = "Cohort 1 minimum = " + this.value;
-        }
-        maxSlider2.oninput = function () {
-            maxOutput2.innerHTML = "Cohort 2 maximum = " + this.value;
-        }
-        minSlider2.oninput = function () {
-            minOutput2.innerHTML = "Cohort 2 minimum = " + this.value;
-        }
-    </script>
-    <script src="test.js"></script>
-    <script src="biologica.js"></script>
-    <script src="parse-file.js"></script>
-    <script src="utils.js"></script>
-    <script src="sequences.js"></script>
-    <script src="papaparse.js"></script>
-    <script src="sequences.js"></script>
-    <script src="tracking.js"></script>
-    <script src="filter-functions.js"></script>
-    <script src="display-functions.js"></script>
-    <script src="graphs.js"></script>
-    <script src="concepts.js"></script>
-    <script src="targetmatch.js"></script>
-    <script src="eggdrop.js"></script>
-    <script src="clutch.js"></script>
-    <script src="gamete.js"></script>
-    <script src="classes.js"></script>
-    <script src="students.js"></script>
-    <script src="activities.js"></script>
-    <script src="events.js"></script>
-    <script src="actions.js"></script>
-    <script src="summaries.js"></script>
-    <script src="files.js"></script>
-    <script src="target-match-analysis.js"></script>
-    <script src="jquery.csv.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js">
-    </script>
+	<script>
+		//Hint tables and filter controls
+		var targetMatchTable = document.getElementById("targetMatchTable"),
+			targetMatchBody = document.getElementById("targetMatchBody"),
+			targetMatchCompTable = document.getElementById("targetMatchCompTable"),
+			targetMatchCompBody = document.getElementById("targetMatchCompBody"),
+			eggDropTable = document.getElementById("eggDropTable"),
+			eggDropBody = document.getElementById("eggDropBody"),
+			eggDropCompTable = document.getElementById("eggDropCompTable"),
+			eggDropCompBody = document.getElementById("eggDropCompBody"),
+			gameteTable = document.getElementById("gameteTable"),
+			gameteBody = document.getElementById("gameteBody"),
+			gameteCompTable = document.getElementById("gameteCompTable"),
+			gameteCompBody = document.getElementById("gameteCompBody"),
+			clutchTable = document.getElementById("clutchTable"),
+			clutchBody = document.getElementById("clutchBody"),
+			clutchCompTable = document.getElementById("clutchCompTable"),
+			clutchCompBody = document.getElementById("clutchCompBody"),
+			filterDiv = document.getElementById("filterDiv");
+		chalFilter1 = document.getElementById("chalFilter1"),
+			chalFilter2 = document.getElementById("chalFilter2"),
+			sliderTable = document.getElementById("sliderTable"),
+			maxSlider1 = document.getElementById("maxrange1"),
+			minSlider1 = document.getElementById("minrange1"),
+			maxOutput1 = document.getElementById("maxPara1"),
+			minOutput1 = document.getElementById("minPara1"),
+			maxSlider2 = document.getElementById("maxrange2"),
+			minSlider2 = document.getElementById("minrange2"),
+			maxOutput2 = document.getElementById("maxPara2"),
+			minOutput2 = document.getElementById("minPara2");
+		var graphDiv = document.getElementById("graphDiv");
+		maxSlider1.oninput = function () {
+			maxOutput1.innerHTML = "Cohort 1 maximum = " + this.value;
+		}
+		minSlider1.oninput = function () {
+			minOutput1.innerHTML = "Cohort 1 minimum = " + this.value;
+		}
+		maxSlider2.oninput = function () {
+			maxOutput2.innerHTML = "Cohort 2 maximum = " + this.value;
+		}
+		minSlider2.oninput = function () {
+			minOutput2.innerHTML = "Cohort 2 minimum = " + this.value;
+		}
+	</script>
+	<script src="test.js"></script>
+	<script src="biologica.js"></script>
+	<script src="parse-file.js"></script>
+	<script src="utils.js"></script>
+	<script src="sequences.js"></script>
+	<script src="papaparse.js"></script>
+	<script src="sequences.js"></script>
+	<script src="tracking.js"></script>
+	<script src="filter-functions.js"></script>
+	<script src="display-functions.js"></script>
+	<script src="graphs.js"></script>
+	<script src="concepts.js"></script>
+	<script src="targetmatch.js"></script>
+	<script src="eggdrop.js"></script>
+	<script src="clutch.js"></script>
+	<script src="gamete.js"></script>
+	<script src="classes.js"></script>
+	<script src="students.js"></script>
+	<script src="activities.js"></script>
+	<script src="events.js"></script>
+	<script src="actions.js"></script>
+	<script src="summaries.js"></script>
+	<script src="files.js"></script>
+	<script src="target-match-analysis.js"></script>
+	<script src="jquery.csv.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js">
+	</script>
 </body>
 
 </html>

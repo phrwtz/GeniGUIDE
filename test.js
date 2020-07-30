@@ -174,53 +174,49 @@ function compareSigNosig(evt) {
 	}
 }
 
-function inspectTrudiPrePost(evt) {
-	let files = evt.target.files;
-	file = files[0];
-	let reader = new FileReader();
-	reader.onloadend = (function (file) {
-		return function (e) {
-			let csvStr = e.target.result,
-				csvArr = Papa.parse(csvStr),
-				data = csvArr.data,
-				header = data[0],
-				sig = header[0],
-				field,
-				row,
-				trudiPreArr = [],
-				trudiPostArr = [],
-				trudiPreObj = {},
-				trudiPostObj = {},
-				trudiBothArr = [];
-			for (i = 1; i < data.length; i++) {
-				row = data[i];
-				stud = new Object;
-				for (j = 0; j < header.length; j++) {
-					field = header[j];
-					stud[field] = row[j]
-				}
-				if (stud.pre_UserID != '') {
-					trudiPreArr.push(stud);
-					trudiPreObj[stud.pre_UserID] = stud;
-				}
-				if (stud.post_UserID != '') {
-					trudiPostArr.push(stud);
-					trudiPostObj[stud.post_UserID] = stud;
+var trudiArr = [];
+var trudiObj = {};
+var trudiBoth = 0;
+
+var cohorts = [];
+
+function createPrePostArrays(evt) {
+	var fileCount = 0;
+	var files = evt.target.files; // FileList object
+	for (var i = 0, f;
+		(f = files[i]); i++) {
+		let reader = new FileReader();
+		reader.onloadend = (function (file) {
+			return function (e) {
+				fileCount++;
+				let csvStr = e.target.result,
+					csvArr = Papa.parse(csvStr),
+					data = csvArr.data,
+					cohort = data[0][0],
+					testType = data[0][15].split(' ')[1].split('-')[0].toLowerCase(),
+					header = data[1],
+					row, UserID;
+				for (let i = 2; i < data.length; i++) {
+					row = data[i];
+					UserID = data[i][5];
+					if (typeof (trudiObj[UserID]) != 'undefined') {
+						trudiBoth++;
+						stud = trudiObj[UserID];
+					} else {
+						stud = new Object;
+						stud.cohort = cohort;
+						stud.UserID = UserID;
+						for (let i = 9; i < header.length; i++) {
+							stud[header[i]] = row[i];
+						}
+					}
+					addAnswers(stud, row, header, testType);
+					scoreAnswers(stud, testType);
+					trudiArr.push(stud);
+					trudiObj[stud.UserID] = stud;
 				}
 			}
-			for (item of trudiPostArr) {
-				if (typeof trudiPreObj[item.pre_UserID] != 'undefined') {
-					trudiBothArr.push(item);
-					trudiStudentsObj[item.pre_UserID] = item;
-
-				}
-			}
-			console.log(`${trudiBothArr.length} students in all`);
-		}
-	})(file)
-	reader.readAsText(file);
-}
-
-function compareLastRuns() {
-
+		})(f);
+		reader.readAsText(f);
+	}
 }
