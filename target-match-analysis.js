@@ -1,6 +1,6 @@
 //Create a csv table that reports on the pre- and post-test scores and gains each student got and also on the challenge proficiency scores on the target match challenges and the various mean scores.
 
-function makeEnhancedTargetMatchChallengesFile() {
+function makeEnhancedTargetMatchChallengesFile(prepostStudentsObj) {
 	let tableStr,
 		testStr, //To be added to tableStr if student has completed all challenges. Starts with a <CR>
 		chalFound,

@@ -1,62 +1,57 @@
-function compareStudents(sig, sigObj, noSig, noSigObj, trudiArr, trudiObj) {
-	let sigButNotNoSig = [];
-	let noSigButNotSig = [];
-	let sigAndNoSig = [];
-	let neither = [];
-	let trudiButNotSig = [];
-	let trudiButNotNoSig = [];
-	let trudiAndSig = [];
-	let trudiAndNoSig = [];
-	let sigIds = [],
-		noSigIds = [],
-		trudiIds = [];
-	for (s of sig) {
-		sigIds.push(s.Student);
+function addPrePostToStudents(logStudentsObj, preArr, postArr) {
+	let logPrePostArr = [];
+	prePostArr = intersection(preArr, postArr);
+	for (stud of prePostArr) {
+		let id = stud.UserID;
+		if (typeof (logStudentsObj[id]) != 'undefined') {
+			let logStud = logStudentsObj[id];
+			logPrePostArr.push(logStud);
+		}
+		return logPrePostArr;
 	}
-	for (n of noSig) {
-		noSigIds.push(n.Student);
-	}
-	for (t of trudiArr) {
-		trudiIds.push(t['UserID']);
-	}
-
-	for (item of trudiArr) {
-		if ((noSigIds.includes(item['UserID'])) && !(sigIds.includes(item['UserID']))) {
-			noSigButNotSig.push(item);
-		}
-		if ((sigIds.includes(item['UserID'])) && !(noSigIds.includes(item['UserID']))) {
-			sigButNotNoSig.push(item);
-		}
-		if ((sigIds.includes(item['UserID'])) && (noSigIds.includes(item['UserID']))) {
-			sigAndNoSig.push(item);
-		}
-		if (!(sigIds.includes(item['UserID'])) && !(noSigIds.includes(item['UserID']))) {
-			neither.push(item);
-		}
-		if ((trudiIds.includes(item['UserID'])) && !(sigIds.includes(item['UserID']))) {
-			trudiButNotSig.push(item);
-		}
-		if ((trudiIds.includes(item['UserID'])) && (sigIds.includes(item['UserID']))) {
-			trudiAndSig.push(item);
-		}
-		if ((trudiIds.includes(item['UserID'])) && !(noSigIds.includes(item['UserID']))) {
-			trudiButNotNoSig.push(item);
-		}
-		if ((trudiIds.includes(item['UserID'])) && (noSigIds.includes(item['UserID']))) {
-			trudiAndNoSig.push(item);
-		}
-	}
-	console.log(`${sigAndNoSig.length} students are in the significant cohort and the insignificant one.`);
-	console.log(`${sigButNotNoSig.length} students are in the significant cohort but not in the insignificant one.`);
-	console.log(`${noSigButNotSig.length} students are in the insignificant cohort but not in the significant one.`);
-	console.log(`${neither.length} students are in neither the insignificant cohort nor the significant one.`);
-	console.log(`${trudiButNotSig.length} students are in the Trudi cohort but not in the significant one.`);
-	console.log(`${trudiAndSig.length} students are in the Trudi cohort and in the significant one.`);
-	console.log(`${trudiAndNoSig.length} students are in the Trudi cohort and in the insignificant one.`);
-	console.log(`${trudiButNotNoSig.length} students are in the Trudi cohort but not in the insignificant one.`);
-	testScoresEqual(sigObj, noSigObj, sigAndNoSig);
-	//findExtraTeachers(trudiObj, trudiButNoSig, noSigObj);
 }
+
+
+function compareStudents(arr1, obj2) {
+	const keyArr = ['UserID', '1', '2', '3', '4'];
+	let id,
+		matched = [],
+		unmatched = [],
+		prePostMatched = 0,
+		prePostUnmatched = 0,
+		noPrePostMatched = 0,
+		noPrePostUnmatched = 0;
+	for (i = 0; i < arr1.length; i++) {
+		stud1 = arr1[i];
+		id = stud1.id;
+		stud2 = obj2[id];
+		if (typeof (stud2) === 'undefined') {
+			unmatched.push(stud1);
+		} else {
+			matched.push(stud2);
+		}
+	}
+	console.log(`Out of ${arr1.length} students in the array, ${matched.length} matched a student in the object and ${unmatched.length} did not.`);
+	for (stud of matched) {
+		if ((stud.pre) && (stud.post)) {
+			prePostMatched++;
+		} else {
+			noPrePostMatched++;
+		}
+	}
+	for (stud of unmatched) {
+		if ((stud.pre) && (stud.post)) {
+			prePostUnmatched++;
+		} else {
+			noPrePostUnmatched++;
+		}
+	}
+	console.log(`${prePostMatched} of the matched students did the pre and post.`);
+	console.log(`${noPrePostMatched} of the matched students did not do the pre and post.`);
+	console.log(`${prePostUnmatched} of the unmatched students did the pre and post.`);
+	console.log(`${noPrePostUnmatched} of the unmatched students did not do the pre and post.`);
+}
+
 
 function findExtraTeachers(trudiObj, trudiButNoSig, noSigObj) {
 	let extras = [],
@@ -176,12 +171,13 @@ function compareSigNosig(evt) {
 
 var trudiArr = [];
 var trudiObj = {};
-var trudiBoth = 0;
-
-var cohorts = [];
+var recentArr = [];
+var recentObj = {};
 
 function createPrePostArrays(evt) {
 	var fileCount = 0;
+	var studArr = [];
+	var studObj = {};
 	var files = evt.target.files; // FileList object
 	for (var i = 0, f;
 		(f = files[i]); i++) {
@@ -193,28 +189,41 @@ function createPrePostArrays(evt) {
 					csvArr = Papa.parse(csvStr),
 					data = csvArr.data,
 					cohort = data[0][0],
-					testType = data[0][15].split(' ')[1].split('-')[0].toLowerCase(),
+					testType = data[0][1],
 					header = data[1],
-					row, UserID;
+					row, UserID, teacher;
 				for (let i = 2; i < data.length; i++) {
 					row = data[i];
 					UserID = data[i][5];
-					if (typeof (trudiObj[UserID]) != 'undefined') {
-						trudiBoth++;
-						stud = trudiObj[UserID];
+					teacher = data[i][7];
+					if (typeof (studObj[UserID]) != 'undefined') {
+						stud = studObj[UserID];
 					} else {
 						stud = new Object;
 						stud.cohort = cohort;
 						stud.UserID = UserID;
-						for (let i = 9; i < header.length; i++) {
-							stud[header[i]] = row[i];
-						}
+						stud.id = UserID;
+						stud.teacher = teacher;
 					}
-					addAnswers(stud, row, header, testType);
+					stud[testType] = true;
+					for (let i = 8; i < header.length; i++) {
+						stud[testType + '_' + header[i]] = row[i];
+					}
+					//		addAnswers(stud, row, header, testType);
 					scoreAnswers(stud, testType);
-					trudiArr.push(stud);
-					trudiObj[stud.UserID] = stud;
+					studArr.push(stud);
+					studObj[stud.UserID] = stud;
+					switch (cohort) {
+						case 'Trudi':
+							trudiArr.push(stud);
+							trudiObj[stud.UserID] = stud;
+							break;
+						case 'Recent':
+							recentArr.push(stud);
+							recentObj[stud.UserID] = stud;
+					}
 				}
+				console.log(`fileCount is ${fileCount},  testType = ${testType}.`)
 			}
 		})(f);
 		reader.readAsText(f);

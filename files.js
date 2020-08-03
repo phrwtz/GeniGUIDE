@@ -197,7 +197,7 @@ function addAnswers(student, row, header, testType) {
 	student[testType + '_lastRun'] = row[13];
 	for (i = 10; i < header.length; i++) {
 		try {
-			student[testType + '_' + header[i].split(':')[0]] = row[i];
+			student[testType + '_' + header[i]] = row[i];
 		} catch (err) {
 			console.log(err);
 		}
