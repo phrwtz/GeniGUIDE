@@ -8,9 +8,12 @@ function makeEnhancedTargetMatchChallengesFile(prepostStudentsObj) {
 		aggregates = {},
 		totalScore = 0,
 		visibleScore = 0,
-		hiddenScore = 0,
-		filteredOutStudents = [];
-		permissions = false;
+		hiddenScore = 0;
+	permissions = false;
+	let counted = 0,
+		uncounted = 0,
+		noPrePost = 0,
+		chalsMissing = 0;
 	tableStr = 'Teacher,Class,Student,Permission?, Pre-total,Pre-allele,Pre-protein,Post-total,Post-allele,Post-protein,Gain-total,Gain-allele,Gain-protein,Pre-lastRun,Post-lastRun,';
 	for (name of targetMatchArray) {
 		tableStr += name + ',';
@@ -37,6 +40,7 @@ function makeEnhancedTargetMatchChallengesFile(prepostStudentsObj) {
 					}
 				} //new challenge
 				if (chalFound) {
+					counted++;
 					tableStr += testStr;
 					tableStr += getMean("simpleDom", "visible", scores) + ',';
 					tableStr += getMean("simpleDom", "hidden", scores) + ',';
@@ -49,13 +53,19 @@ function makeEnhancedTargetMatchChallengesFile(prepostStudentsObj) {
 					tableStr += getMean("", "visible", scores) + ',';
 					tableStr += getMean("", "hidden", scores) + ',';
 					tableStr += getMean("", "", scores);
+				} else {
+					chalsMissing++;
+					uncounted++;
 				}
 			} else {
-				filteredOutStudents.push(n);
+				noPrePost++;
+				uncounted++;
 			}
 		}
 	} //next student
-	console.log(filteredOutStudents.length + 'students filtered out.');
+
+	console.log(`${counted} students were counted, ${noPrePost} students failed to complete the pre or post, and ${chalsMissing} didn't do all the challenges.`);
+	console.log(`${uncounted} students were not counted.`);
 	let fileName = prompt('Enter file name') + '_challenge_scores_with_means';
 	saveData()(tableStr, fileName);
 }

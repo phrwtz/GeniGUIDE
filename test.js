@@ -173,6 +173,8 @@ var trudiArr = [];
 var trudiObj = {};
 var recentArr = [];
 var recentObj = {};
+var researchArr = [];
+var researchObj = {};
 
 function createPrePostArrays(evt) {
 	var fileCount = 0;
@@ -221,6 +223,11 @@ function createPrePostArrays(evt) {
 						case 'Recent':
 							recentArr.push(stud);
 							recentObj[stud.UserID] = stud;
+							break;
+						case '2019':
+							researchArr.push(stud);
+							researchObj[stud.UserID] = stud;
+							break;
 					}
 				}
 				console.log(`fileCount is ${fileCount},  testType = ${testType}.`)
