@@ -1,7 +1,7 @@
-NCSUStudentsArr = [];
-NCSUStudentsObj = new Object();
+// NCSUStudentsArr = [];
+// NCSUStudentsObj = new Object();
 
-function openNCSUFile(evt) {
+/* function openNCSUFile(evt) {
     var fileCount = 0;
     var files = evt.target.files; // FileList object
     for (var i = 0, f;
@@ -31,7 +31,7 @@ function openNCSUFile(evt) {
         })(f);
         reader.readAsText(f);
     }
-}
+} */
 
 function compareFiles() {
     let matches = 0;

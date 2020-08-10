@@ -753,6 +753,116 @@ var recentArr = [];
 var recentObj = {};
 var researchArr = [];
 var researchObj = {};
+var ncsuArr = [];
+var ncsuObj = {};
+
+function openNCSUFile(evt) {
+	let file = evt.target.files[0];
+	let reader = new FileReader();
+	reader.onloadend = (function (file) {
+		return function (e) {
+			let csvStr = e.target.result,
+				csvArr = Papa.parse(csvStr),
+				data = csvArr.data,
+				cohort = data[0][0],
+				testType = data[0][1],
+				header = data[1],
+				row;
+			for (let i = 2; i < data.length; i++) {
+				stud = new Object;
+				row = data[i];
+				for (let j = 0; j < header.length; j++) {
+					stud[header[j]] = row[j];
+				}
+				ncsuArr.push(stud);
+				ncsuObj[stud.UserID] = stud;
+			}
+		}
+	})(file);
+	reader.readAsText(file);
+}
+
+function compareNCSU() {
+	let NCSUNotInResearch = [],
+		researchNotInNCSU = [],
+		ncsuPreScore, researchPreScore,
+		ncsuPostScore, researchPostScore,
+		noMatchPreArr = [],
+		noMatchPreObj = {},
+		matchPreArr = [],
+		matchPreObj = {},
+		noMatchPostArr = [],
+		noMatchPostObj = {},
+		matchPostArr = [],
+		matchPostObj = {},
+		id,
+		doubleNcsuIds = [];
+
+	for (ncsuStudent of ncsuArr) {
+		if (typeof researchObj[ncsuStudent.UserID] === 'undefined') {
+			NCSUNotInResearch.push(ncsuStudent);
+		} else {
+			id = ncsuStudent.UserID;
+			researchStudent = researchObj[id]
+			ncsuPreScore = ncsuStudent.pre_total;
+			ncsuPostScore = ncsuStudent.post_total;
+			researchPreScore = researchStudent.pre_total_score;
+			researchPostScore = researchStudent.post_total_score;
+
+			if (Math.abs(ncsuPreScore - researchPreScore) > 1) {
+				noMatchPreArr.push(ncsuStudent);
+				noMatchPreObj[id] = ncsuStudent
+			} else {
+				matchPreArr.push(ncsuStudent);
+				matchPreObj[id] = ncsuStudent
+			}
+
+			if (Math.abs(ncsuPostScore - researchPostScore) > 1) {
+				noMatchPostArr.push(ncsuStudent);
+				noMatchPostObj[id] = ncsuStudent
+			} else {
+				matchPostArr.push(ncsuStudent);
+				matchPostObj[id] = ncsuStudent
+			}
+		}
+	}
+	console.log(`There are ${researchArr.length} students in the research cohort of whom ${researchNotInNCSU.length} are not in the NCSU cohort.`);
+	console.log(`There are ${ncsuArr.length} students in the NCSU cohort of whom ${NCSUNotInResearch.length} are not in the research cohort.`);
+	console.log(`There are ${noMatchPreArr.length} students in both cohorts whose pre-test scores don't match.`);
+	console.log(`There are ${matchPreArr.length} students in both cohorts whose pre-test scores match.`);
+	console.log(`There are ${noMatchPostArr.length} students in both cohorts whose post-test scores don't match.`);
+	console.log(`There are ${matchPostArr.length} students in both cohorts whose post-test scores match.`);
+	let teachersNoMatch = [];
+	let diffTeacher = 0,
+		diffStudent = 0,
+		diffLearner = 0;
+	for (item of noMatchPreArr) {
+		id = item.UserID;
+		r = researchObj[id];
+		n = ncsuObj[id];
+		if (r.teacher != n.Teacher) {
+			teachersNoMatch.push(id);
+			diffTeacher++;
+	//		console.log(`Research student ${id} has teacher ${r.teacher}, NCSU student has ${n.Teacher}!`);
+		}
+
+		if (r.learnerID	 != n['Learner ID']) {
+			teachersNoMatch.push(id);
+			diffLearner++;
+	//		console.log(`Research student ${id} has learner id ${r.learnerID}, NCSU student has ${n['Learner ID']}!`);
+		}
+
+		if (r.studentID != n['Student ID']) {
+			teachersNoMatch.push(id);
+			diffStudent++;
+//			console.log(`Research student ${id} has student id ${r.studentID}, NCSU student has ${n['Student ID']}!`);
+		}
+	}
+	console.log(`${diffTeacher} students have different teachers.`);
+	console.log(`${diffStudent} students have different student ids.`);
+	console.log(`${diffLearner} students have different learner ids.`);
+	console.log('That\'s it so far!');
+}
 
 function createPrePostArrays(evt) {
 	var fileCount = 0;
@@ -771,18 +881,23 @@ function createPrePostArrays(evt) {
 					cohort = data[0][0],
 					testType = data[0][1],
 					header = data[1],
-					row, UserID, teacher;
+					row, studentID, learnerID, UserID, teacher;
 				for (let i = 2; i < data.length; i++) {
 					row = data[i];
-					UserID = data[i][5];
-					teacher = data[i][7];
+					studentID = row[0];
+					learnerID = row[1];
+					UserID = row[5];
+					teacher = row[7];
 					if (typeof (studObj[UserID]) != 'undefined') {
 						stud = studObj[UserID];
 					} else {
 						stud = new Object;
+						studArr.push(stud);
 						stud.cohort = cohort;
 						stud.UserID = UserID;
 						stud.id = UserID;
+						stud.studentID = studentID;
+						stud.learnerID = learnerID;
 						stud.teacher = teacher;
 					}
 					stud[testType] = true;
@@ -791,23 +906,22 @@ function createPrePostArrays(evt) {
 					}
 					//		addAnswers(stud, row, header, testType);
 					scoreAnswers(stud, testType);
-					studArr.push(stud);
 					studObj[stud.UserID] = stud;
 					switch (cohort) {
 						case 'Trudi':
-							trudiArr.push(stud);
 							trudiObj[stud.UserID] = stud;
 							break;
 						case 'Recent':
-							recentArr.push(stud);
 							recentObj[stud.UserID] = stud;
 							break;
 						case '2019':
-							researchArr.push(stud);
 							researchObj[stud.UserID] = stud;
 							break;
 					}
 				}
+				trudiArr = Object.values(trudiObj);
+				recentArr = Object.values(recentObj);
+				researchArr = Object.values(researchObj);
 				console.log(`fileCount is ${fileCount},  testType = ${testType}, teacher is ${stud.teacher}`)
 			}
 		})(f);
